@@ -211,14 +211,14 @@ export function BaseAppProfileView(props) {
     ...storedVaults,
     ...claimRoundIds,
     ...liveRoundIds,
-    ...(isAdmin ? [1, 2, 3, 4, 5] : [])
+    ...(isAdmin ? [1, 2, 3, 4, 5, 6] : [])
   ]);
 
   if (address && allParticipatedRoundIds.size > 0) {
     saveParticipatedVaults(address, Array.from(allParticipatedRoundIds));
   }
 
-  const totalStakingEpochs = STAKING_VAULTS_INFO.filter(v => allParticipatedRoundIds.has(v.roundId)).length || (isAdmin ? 5 : allParticipatedRoundIds.size);
+  const totalStakingEpochs = STAKING_VAULTS_INFO.filter(v => allParticipatedRoundIds.has(v.roundId)).length || (isAdmin ? 6 : allParticipatedRoundIds.size);
 
   // Maximum deposit amount into any single vault (in whole VIBE tokens) - permanently latched
   const liveMaxDeposit = (stakingStats?.participationByVault || []).reduce((max, p) => {
