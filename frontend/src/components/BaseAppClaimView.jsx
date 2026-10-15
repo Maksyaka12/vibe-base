@@ -111,6 +111,8 @@ export function BaseAppClaimView(props) {
     currentTime,
     claimStatus,
     claimedHistory = [],
+    totalExpiredCount = 0,
+    totalExpiredTokens = 0,
     handleClaim,
     isHolderEligibleLive,
     holderRewardAmount,
@@ -244,9 +246,10 @@ export function BaseAppClaimView(props) {
           sub={`${claimedHistory?.length || 0} completed payouts`}
         />
         <Tile
-          label="Estimated gas"
-          value="~0.0001 ETH"
-          sub="Ultra-low gas on Base L2"
+          label="Expired claims"
+          value={`${Math.round(totalExpiredTokens).toLocaleString('en-US')} $VIBE`}
+          sub={`${totalExpiredCount} ${totalExpiredCount === 1 ? 'reward' : 'rewards'} missed`}
+          className={totalExpiredCount > 0 ? 'tile-danger' : ''}
         />
       </div>
 

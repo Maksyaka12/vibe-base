@@ -233,7 +233,7 @@ export function BaseAppView({ RewardsComponent }) {
                 <div style={{ maxWidth: '1040px', margin: '0 auto', padding: '0 14px' }}>
                   <PageHeader
                     title="Tokenomics"
-                    description="Fair launch with zero team allocations, deflationary buybacks, and community vesting"
+                    description="Fair launch with zero team allocations, deflationary buybacks, and community rewards"
                   />
                   <TokenomicsPage isBaseAppMode={true} />
                 </div>

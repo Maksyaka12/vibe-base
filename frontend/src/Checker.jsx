@@ -1173,6 +1173,10 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
   const availableVibeClubCount = (activeRoyaltyAvailable && hasConfirmedRoyaltyClaim) ? 1 : 0;
   const totalAvailableCount = availableHolderCount + availableVibeClubCount;
 
+  // Rewards the wallet was eligible for but did not claim before the window closed
+  const totalExpiredCount = (Boolean(address && isVibeClubRoyalty3Ended && !isVibeClubRoyalty3Claimed && royalty3Data?.claims?.[address.toLowerCase()]) ? 1 : 0) + (Boolean(address && isVibeClubRoyalty2Ended && !isVibeClubRoyalty2Claimed && royalty2Data?.claims?.[address.toLowerCase()]) ? 1 : 0) + (Boolean(address && isVibeClubRoyalty1Ended && !isVibeClubRoyalty1Claimed && royalty1Data?.claims?.[address.toLowerCase()]) ? 1 : 0) + (Boolean(address && isHolderRound1Ended && !isHolderRound1Claimed && round1Data?.claims?.[address.toLowerCase()]) ? 1 : 0);
+  const totalExpiredTokens = (Boolean(address && isVibeClubRoyalty3Ended && !isVibeClubRoyalty3Claimed && royalty3Data?.claims?.[address.toLowerCase()]) ? (royalty3Data.claims[address.toLowerCase()].amount || 18018) : 0) + (Boolean(address && isVibeClubRoyalty2Ended && !isVibeClubRoyalty2Claimed && royalty2Data?.claims?.[address.toLowerCase()]) ? (royalty2Data.claims[address.toLowerCase()].amount || 17117) : 0) + (Boolean(address && isVibeClubRoyalty1Ended && !isVibeClubRoyalty1Claimed && royalty1Data?.claims?.[address.toLowerCase()]) ? (royalty1Data.claims[address.toLowerCase()].amount || 22935) : 0) + (Boolean(address && isHolderRound1Ended && !isHolderRound1Claimed && round1Data?.claims?.[address.toLowerCase()]) ? (round1Data.claims[address.toLowerCase()].amount || 126127) : 0);
+
   // Next Upcoming Unlocks to Display
   const upcomingHolderRound = (isHolderRound2Live || isHolderRound2Ended) ? HOLDER_ROUNDS[2] : ((isHolderRound1Live || isHolderRound1Ended) ? HOLDER_ROUNDS[1] : HOLDER_ROUNDS[0]);
   const upcomingVibeClubRound = isVibeClubRoyalty5Live || isVibeClubRoyalty5Ended
@@ -1674,12 +1678,14 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
               isHolderEligibleLive={isHolderEligibleLive}
               totalAvailableCount={totalAvailableCount}
               totalAvailableTokens={((activeHolderAvailable && hasConfirmedHolderClaim) ? (holderRewardAmount || 0) : 0) + ((activeRoyaltyAvailable && hasConfirmedRoyaltyClaim) ? (vibeClubRewardAmount || 0) : 0)}
-              totalExpiredCount={(Boolean(address && isVibeClubRoyalty3Ended && !isVibeClubRoyalty3Claimed && royalty3Data?.claims?.[address.toLowerCase()]) ? 1 : 0) + (Boolean(address && isVibeClubRoyalty2Ended && !isVibeClubRoyalty2Claimed && royalty2Data?.claims?.[address.toLowerCase()]) ? 1 : 0) + (Boolean(address && isVibeClubRoyalty1Ended && !isVibeClubRoyalty1Claimed && royalty1Data?.claims?.[address.toLowerCase()]) ? 1 : 0) + (Boolean(address && isHolderRound1Ended && !isHolderRound1Claimed && round1Data?.claims?.[address.toLowerCase()]) ? 1 : 0)}
-              totalExpiredTokens={(Boolean(address && isVibeClubRoyalty3Ended && !isVibeClubRoyalty3Claimed && royalty3Data?.claims?.[address.toLowerCase()]) ? (royalty3Data.claims[address.toLowerCase()].amount || 18018) : 0) + (Boolean(address && isVibeClubRoyalty2Ended && !isVibeClubRoyalty2Claimed && royalty2Data?.claims?.[address.toLowerCase()]) ? (royalty2Data.claims[address.toLowerCase()].amount || 17117) : 0) + (Boolean(address && isVibeClubRoyalty1Ended && !isVibeClubRoyalty1Claimed && royalty1Data?.claims?.[address.toLowerCase()]) ? (royalty1Data.claims[address.toLowerCase()].amount || 22935) : 0) + (Boolean(address && isHolderRound1Ended && !isHolderRound1Claimed && round1Data?.claims?.[address.toLowerCase()]) ? (round1Data.claims[address.toLowerCase()].amount || 126127) : 0)}
+              totalExpiredCount={totalExpiredCount}
+              totalExpiredTokens={totalExpiredTokens}
             />
           ) : (
             <BaseAppClaimView
               address={address}
+              totalExpiredCount={totalExpiredCount}
+              totalExpiredTokens={totalExpiredTokens}
               ready={ready}
               authenticated={authenticated}
               login={login}

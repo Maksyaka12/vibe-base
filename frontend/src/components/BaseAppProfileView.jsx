@@ -535,7 +535,7 @@ export function BaseAppProfileView(props) {
               <div className="o1-reward-tile">
                 <div className="o1-reward-tile-header">
                   <span className="o1-reward-tile-label">Expired claims</span>
-                  <Clock size={16} color={totalExpiredCount > 0 ? 'var(--danger)' : 'var(--text-3)'} />
+                  <Clock size={16} color={totalExpiredCount > 0 ? 'var(--red)' : 'var(--text-3)'} />
                 </div>
                 <div className={`o1-reward-tile-value ${totalExpiredCount > 0 ? 'danger' : 'neutral'}`}>
                   {totalExpiredTokens > 0 ? Math.round(totalExpiredTokens).toLocaleString('en-US') : '0'} $VIBE

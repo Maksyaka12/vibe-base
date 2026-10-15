@@ -176,7 +176,7 @@
 }
 
 .o1-reward-tile-value.danger {
-  color: var(--danger);
+  color: var(--red);
 }
 
 .o1-reward-tile-value.neutral {

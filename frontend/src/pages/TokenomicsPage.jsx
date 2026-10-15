@@ -222,7 +222,7 @@ export default function TokenomicsPage({ isBaseAppMode = false }) {
             icon={Users}
           />
           <Card style={{ padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '8px' }}>
-            <span style={{ fontSize: '12px', color: 'var(--text-3)', fontWeight: 500 }}>Verified address</span>
+            <span style={{ fontSize: '12px', color: 'var(--text-3)', fontWeight: 500 }}>Community pool address</span>
             <a
               href="https://basescan.org/token/0xb200000000000000000000df24ecb8bf51100a01?a=0x067c66aDdD3C6D484c1882B68E197B614f7f3Ebf#transactions"
               target="_blank"
@@ -239,7 +239,6 @@ export default function TokenomicsPage({ isBaseAppMode = false }) {
             >
               0x067c...3Ebf <ArrowUpRight size={13} />
             </a>
-            <span style={{ fontSize: '11px', color: 'var(--text-3)' }}>Onchain transaction logs</span>
           </Card>
         </div>
 
@@ -263,7 +262,7 @@ export default function TokenomicsPage({ isBaseAppMode = false }) {
                 <div className="o1-tokenomics-item-content">
                   <span className="o1-tokenomics-item-title">30% Permanent burn</span>
                   <span className="o1-tokenomics-item-desc">
-                    Sent directly to the dead burn address on Base, continuously reducing total circulating supply.
+                    Sent to the burn address, continuously reducing total supply.
                   </span>
                 </div>
               </div>
@@ -450,7 +449,7 @@ export default function TokenomicsPage({ isBaseAppMode = false }) {
                 <div className="o1-tokenomics-item-content">
                   <span className="o1-tokenomics-item-title">20% Community rewards pool</span>
                   <span className="o1-tokenomics-item-desc">
-                    Transferred directly into the community reward balance for ongoing epoch payouts.
+                    Transferred into the community reward pool for ongoing epoch payouts.
                   </span>
                 </div>
               </div>
