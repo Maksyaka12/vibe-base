@@ -207,47 +207,57 @@ export function BaseAppView({ RewardsComponent }) {
           {/* View Content: Buy, Claim, Profile, Vibe Club, Tokenomics, Contracts, Rewards Hub */}
           <main style={{ flex: 1, paddingBottom: isDesktop ? '40px' : '90px' }}>
             {activeTab === 'buy' ? (
-              <div className="o1-swap-container" style={{ padding: '0 14px' }}>
-                <PageHeader
-                  title="Swap"
-                  description="Instant decentralized exchange on Base L2 via optimal liquidity routing"
-                />
-                <DeFiVibePanel />
-              </div>
+              <section style={{ padding: '24px 0 60px 0' }}>
+                <div style={{ maxWidth: '480px', margin: '0 auto', padding: '0 14px' }}>
+                  <PageHeader
+                    title="Swap"
+                    description="Instant decentralized exchange on Base L2 via optimal liquidity routing"
+                  />
+                  <DeFiVibePanel />
+                </div>
+              </section>
             ) : (activeTab === 'claim' || activeTab === 'profile') ? (
               <Checker isBaseAppMode={true} isProfileMode={activeTab === 'profile'} />
             ) : activeTab === 'vibeclub' ? (
-              <div className="o1-nft-page-container" style={{ padding: '0 14px' }}>
-                <PageHeader
-                  title="Vibe Club NFT"
-                  description="Exclusive 333 genesis membership pass on Base with lifetime royalty dividends"
-                />
-                <NftClubPage isEmbeddedInBaseApp={true} />
-              </div>
+              <section style={{ padding: '24px 0 60px 0' }}>
+                <div style={{ maxWidth: '1040px', margin: '0 auto', padding: '0 14px' }}>
+                  <PageHeader
+                    title="Vibe Club NFT"
+                    description="Exclusive 333 genesis membership pass on Base with lifetime royalty dividends"
+                  />
+                  <NftClubPage isEmbeddedInBaseApp={true} />
+                </div>
+              </section>
             ) : activeTab === 'tokenomics' ? (
-              <div className="o1-tokenomics-page-wrapper" style={{ padding: '0 14px' }}>
-                <PageHeader
-                  title="Tokenomics"
-                  description="Fair launch with zero team allocations, deflationary buybacks, and community vesting"
-                />
-                <TokenomicsPage isBaseAppMode={true} />
-              </div>
+              <section style={{ padding: '24px 0 60px 0' }}>
+                <div style={{ maxWidth: '1040px', margin: '0 auto', padding: '0 14px' }}>
+                  <PageHeader
+                    title="Tokenomics"
+                    description="Fair launch with zero team allocations, deflationary buybacks, and community vesting"
+                  />
+                  <TokenomicsPage isBaseAppMode={true} />
+                </div>
+              </section>
             ) : activeTab === 'contracts' ? (
-              <div className="o1-contracts-page-wrapper" style={{ padding: '0 14px' }}>
-                <PageHeader
-                  title="Official addresses"
-                  description="Verified smart contracts and operational protocol addresses on Base"
-                />
-                <ContractsPage isBaseAppMode={true} />
-              </div>
+              <section style={{ padding: '24px 0 60px 0' }}>
+                <div style={{ maxWidth: '1040px', margin: '0 auto', padding: '0 14px' }}>
+                  <PageHeader
+                    title="Official addresses"
+                    description="Verified smart contracts and operational protocol addresses on Base"
+                  />
+                  <ContractsPage isBaseAppMode={true} />
+                </div>
+              </section>
             ) : activeTab === 'admin' ? (
-              <div className="o1-admin-page-wrapper" style={{ padding: '0 14px' }}>
-                <PageHeader
-                  title="Admin controls"
-                  description="Merkle root publishers, distributor controls, and NFT contract operations"
-                />
-                <BaseAppAdminView />
-              </div>
+              <section style={{ padding: '24px 0 60px 0' }}>
+                <div style={{ maxWidth: '1040px', margin: '0 auto', padding: '0 14px' }}>
+                  <PageHeader
+                    title="Admin controls"
+                    description="Merkle root publishers, distributor controls, and NFT contract operations"
+                  />
+                  <BaseAppAdminView />
+                </div>
+              </section>
             ) : (
               RewardsComponent ? <RewardsComponent isBaseAppMode={true} /> : null
             )}

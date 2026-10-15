@@ -44,7 +44,8 @@
   /* Type */
   --font-sans:  "Inter", "Geist", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono:  "JetBrains Mono", "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
-  --font-brand: "Press Start 2P", monospace; /* ONLY the "$VIBE HUB" wordmark */
+  --font-brand: var(--font-sans);
+  --mono:       var(--font-mono);
 
   /* Legacy aliases - keep old components working while they are migrated.
      Remove once nothing references them. */

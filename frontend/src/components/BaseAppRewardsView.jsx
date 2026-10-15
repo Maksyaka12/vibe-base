@@ -230,7 +230,7 @@ export default function BaseAppRewardsView({
               </a>
             }
           >
-            Hold at least 5,000,000 $VIBE at the scheduled snapshot block to participate in holder reward distributions.
+            Hold 5M+ $VIBE at snapshot time to share the rewards pool.
           </Alert>
 
           {featuredHolder && (
@@ -358,7 +358,7 @@ export default function BaseAppRewardsView({
               </Link>
             }
           >
-            Hold at least 1 Vibe Club NFT at snapshot block to receive recurring royalty distributions.
+            Hold Vibe Club NFT at snapshot time to share royalty pool.
           </Alert>
 
           {featuredVibeClub && (
@@ -366,7 +366,7 @@ export default function BaseAppRewardsView({
               <div className="o1-hub-featured-head">
                 <div className="o1-hub-featured-title-wrap">
                   <div className="o1-hub-featured-icon">
-                    <img src="/nft/images/5.png" alt="NFT" />
+                    <img src="/new-logo-vibe.png" alt="VIBE" />
                   </div>
                   <div>
                     <div className="o1-hub-featured-name">{featuredVibeClub.epoch}</div>
@@ -487,7 +487,7 @@ export default function BaseAppRewardsView({
               </a>
             }
           >
-            Stake $VIBE on o1 Exchange to earn fixed rewards every 10-day epoch with zero impermanent loss.
+            Stake $VIBE in active vault on o1 exchange to earn passive yield.
           </Alert>
 
           {featuredStaking && (
@@ -591,7 +591,7 @@ export default function BaseAppRewardsView({
       {currentTab === 'giveaways' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <Alert tone="info" icon={<Info size={16} />}>
-            Participate in community giveaways and seasonal quests to earn $VIBE rewards.
+            Community giveaways distributed directly to eligible winners.
           </Alert>
 
           {activeGiveaways.length > 0 && (

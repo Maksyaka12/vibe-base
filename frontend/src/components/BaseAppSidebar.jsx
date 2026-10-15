@@ -240,11 +240,11 @@ export function BaseAppSidebar({
                   <span
                     className="vh-brand"
                     style={{
-                      fontFamily: 'var(--font-brand)',
-                      fontSize: '15px',
-                      fontWeight: 700,
+                      fontFamily: 'var(--font-sans)',
+                      fontSize: '16px',
+                      fontWeight: 800,
                       color: 'var(--text)',
-                      letterSpacing: '0.02em',
+                      letterSpacing: '-0.02em',
                       whiteSpace: 'nowrap'
                     }}
                   >

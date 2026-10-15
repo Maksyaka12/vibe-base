@@ -322,7 +322,7 @@ export default function NftClubPage({ isEmbeddedInBaseApp = false } = {}) {
 
             <div className="o1-nft-stat-row">
               <span className="o1-nft-stat-label">Price in $VIBE</span>
-              <span className="o1-nft-stat-val" style={{ color: 'var(--accent)' }}>
+              <span className="o1-nft-stat-val" style={{ color: 'var(--accent)', fontSize: '14px', fontWeight: 600 }}>
                 {formatVibeComma(currentDynamicVibeAmount)}
               </span>
             </div>
@@ -345,7 +345,9 @@ export default function NftClubPage({ isEmbeddedInBaseApp = false } = {}) {
 
             <div className="o1-nft-stat-row">
               <span className="o1-nft-stat-label">Total burned by mint</span>
-              <span className="o1-nft-stat-val">{formatVibeComma(totalVibeBurnedByContract)}</span>
+              <span className="o1-nft-stat-val" style={{ color: 'var(--amber)', fontSize: '14px', fontWeight: 600 }}>
+                {formatVibeComma(totalVibeBurnedByContract)}
+              </span>
             </div>
 
             {/* Wallet balances */}

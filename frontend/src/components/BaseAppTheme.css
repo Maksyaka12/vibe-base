@@ -58,8 +58,7 @@ html, body {
   box-sizing: border-box !important;
 }
 
-/* The ONLY pixel text: the wordmark */
-.base-app-pixel-theme .vh-brand { font-family: var(--font-brand) !important; }
+.base-app-pixel-theme .vh-brand { font-family: var(--font-sans) !important; font-weight: 800 !important; letter-spacing: -0.02em !important; }
 
 .base-app-pixel-theme .num,
 .base-app-pixel-theme .mono { font-family: var(--font-mono) !important; }

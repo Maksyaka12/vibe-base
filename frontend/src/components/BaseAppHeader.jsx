@@ -73,9 +73,10 @@ export function BaseAppHeader({ onOpenSidebar, isDesktop = false }) {
             <span
               className="vh-brand"
               style={{
-                fontFamily: 'var(--font-brand)',
-                fontSize: '13px',
-                fontWeight: 700,
+                fontFamily: 'var(--font-sans)',
+                fontSize: '15px',
+                fontWeight: 800,
+                letterSpacing: '-0.02em',
                 color: 'var(--text)'
               }}
             >
