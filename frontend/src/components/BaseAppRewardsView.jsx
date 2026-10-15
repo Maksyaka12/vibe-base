@@ -62,7 +62,10 @@ const stripYear = (str) => {
 
 const formatStakingDates = (ep) => `${stripYear(ep.startTime)} – ${stripYear(ep.endTime)}`;
 
-const formatStakingPool = (ep) => (ep.poolAmount && ep.poolAmount !== 'TBA' ? `${ep.poolAmount} $VIBE` : 'TBA');
+const formatPool = (amount) => {
+  if (!amount || amount === 'TBA') return 'TBA';
+  return amount.includes('$VIBE') ? amount : `${amount} $VIBE`;
+};
 
 const getEpochStatus = (ep,currentTime = new Date()) => {
   const current = currentTime instanceof Date ? currentTime : new Date(currentTime);
@@ -329,8 +332,8 @@ export default function BaseAppRewardsView({
                 {upcomingHolders.map((u, idx) => (
                   <div key={idx} className="o1-schedule-row">
                     <div className="o1-schedule-col-name">{u.unlock}</div>
-                    <div className="o1-schedule-col-date">{stripYear(u.date)}</div>
-                    <div className="o1-schedule-col-amount">{u.poolAmount} $VIBE</div>
+                    <div className="o1-schedule-col-date">{stripYear(u.unlockDate)}</div>
+                    <div className="o1-schedule-col-amount">{formatPool(u.poolAmount)}</div>
                     <div className="o1-schedule-col-status">
                       <StatusPill status="Locked" tone="neutral" />
                     </div>
@@ -354,8 +357,8 @@ export default function BaseAppRewardsView({
                 {otherEndedHolders.map((u, idx) => (
                   <div key={idx} className="o1-schedule-row">
                     <div className="o1-schedule-col-name">{u.unlock}</div>
-                    <div className="o1-schedule-col-date">{stripYear(u.date)}</div>
-                    <div className="o1-schedule-col-amount">{u.poolAmount} $VIBE</div>
+                    <div className="o1-schedule-col-date">{stripYear(u.unlockDate)}</div>
+                    <div className="o1-schedule-col-amount">{formatPool(u.poolAmount)}</div>
                     <div className="o1-schedule-col-status">
                       <StatusPill status="Completed" tone="success" />
                     </div>
@@ -481,8 +484,8 @@ export default function BaseAppRewardsView({
                 {upcomingVibeClubs.map((u, idx) => (
                   <div key={idx} className="o1-schedule-row">
                     <div className="o1-schedule-col-name">{u.epoch}</div>
-                    <div className="o1-schedule-col-date">{stripYear(u.date)}</div>
-                    <div className="o1-schedule-col-amount">{u.poolAmount} $VIBE</div>
+                    <div className="o1-schedule-col-date">{stripYear(u.claimDate)}</div>
+                    <div className="o1-schedule-col-amount">{formatPool(u.poolAmount)}</div>
                     <div className="o1-schedule-col-status">
                       <StatusPill status="Locked" tone="neutral" />
                     </div>
@@ -506,8 +509,8 @@ export default function BaseAppRewardsView({
                 {otherEndedVibeClubs.map((u, idx) => (
                   <div key={idx} className="o1-schedule-row">
                     <div className="o1-schedule-col-name">{u.epoch}</div>
-                    <div className="o1-schedule-col-date">{stripYear(u.date)}</div>
-                    <div className="o1-schedule-col-amount">{u.poolAmount} $VIBE</div>
+                    <div className="o1-schedule-col-date">{stripYear(u.claimDate)}</div>
+                    <div className="o1-schedule-col-amount">{formatPool(u.poolAmount)}</div>
                     <div className="o1-schedule-col-status">
                       <StatusPill status="Completed" tone="success" />
                     </div>
@@ -569,7 +572,7 @@ export default function BaseAppRewardsView({
               <div className="o1-hub-tiles-3">
                 <Tile
                   label="Epoch pool"
-                  value={formatStakingPool(featuredStaking)}
+                  value={formatPool(featuredStaking.poolAmount)}
                   sub="Proportional rewards for stakers"
                 />
                 <Tile
@@ -616,7 +619,7 @@ export default function BaseAppRewardsView({
                     <div key={idx} className="o1-schedule-row">
                       <div className="o1-schedule-col-name">{e.epoch}</div>
                       <div className="o1-schedule-col-date">{formatStakingDates(e)}</div>
-                      <div className="o1-schedule-col-amount">{formatStakingPool(e)}</div>
+                      <div className="o1-schedule-col-amount">{formatPool(e.poolAmount)}</div>
                       <div className="o1-schedule-col-status">
                         <a
                           href={e.link || O1_STAKING_VAULT}
@@ -658,7 +661,7 @@ export default function BaseAppRewardsView({
                   <div key={idx} className="o1-schedule-row">
                     <div className="o1-schedule-col-name">{e.epoch}</div>
                     <div className="o1-schedule-col-date">{formatStakingDates(e)}</div>
-                    <div className="o1-schedule-col-amount">{formatStakingPool(e)}</div>
+                    <div className="o1-schedule-col-amount">{formatPool(e.poolAmount)}</div>
                     <div className="o1-schedule-col-status">
                       <Button
                         as="a"

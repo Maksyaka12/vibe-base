@@ -130,6 +130,10 @@
   font-variant-numeric: tabular-nums;
 }
 
+.o1-nft-stat-val-accent {
+  color: var(--accent);
+}
+
 .o1-nft-progress-box {
   display: flex;
   flex-direction: column;

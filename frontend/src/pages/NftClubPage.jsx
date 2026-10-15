@@ -322,7 +322,7 @@ export default function NftClubPage({ isEmbeddedInBaseApp = false } = {}) {
 
             <div className="o1-nft-stat-row">
               <span className="o1-nft-stat-label">Price in $VIBE</span>
-              <span className="o1-nft-stat-val" style={{ color: 'var(--accent)', fontSize: '14px', fontWeight: 600 }}>
+              <span className="o1-nft-stat-val o1-nft-stat-val-accent">
                 {formatVibeComma(currentDynamicVibeAmount)}
               </span>
             </div>
