@@ -169,10 +169,10 @@ export function BaseAppSidebar({
         }}
       >
         <div style={{ display: 'flex', flexDirection: 'column' }}>
-          {/* Header (height 64): logo avatar 28px radius 8 + wordmark "$VIBE HUB" in --font-brand 16px + collapse toggle */}
+          {/* Header: 12px sidebar padding + 56px = 68px, so its bottom border lines up with the 68px top bar */}
           <div
             style={{
-              height: '64px',
+              height: '56px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: isCollapsed ? 'center' : 'space-between',
