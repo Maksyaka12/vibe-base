@@ -461,7 +461,7 @@ export function BaseAppProfileView(props) {
               {!hasNft && (
                 <div className="o1-nft-cta-box">
                   <p className="o1-nft-cta-text">
-                    Mint your NFT to join Vibe Club, unlock exclusive royalties, and establish your on-chain identity.
+                    Mint your NFT to join Vibe Club, unlock exclusive royalties, and establish your onchain identity.
                   </p>
                   <Button
                     as={Link}
@@ -572,7 +572,7 @@ export function BaseAppProfileView(props) {
                       ? 'Connect wallet to start daily streak'
                       : hasCheckedInToday
                       ? `Checked in today · next in ${timeUntilNext}`
-                      : 'Check in to maintain your on-chain streak'}
+                      : 'Check in to maintain your onchain streak'}
                   </div>
                 </div>
               </div>
@@ -607,7 +607,7 @@ export function BaseAppProfileView(props) {
             <div className="o1-achievements-header">
               <SectionTitle
                 title="Achievements"
-                subtitle="On-chain credentials and milestones"
+                subtitle="Onchain credentials and milestones"
               />
               <Badge tone={unlockedCount > 0 ? 'success' : 'neutral'} pill>
                 {unlockedCount}/{totalAchievementsCount} unlocked

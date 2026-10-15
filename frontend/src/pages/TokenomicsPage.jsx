@@ -239,7 +239,7 @@ export default function TokenomicsPage({ isBaseAppMode = false }) {
             >
               0x067c...3Ebf <ArrowUpRight size={13} />
             </a>
-            <span style={{ fontSize: '11px', color: 'var(--text-3)' }}>On-chain transaction logs</span>
+            <span style={{ fontSize: '11px', color: 'var(--text-3)' }}>Onchain transaction logs</span>
           </Card>
         </div>
 
@@ -526,7 +526,7 @@ export default function TokenomicsPage({ isBaseAppMode = false }) {
                 </div>
                 <div className="o1-tokenomics-item-content">
                   <span className="o1-tokenomics-item-title">Proportional allocation</span>
-                  <span className="o1-tokenomics-item-desc">Larger balances receive higher allocation shares, bounded by an anti-whale cap.</span>
+                  <span className="o1-tokenomics-item-desc">Larger balances receive higher allocation shares (anti-whale cap).</span>
                 </div>
               </div>
 
@@ -536,7 +536,7 @@ export default function TokenomicsPage({ isBaseAppMode = false }) {
                 </div>
                 <div className="o1-tokenomics-item-content">
                   <span className="o1-tokenomics-item-title">Snapshot timing</span>
-                  <span className="o1-tokenomics-item-desc">On-chain snapshot taken at 00:00 UTC on the day of unlock.</span>
+                  <span className="o1-tokenomics-item-desc">Onchain snapshot taken at 00:00 UTC on the day of unlock.</span>
                 </div>
               </div>
 

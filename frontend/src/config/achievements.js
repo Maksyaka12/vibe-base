@@ -21,7 +21,7 @@ export const ACHIEVEMENTS_ABI = parseAbi([
   'event TransferBatch(address indexed operator, address indexed from, address indexed to, uint256[] ids, uint256[] values)'
 ]);
 
-// Mapping string achievement ID to on-chain uint256 ID
+// Mapping string achievement ID to onchain uint256 ID
 export const ACHIEVEMENT_ID_MAP = {
   'starter-dog': 1,
   'loyal-dog': 2,

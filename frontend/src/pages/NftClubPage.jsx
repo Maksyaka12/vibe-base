@@ -466,7 +466,7 @@ export default function NftClubPage({ isEmbeddedInBaseApp = false } = {}) {
               <span className="o1-nft-perk-title">80% auto-burn</span>
             </div>
             <p className="o1-nft-perk-desc">
-              80% of all mint revenue buys and permanently burns $VIBE tokens directly on-chain, while 20% bolsters the community pool.
+              80% of all mint revenue buys and permanently burns $VIBE tokens directly onchain, while 20% bolsters the community pool.
             </p>
           </div>
 

@@ -113,7 +113,7 @@ export function useVibeNftContract() {
     return '0x';
   };
 
-  // Fetch On-Chain State
+  // Fetch Onchain State
   const fetchContractState = useCallback(async () => {
     try {
       const [minted, remaining, supply, live, ethBal, contractVibeBal, aggRouter, onChainEthPrice] = await Promise.all([
@@ -136,7 +136,7 @@ export function useVibeNftContract() {
       setContractVibeBalance(formatEther(contractVibeBal));
       setAggregatorRouterAddress(aggRouter);
 
-      // Exact on-chain burned $VIBE: 80% burned to dead address, 20% kept on contract rewards pool => burned = contractVibe * 4
+      // Exact onchain burned $VIBE: 80% burned to dead address, 20% kept on contract rewards pool => burned = contractVibe * 4
       const burnedWei = BigInt(contractVibeBal) * 4n;
       setTotalOnChainVibeBurned(Number(formatEther(burnedWei)));
 
@@ -158,7 +158,7 @@ export function useVibeNftContract() {
       }
       setCurrentPhase(phase);
 
-      // Set actual on-chain price (or fallback to calculated phase price)
+      // Set actual onchain price (or fallback to calculated phase price)
       const finalPrice = (onChainEthPrice && BigInt(onChainEthPrice) > 0n) ? BigInt(onChainEthPrice) : calculatedPhasePrice;
       setEthPriceWei(finalPrice);
 

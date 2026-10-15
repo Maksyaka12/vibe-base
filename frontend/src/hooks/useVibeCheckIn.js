@@ -92,7 +92,7 @@ export function useVibeCheckIn(address) {
     VIBE_CHECKIN_CONTRACT_ADDRESS !== '0x0000000000000000000000000000000000000000'
   );
 
-  // Fetch live on-chain check-in details
+  // Fetch live onchain check-in details
   const fetchOnChainState = useCallback(async () => {
     if (!address) {
       setState({
@@ -149,7 +149,7 @@ export function useVibeCheckIn(address) {
         }
       }
     } catch (err) {
-      console.warn('Error reading on-chain check-in info, using fallback:', err);
+      console.warn('Error reading onchain check-in info, using fallback:', err);
       const local = getInitialLocalState(address);
       setState(local);
     }
@@ -291,7 +291,7 @@ export function useVibeCheckIn(address) {
           }
         }
 
-        // Refresh on-chain state
+        // Refresh onchain state
         await fetchOnChainState();
       } else {
         // Local simulation fallback

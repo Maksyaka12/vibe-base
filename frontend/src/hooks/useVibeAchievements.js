@@ -84,7 +84,7 @@ export function useVibeAchievements(address) {
         }
       }
     } catch (err) {
-      console.warn('Error reading on-chain achievements, using fallback:', err);
+      console.warn('Error reading onchain achievements, using fallback:', err);
       const local = getInitialLocalState(address);
       setClaimedMap(local);
     }

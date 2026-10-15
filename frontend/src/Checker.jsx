@@ -76,7 +76,7 @@ export const isBadTxHash = (hash) => {
   return ADMIN_WITHDRAWAL_TXS.has(hash.toLowerCase());
 };
 
-// Helper to fetch exact historical claim transactions from on-chain RPC logs + Base block explorer
+// Helper to fetch exact historical claim transactions from onchain RPC logs + Base block explorer
 export async function fetchUserClaimTransactions(userAddress, customClient = null) {
   if (!userAddress) return {};
   try {
@@ -105,7 +105,7 @@ export async function fetchUserClaimTransactions(userAddress, customClient = nul
 
     const rpcClient = customClient || getPublicClient();
 
-    // 1. Direct on-chain RPC getLogs for staking claim events & transfers (most recent ~1,950 blocks)
+    // 1. Direct onchain RPC getLogs for staking claim events & transfers (most recent ~1,950 blocks)
     try {
       const currentBlock = await rpcClient.getBlockNumber();
       const fromBlk = currentBlock > 1950n ? (currentBlock - 1950n) : 0n;
@@ -642,7 +642,7 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
               }
               return item;
             });
-            // 2. ONLY add verified staking claims from txMap (holder and royalty claims are strictly gated by on-chain hasClaimed)
+            // 2. ONLY add verified staking claims from txMap (holder and royalty claims are strictly gated by onchain hasClaimed)
             for (const [k, info] of Object.entries(txMap)) {
               if (k.startsWith('staking') && !updated.some(item => item && item.id === k)) {
                 updated.push({
@@ -847,7 +847,7 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
     }
   };
 
-  // Unified High-Speed On-Chain RPC Sync (<350ms)
+  // Unified High-Speed Onchain RPC Sync (<350ms)
   const fetchBalances = async (isManual = false) => {
     if (!address) return;
     if (isManual) setLoading(true);
@@ -946,7 +946,7 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
         localStorage.removeItem(`vibe_user_nft_${address.toLowerCase()}`);
       }
 
-      // 4. On-chain claim status checks & Explorer Tx Hash Sync
+      // 4. Onchain claim status checks & Explorer Tx Hash Sync
       const hasAnyClaim = results[3]?.result === true || results[4]?.result === true || results[5]?.result === true || results[6]?.result === true || results[7]?.result === true || results[8]?.result === true || results[9]?.result === true;
       let txMap = {};
       if (hasAnyClaim) {
@@ -1481,7 +1481,7 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
           });
         }
 
-        // Auto-fetch real transaction hash from on-chain event log if needed
+        // Auto-fetch real transaction hash from onchain event log if needed
         if (!txHashResult || txHashResult.length !== 66) {
           try {
             const client = createPublicClient({ chain: base, transport: http('https://mainnet.base.org') });
@@ -1950,7 +1950,7 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
                           if (isAdmin) fetchAdminMetrics();
                         }}
                         disabled={loading}
-                        title="Refresh On-Chain Balances"
+                        title="Refresh Onchain Balances"
                         style={{
                           background: 'var(--surface-2)',
                           border: '1.5px solid rgba(0, 140, 255, 0.22)',
