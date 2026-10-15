@@ -60,7 +60,11 @@ const stripYear = (str) => {
   return str.replace(/\s\d{4},/, ',');
 };
 
-const getEpochStatus = (ep, currentTime = new Date()) => {
+const formatStakingDates = (ep) => `${stripYear(ep.startTime)} – ${stripYear(ep.endTime)}`;
+
+const formatStakingPool = (ep) => (ep.poolAmount && ep.poolAmount !== 'TBA' ? `${ep.poolAmount} $VIBE` : 'TBA');
+
+const getEpochStatus = (ep,currentTime = new Date()) => {
   const current = currentTime instanceof Date ? currentTime : new Date(currentTime);
   if (ep.endDateObj && current >= ep.endDateObj) {
     return 'ended';
@@ -553,7 +557,7 @@ export default function BaseAppRewardsView({
                   </div>
                   <div>
                     <div className="o1-hub-featured-name">{featuredStaking.epoch}</div>
-                    <div className="o1-hub-featured-sub">{featuredStaking.dateRange}</div>
+                    <div className="o1-hub-featured-sub">{formatStakingDates(featuredStaking)}</div>
                   </div>
                 </div>
                 <StatusPill
@@ -565,7 +569,7 @@ export default function BaseAppRewardsView({
               <div className="o1-hub-tiles-3">
                 <Tile
                   label="Epoch pool"
-                  value={`${featuredStaking.rewards || featuredStaking.poolAmount || '1,000,000'} $VIBE`}
+                  value={formatStakingPool(featuredStaking)}
                   sub="Proportional rewards for stakers"
                 />
                 <Tile
@@ -611,8 +615,8 @@ export default function BaseAppRewardsView({
                   return (
                     <div key={idx} className="o1-schedule-row">
                       <div className="o1-schedule-col-name">{e.epoch}</div>
-                      <div className="o1-schedule-col-date">{e.dateRange}</div>
-                      <div className="o1-schedule-col-amount">{e.rewards || '1,000,000'} $VIBE</div>
+                      <div className="o1-schedule-col-date">{formatStakingDates(e)}</div>
+                      <div className="o1-schedule-col-amount">{formatStakingPool(e)}</div>
                       <div className="o1-schedule-col-status">
                         <a
                           href={e.link || O1_STAKING_VAULT}
@@ -648,15 +652,25 @@ export default function BaseAppRewardsView({
                   <div>Epoch</div>
                   <div>Dates</div>
                   <div>Rewards</div>
-                  <div>Status</div>
+                  <div>Vault</div>
                 </div>
                 {otherEndedStakings.map((e, idx) => (
                   <div key={idx} className="o1-schedule-row">
                     <div className="o1-schedule-col-name">{e.epoch}</div>
-                    <div className="o1-schedule-col-date">{e.dateRange}</div>
-                    <div className="o1-schedule-col-amount">{e.rewards || '1,000,000'} $VIBE</div>
+                    <div className="o1-schedule-col-date">{formatStakingDates(e)}</div>
+                    <div className="o1-schedule-col-amount">{formatStakingPool(e)}</div>
                     <div className="o1-schedule-col-status">
-                      <StatusPill status="Completed" tone="success" />
+                      <Button
+                        as="a"
+                        href={e.link || O1_STAKING_VAULT}
+                        target="_blank"
+                        rel="noreferrer"
+                        variant="secondary"
+                        size="sm"
+                      >
+                        Withdraw &amp; claim
+                        <ArrowUpRight size={14} />
+                      </Button>
                     </div>
                   </div>
                 ))}
