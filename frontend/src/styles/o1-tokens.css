@@ -33,7 +33,7 @@
   /* Semantic */
   --green: #2FD08A; --green-bg: rgba(47, 208, 138, 0.12); --green-bd: rgba(47, 208, 138, 0.28);
   --red:   #FF5A5F; --red-bg:   rgba(255, 90, 95, 0.12);  --red-bd:   rgba(255, 90, 95, 0.28);
-  --amber: #F5B83D; --amber-bg: rgba(245, 184, 61, 0.12); --amber-bd: rgba(245, 184, 61, 0.28);
+  --amber: #F5B83D; --amber-hover: #F8C762;--amber-bg: rgba(245, 184, 61, 0.12); --amber-bd: rgba(245, 184, 61, 0.28);
 
   /* Radii */
   --r-sm: 8px; --r-md: 12px; --r-lg: 16px; --r-xl: 20px; --r-full: 999px;

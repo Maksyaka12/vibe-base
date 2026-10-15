@@ -466,7 +466,7 @@ export function BaseAppProfileView(props) {
                   <Button
                     as={Link}
                     to={getLinkPath('/nft')}
-                    variant="secondary"
+                    variant="primary"
                     size="sm"
                     fullWidth
                     style={{ justifyContent: 'center' }}

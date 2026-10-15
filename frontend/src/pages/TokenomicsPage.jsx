@@ -371,7 +371,7 @@ export default function TokenomicsPage({ isBaseAppMode = false }) {
               </div>
             </div>
 
-            <Button variant="secondary" size="md" as={Link} to={hubLink} style={{ alignSelf: 'flex-start', marginTop: '6px' }}>
+            <Button variant="primary" size="md" as={Link} to={hubLink} style={{ alignSelf: 'flex-start', marginTop: '6px' }}>
               <Gift size={14} /> Explore rewards hub <ArrowRight size={14} />
             </Button>
           </Card>
@@ -456,7 +456,7 @@ export default function TokenomicsPage({ isBaseAppMode = false }) {
               </div>
             </div>
 
-            <Button variant="secondary" size="md" as={Link} to={vibeClubLink} style={{ alignSelf: 'flex-start', marginTop: '6px' }}>
+            <Button variant="primary" size="md" as={Link} to={vibeClubLink} style={{ alignSelf: 'flex-start', marginTop: '6px' }}>
               <Crown size={14} /> Join Vibe Club <ArrowRight size={14} />
             </Button>
           </Card>
@@ -573,8 +573,8 @@ export default function TokenomicsPage({ isBaseAppMode = false }) {
                     <span className="o1-tokenomics-unlock-date">{u.d}</span>
                     <span className="o1-tokenomics-unlock-amount">{u.a}</span>
                     <StatusPill
-                      status={isUnlocked ? 'active' : 'inactive'}
-                      label={isUnlocked ? 'Unlocked' : 'Locked'}
+                      status={isUnlocked ? 'Active' : 'Locked'}
+                      tone={isUnlocked ? 'success' : 'neutral'}
                     />
                   </div>
                 );

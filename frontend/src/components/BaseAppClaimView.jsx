@@ -404,7 +404,7 @@ export function BaseAppClaimView(props) {
                     Holder Rewards · {upcomingHolderRound?.name || 'Unlock 2'}
                   </div>
                   <StatusPill
-                    status={isHolderSnapshotDone ? 'Active' : (isHolderEligibleLive ? 'Eligible' : 'Not eligible')}
+                    status={isHolderSnapshotDone ? 'Active' : (isHolderEligibleLive ? 'Eligible' : 'Not eligible yet')}
                     tone={isHolderSnapshotDone ? 'success' : (isHolderEligibleLive ? 'success' : 'neutral')}
                   />
                 </div>
@@ -441,12 +441,12 @@ export function BaseAppClaimView(props) {
                   <Button
                     as={Link}
                     to={typeof window !== 'undefined' && window.location.pathname.startsWith('/app') ? '/app/buy' : '/buy'}
-                    variant="secondary"
+                    variant="warn"
                     size="md"
                     fullWidth
-                    icon={<ArrowRight size={14} />}
                   >
                     Buy $VIBE before snapshot
+                    <ArrowRight size={14} />
                   </Button>
                 ) : (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: 'var(--green)' }}>
@@ -475,7 +475,7 @@ export function BaseAppClaimView(props) {
                     Vibe Club · {upcomingVibeClubRound?.name || 'Royalty 2'}
                   </div>
                   <StatusPill
-                    status={isVibeClubSnapshotDone ? 'Active' : (hasNft ? 'Eligible' : 'Not eligible')}
+                    status={isVibeClubSnapshotDone ? 'Active' : (hasNft ? 'Eligible' : 'Not eligible yet')}
                     tone={isVibeClubSnapshotDone ? 'success' : (hasNft ? 'success' : 'neutral')}
                   />
                 </div>
@@ -516,12 +516,12 @@ export function BaseAppClaimView(props) {
                   <Button
                     as={Link}
                     to={typeof window !== 'undefined' && window.location.pathname.startsWith('/app') ? '/app/vibeclub' : '/vibeclub'}
-                    variant="secondary"
+                    variant="warn"
                     size="md"
                     fullWidth
-                    icon={<ArrowRight size={14} />}
                   >
                     Mint NFT before snapshot
+                    <ArrowRight size={14} />
                   </Button>
                 ) : (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: 'var(--green)' }}>
