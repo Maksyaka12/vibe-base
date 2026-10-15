@@ -211,7 +211,7 @@ export function BaseAppView({ RewardsComponent }) {
                 <div style={{ maxWidth: '480px', margin: '0 auto', padding: '0 14px' }}>
                   <PageHeader
                     title="Swap"
-                    description="Instant decentralized exchange on Base L2 via optimal liquidity routing"
+                    description="Instant exchange on Base via optimal liquidity routing"
                   />
                   <DeFiVibePanel />
                 </div>
@@ -223,7 +223,7 @@ export function BaseAppView({ RewardsComponent }) {
                 <div style={{ maxWidth: '1040px', margin: '0 auto', padding: '0 14px' }}>
                   <PageHeader
                     title="Vibe Club NFT"
-                    description="Exclusive 333 genesis membership pass on Base with lifetime royalty dividends"
+                    description="Exclusive 333 genesis membership pass with lifetime royalty payouts"
                   />
                   <NftClubPage isEmbeddedInBaseApp={true} />
                 </div>

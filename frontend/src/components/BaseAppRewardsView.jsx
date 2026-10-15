@@ -124,6 +124,7 @@ export default function BaseAppRewardsView({
   const featuredHolder = activeHolders[0] || upcomingHolders[0] || endedHolders[endedHolders.length - 1] || HOLDER_UNLOCKS[0];
   const featuredHolderStatus = featuredHolder ? getRewardEpochStatus(featuredHolder, now) : 'upcoming';
   const isFeaturedHolderClaimLive = featuredHolderStatus === 'active' && featuredHolder?.dateObj && now >= featuredHolder.dateObj;
+  const otherEndedHolders = endedHolders.filter(u => u.unlock !== featuredHolder?.unlock);
 
   const isHolderActiveEligible = (() => {
     if (!authenticated || !userAddress) return false;
@@ -142,6 +143,7 @@ export default function BaseAppRewardsView({
   const featuredVibeClub = activeVibeClubs[0] || upcomingVibeClubs[0] || endedVibeClubs[endedVibeClubs.length - 1] || VIBECLUB_EPOCHS[0];
   const featuredVibeClubStatus = featuredVibeClub ? getRewardEpochStatus(featuredVibeClub, now) : 'upcoming';
   const isFeaturedVibeClubClaimLive = featuredVibeClubStatus === 'active' && featuredVibeClub?.dateObj && now >= featuredVibeClub.dateObj;
+  const otherEndedVibeClubs = endedVibeClubs.filter(u => u.epoch !== featuredVibeClub?.epoch);
 
   const isVibeClubActiveEligible = (() => {
     if (!authenticated || !userAddress) return false;
@@ -162,6 +164,8 @@ export default function BaseAppRewardsView({
 
   const featuredStaking = activeStakings[activeStakings.length - 1] || upcomingStakings[0] || endedStakings[endedStakings.length - 1] || STAKING_EPOCHS[0];
   const featuredStakingStatus = featuredStaking ? getEpochStatus(featuredStaking, now) : 'upcoming';
+  const otherEndedStakings = endedStakings.filter(e => e.epoch !== featuredStaking?.epoch);
+  const currentStakings = STAKING_EPOCHS.filter(e => !otherEndedStakings.includes(e));
 
   // Giveaways calculations
   const activeGiveaways = GIVEAWAYS_DATA.filter(e => e.status === 'ongoing');
@@ -310,7 +314,7 @@ export default function BaseAppRewardsView({
           {/* Schedule list */}
           {upcomingHolders.length > 0 && (
             <div>
-              <SectionTitle title="Upcoming distributions" count={upcomingHolders.length} />
+              <SectionTitle title="Upcoming unlocks" count={upcomingHolders.length} />
               <div className="o1-schedule-card">
                 <div className="o1-schedule-head">
                   <div>Epoch</div>
@@ -325,6 +329,31 @@ export default function BaseAppRewardsView({
                     <div className="o1-schedule-col-amount">{u.poolAmount} $VIBE</div>
                     <div className="o1-schedule-col-status">
                       <StatusPill status="Locked" tone="neutral" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Previous Unlocks */}
+          {otherEndedHolders.length > 0 && (
+            <div>
+              <SectionTitle title="Previous unlocks" count={otherEndedHolders.length} />
+              <div className="o1-schedule-card">
+                <div className="o1-schedule-head">
+                  <div>Epoch</div>
+                  <div>Date</div>
+                  <div>Allocation</div>
+                  <div>Status</div>
+                </div>
+                {otherEndedHolders.map((u, idx) => (
+                  <div key={idx} className="o1-schedule-row">
+                    <div className="o1-schedule-col-name">{u.unlock}</div>
+                    <div className="o1-schedule-col-date">{stripYear(u.date)}</div>
+                    <div className="o1-schedule-col-amount">{u.poolAmount} $VIBE</div>
+                    <div className="o1-schedule-col-status">
+                      <StatusPill status="Completed" tone="success" />
                     </div>
                   </div>
                 ))}
@@ -458,6 +487,31 @@ export default function BaseAppRewardsView({
               </div>
             </div>
           )}
+
+          {/* Previous Royalty Payouts */}
+          {otherEndedVibeClubs.length > 0 && (
+            <div>
+              <SectionTitle title="Previous royalty payouts" count={otherEndedVibeClubs.length} />
+              <div className="o1-schedule-card">
+                <div className="o1-schedule-head">
+                  <div>Epoch</div>
+                  <div>Date</div>
+                  <div>Allocation</div>
+                  <div>Status</div>
+                </div>
+                {otherEndedVibeClubs.map((u, idx) => (
+                  <div key={idx} className="o1-schedule-row">
+                    <div className="o1-schedule-col-name">{u.epoch}</div>
+                    <div className="o1-schedule-col-date">{stripYear(u.date)}</div>
+                    <div className="o1-schedule-col-amount">{u.poolAmount} $VIBE</div>
+                    <div className="o1-schedule-col-status">
+                      <StatusPill status="Completed" tone="success" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -542,9 +596,9 @@ export default function BaseAppRewardsView({
             </Card>
           )}
 
-          {STAKING_EPOCHS.length > 0 && (
+          {currentStakings.length > 0 && (
             <div>
-              <SectionTitle title="Staking epochs" count={STAKING_EPOCHS.length} />
+              <SectionTitle title="Upcoming staking epochs" count={currentStakings.length} />
               <div className="o1-schedule-card">
                 <div className="o1-schedule-head">
                   <div>Epoch</div>
@@ -552,7 +606,7 @@ export default function BaseAppRewardsView({
                   <div>Rewards</div>
                   <div>Vault</div>
                 </div>
-                {STAKING_EPOCHS.map((e, idx) => {
+                {currentStakings.map((e, idx) => {
                   const status = getEpochStatus(e, now);
                   return (
                     <div key={idx} className="o1-schedule-row">
@@ -581,6 +635,31 @@ export default function BaseAppRewardsView({
                     </div>
                   );
                 })}
+              </div>
+            </div>
+          )}
+
+          {/* Previous Staking Epochs */}
+          {otherEndedStakings.length > 0 && (
+            <div>
+              <SectionTitle title="Previous staking epochs" count={otherEndedStakings.length} />
+              <div className="o1-schedule-card">
+                <div className="o1-schedule-head">
+                  <div>Epoch</div>
+                  <div>Dates</div>
+                  <div>Rewards</div>
+                  <div>Status</div>
+                </div>
+                {otherEndedStakings.map((e, idx) => (
+                  <div key={idx} className="o1-schedule-row">
+                    <div className="o1-schedule-col-name">{e.epoch}</div>
+                    <div className="o1-schedule-col-date">{e.dateRange}</div>
+                    <div className="o1-schedule-col-amount">{e.rewards || '1,000,000'} $VIBE</div>
+                    <div className="o1-schedule-col-status">
+                      <StatusPill status="Completed" tone="success" />
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}
