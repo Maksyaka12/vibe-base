@@ -3627,7 +3627,7 @@ export default function App() {
         supportedChains: [base],
         appearance: {
           theme: 'dark',
-          accentColor: 'var(--accent)',
+          accentColor: '#66BEFF',
           logo: '/new-logo-vibe.png',
           showWalletLoginFirst: true,
         },
