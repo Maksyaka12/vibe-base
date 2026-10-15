@@ -169,7 +169,7 @@ export default function BaseAppRewardsView({
   const featuredStaking = activeStakings[activeStakings.length - 1] || upcomingStakings[0] || endedStakings[endedStakings.length - 1] || STAKING_EPOCHS[0];
   const featuredStakingStatus = featuredStaking ? getEpochStatus(featuredStaking, now) : 'upcoming';
   const otherEndedStakings = endedStakings.filter(e => e.epoch !== featuredStaking?.epoch);
-  const currentStakings = STAKING_EPOCHS.filter(e => !otherEndedStakings.includes(e));
+  const currentStakings = upcomingStakings.filter(e => e !== featuredStaking);
 
   // Giveaways calculations
   const activeGiveaways = GIVEAWAYS_DATA.filter(e => e.status === 'ongoing');
@@ -697,15 +697,50 @@ export default function BaseAppRewardsView({
                       <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text)' }}>{g.title}</span>
                       <StatusPill status="Active" tone="success" />
                     </div>
-                    <div style={{ fontFamily: 'var(--mono)', fontSize: '16px', fontWeight: 700, color: 'var(--text)' }}>
-                      {g.prize}
+                    <Tile label="Prize pool" value={g.prizePool || 'TBA'} />
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                      <Tile label="Distribution" value={g.distribution || 'Not started'} />
+                      <Tile label="Winners" value={g.winners || 'TBA'} />
                     </div>
                     {g.link && (
-                      <Button as="a" href={g.link} target="_blank" rel="noreferrer" variant="secondary" size="sm" icon={<ExternalLink size={13} />}>
+                      <Button as="a" href={g.link} target="_blank" rel="noreferrer" variant="secondary" size="sm">
                         Participate
+                        <ExternalLink size={13} />
                       </Button>
                     )}
                   </Card>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Past Giveaways */}
+          {pastGiveaways.length > 0 && (
+            <div>
+              <SectionTitle title="Past giveaways" count={pastGiveaways.length} />
+              <div className="o1-schedule-card">
+                <div className="o1-schedule-head">
+                  <div>Event</div>
+                  <div>Winners</div>
+                  <div>Prize pool</div>
+                  <div>Post</div>
+                </div>
+                {pastGiveaways.map((g, idx) => (
+                  <div key={g.id || idx} className="o1-schedule-row">
+                    <div className="o1-schedule-col-name">{g.title}</div>
+                    <div className="o1-schedule-col-date">{g.winners}</div>
+                    <div className="o1-schedule-col-amount">{g.prizePool}</div>
+                    <div className="o1-schedule-col-status">
+                      {g.link ? (
+                        <Button as="a" href={g.link} target="_blank" rel="noreferrer" variant="secondary" size="sm">
+                          View
+                          <ArrowUpRight size={14} />
+                        </Button>
+                      ) : (
+                        <StatusPill status="Ended" tone="neutral" />
+                      )}
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>
