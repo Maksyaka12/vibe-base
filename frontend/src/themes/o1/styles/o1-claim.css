@@ -359,3 +359,24 @@
   gap: 12px;
   width: 100%;
 }
+
+.o1-history-round {
+  color: var(--accent);
+}
+
+/* Eligible state sits where the CTA button is when not eligible, so it mirrors its size */
+.o1-eligible-state {
+  width: 100%;
+  height: 40px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: var(--r-md);
+  background: var(--green-bg);
+  border: 1px solid var(--green-bd);
+  color: var(--green);
+  font-size: 14px;
+  font-weight: 600;
+}

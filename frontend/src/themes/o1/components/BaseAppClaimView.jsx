@@ -452,8 +452,8 @@ export function BaseAppClaimView(props) {
                     <ArrowRight size={14} />
                   </Button>
                 ) : (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: 'var(--green)' }}>
-                    <CheckCircle2 size={14} />
+                  <div className="o1-eligible-state">
+                    <CheckCircle2 size={16} />
                     <span>Eligible — balance holding confirmed</span>
                   </div>
                 )}
@@ -527,8 +527,8 @@ export function BaseAppClaimView(props) {
                     <ArrowRight size={14} />
                   </Button>
                 ) : (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: 'var(--green)' }}>
-                    <CheckCircle2 size={14} />
+                  <div className="o1-eligible-state">
+                    <CheckCircle2 size={16} />
                     <span>Eligible — Vibe Club member</span>
                   </div>
                 )}
@@ -560,16 +560,16 @@ export function BaseAppClaimView(props) {
                 <div key={item.id || idx} className="o1-history-row">
                   <div className="o1-history-left">
                     <div className="o1-history-title">
-                      {categoryLabel} · <span style={{ color: 'var(--accent)' }}>{roundLabel}</span>
+                      {categoryLabel} · <span className="o1-history-round">{roundLabel}</span>
                     </div>
                     <div className="o1-history-actions">
                       {isRoyalty && (
                         <Button
                           onClick={() => setShareModalItem(item)}
-                          variant="ghost"
+                          variant="secondary"
                           size="sm"
-                          icon={<Share2 size={12} />}
                         >
+                          <Share2 size={13} />
                           Share
                         </Button>
                       )}
@@ -579,11 +579,11 @@ export function BaseAppClaimView(props) {
                           href={item.link}
                           target="_blank"
                           rel="noreferrer"
-                          variant="ghost"
+                          variant="secondary"
                           size="sm"
-                          icon={<ExternalLink size={12} />}
                         >
                           o1 Vault
+                          <ArrowUpRight size={13} />
                         </Button>
                       )}
                       <Button
@@ -591,11 +591,11 @@ export function BaseAppClaimView(props) {
                         href={item?.txHash && item.txHash.startsWith('0x') ? `https://basescan.org/tx/${item.txHash}` : (address ? `https://basescan.org/token/${CA}?a=${address}` : `https://basescan.org/token/${CA}`)}
                         target="_blank"
                         rel="noreferrer"
-                        variant="ghost"
+                        variant="secondary"
                         size="sm"
-                        icon={<ExternalLink size={12} />}
                       >
                         BaseScan
+                        <ArrowUpRight size={13} />
                       </Button>
                     </div>
                   </div>
