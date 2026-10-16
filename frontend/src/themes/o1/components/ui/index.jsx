@@ -83,7 +83,6 @@ export function Tile({
   );
 }
 
-
 /**
  * Badge & Status Pill per o1-dark-ui-design §5.9
  * tone: 'neutral' | 'accent' | 'success' | 'warn' | 'danger'

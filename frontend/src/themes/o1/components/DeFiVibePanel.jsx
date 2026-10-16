@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { ArrowUpDown } from 'lucide-react';
 import { usePrivy, useWallets } from '@privy-io/react-auth';
 import { parseUnits, formatUnits, encodeFunctionData } from 'viem';
 import { publicClient } from '../../../config/rpc';
 import { useUserBalances } from '../../../hooks/useUserBalances';
 import { Button } from './ui';
-import { BUILDER_CODE, DATA_SUFFIX, BUILDER_CODE_HEX, appendBuilderSuffix } from '../../../config/builderCode';
+import { DATA_SUFFIX, appendBuilderSuffix } from '../../../config/builderCode';
 
 const ETH_ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 const KYBER_ETH_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';

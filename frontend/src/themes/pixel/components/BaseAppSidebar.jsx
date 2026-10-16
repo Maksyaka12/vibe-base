@@ -1,22 +1,5 @@
-import React, { useState } from 'react';
-import {
-  X,
-  Gift,
-  Coins,
-  Crown,
-  LogOut,
-  Wallet,
-  Check,
-  Copy,
-  User,
-  ArrowLeftRight,
-  TrendingUp,
-  FileCode2,
-  ChevronDown,
-  ArrowUpRight,
-  Home,
-  ShieldCheck
-} from 'lucide-react';
+import { useState } from 'react';
+import { X, Gift, Coins, Crown, LogOut, Wallet, Check, Copy, User, ArrowLeftRight, TrendingUp, FileCode2, ChevronDown, ArrowUpRight, ShieldCheck } from 'lucide-react';
 import { usePrivy, useWallets } from '@privy-io/react-auth';
 import { useAccount, useDisconnect } from 'wagmi';
 
@@ -983,5 +966,4 @@ export function BaseAppSidebar({
     </>
   );
 }
-
 

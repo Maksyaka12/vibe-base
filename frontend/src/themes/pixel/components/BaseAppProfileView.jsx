@@ -1,21 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { RefreshCw, CheckCircle2, Gift, Clock, Coins, ArrowRight, Lock, Sparkles, Flame } from 'lucide-react';
+import { CheckCircle2, Gift, Clock, Coins, ArrowRight, Flame } from 'lucide-react';
 import { formatUnits } from 'viem';
 import { getPublicClient } from '../../../config/rpc';
 import { STAKING_CONTRACT, STAKING_VAULTS_INFO } from '../Checker';
 import { useVibeCheckIn } from '../../../hooks/useVibeCheckIn';
 import { useVibeAchievements } from '../../../hooks/useVibeAchievements';
-
-function getNftFontSize(name) {
-  if (!name) return '13px';
-  const len = name.length;
-  if (len <= 10) return '13.5px';
-  if (len <= 14) return '12px';
-  if (len <= 18) return '10.5px';
-  if (len <= 22) return '9px';
-  return '8px';
-}
 
 function InfoSvgIcon({ size = 14, color = '#00f5ff', className = '' }) {
   return (

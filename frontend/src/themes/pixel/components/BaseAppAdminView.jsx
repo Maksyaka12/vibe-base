@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { usePrivy, useWallets } from '@privy-io/react-auth';
 import { useAccount, useDisconnect } from 'wagmi';
-import { parseEther, formatEther, parseUnits, formatUnits, encodeFunctionData, parseAbi } from 'viem';
+import { parseEther, parseUnits, formatUnits, encodeFunctionData, parseAbi } from 'viem';
 import { publicClient } from '../../../config/rpc';
 import { DATA_SUFFIX, appendBuilderSuffix } from '../../../config/builderCode';
 import { useVibeNftContract } from '../../../hooks/useVibeNftContract';
@@ -12,13 +12,7 @@ import royalty2Data from '../../../data/royalty_2_proofs.json';
 import royalty3Data from '../../../data/royalty_3_proofs.json';
 import royalty4Data from '../../../data/royalty_4_proofs.json';
 import royalty5Data from '../../../data/royalty_5_proofs.json';
-import {
-  Coins,
-  Crown,
-  Sparkles,
-  AlertTriangle,
-  RefreshCw
-} from 'lucide-react';
+import { Coins, Crown, Sparkles, AlertTriangle } from 'lucide-react';
 
 export const ADMIN_WALLET = '0x4c91d3bed372c11795b9ce9a9017dfe447bf050a';
 export const VIBE_TOKEN_CA = '0xb200000000000000000000df24ecb8bf51100a01';

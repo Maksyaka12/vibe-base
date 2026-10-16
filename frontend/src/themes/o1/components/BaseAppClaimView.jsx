@@ -1,21 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getRoyaltyBannerUrl } from '../Checker';
-import {
-  CheckCircle2,
-  AlertCircle,
-  ArrowUpRight,
-  ArrowRight,
-  Share2,
-  X,
-  Download,
-  Check,
-  Clock,
-  Gift,
-  Loader2,
-  ExternalLink
-} from 'lucide-react';
-import { Button, Card, Tile, Badge, StatusPill, PageHeader, SectionTitle, EmptyState } from './ui';
+import { CheckCircle2, ArrowUpRight, ArrowRight, Share2, X, Download, Check, Clock, Gift, Loader2 } from 'lucide-react';
+import { Button, Tile, Badge, StatusPill, PageHeader, SectionTitle, EmptyState } from './ui';
 
 const CA = '0xb200000000000000000000df24ecb8bf51100a01';
 

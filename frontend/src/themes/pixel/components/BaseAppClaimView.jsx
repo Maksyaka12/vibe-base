@@ -1,35 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getRoyaltyBannerUrl } from '../Checker';
-import {
-  CheckCircle2,
-  XCircle,
-  AlertCircle,
-  RefreshCw,
-  ArrowUpRight,
-  ArrowRight,
-  Share2,
-  X,
-  Download,
-  Check,
-  Clock,
-  Gift,
-  Loader2
-} from 'lucide-react';
+import { CheckCircle2, AlertCircle, ArrowUpRight, ArrowRight, Share2, X, Download, Check, Clock, Gift, Loader2 } from 'lucide-react';
 
 const CA = '0xb200000000000000000000df24ecb8bf51100a01';
-
-function formatCompactBalance(val) {
-  if (val === null || val === undefined) return '0 $VIBE';
-  const num = Number(val);
-  if (num >= 1000000) {
-    return `${(num / 1000000).toFixed(2)}M $VIBE`;
-  }
-  if (num >= 1000) {
-    return `${(num / 1000).toFixed(2)}K $VIBE`;
-  }
-  return `${num.toLocaleString('en-US', { maximumFractionDigits: 0 })} $VIBE`;
-}
 
 function formatCountdownLive(targetIso) {
   if (!targetIso) return '';

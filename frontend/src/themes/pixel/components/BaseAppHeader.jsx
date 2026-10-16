@@ -1,4 +1,3 @@
-import React from 'react';
 import { Menu, Wallet, Flame } from 'lucide-react';
 import { usePrivy, useWallets } from '@privy-io/react-auth';
 import { useAccount } from 'wagmi';

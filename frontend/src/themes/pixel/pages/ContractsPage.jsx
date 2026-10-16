@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Copy, Check, ArrowUpRight } from 'lucide-react';
 
 const CONTRACTS = [

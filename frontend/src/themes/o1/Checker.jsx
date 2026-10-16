@@ -1,30 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { usePrivy, useWallets } from '@privy-io/react-auth';
 import { formatUnits, parseAbi, encodeFunctionData, parseUnits, parseAbiItem } from 'viem';
-import { getPublicClient, publicClient } from '../../config/rpc';
-import {
-  CheckCircle2,
-  Loader2,
-  ArrowUpRight,
-  Copy,
-  Check,
-  Clock,
-  Calendar,
-  Coins,
-  Crown,
-  Sparkles,
-  ExternalLink,
-  RefreshCw,
-  AlertCircle,
-  Lock,
-  Gift,
-  ShieldCheck,
-  ChevronDown,
-  User,
-  Download,
-  X,
-  Share2
-} from 'lucide-react';
+import { getPublicClient } from '../../config/rpc';
+import { CheckCircle2, Loader2, ArrowUpRight, Copy, Check, Clock, Coins, Crown, Sparkles, RefreshCw, Lock, Gift, ChevronDown, User, Download, X, Share2 } from 'lucide-react';
 import round1Data from '../../data/round_1_proofs.json';
 import round2Data from '../../data/round_2_proofs.json';
 import royalty1Data from '../../data/royalty_1_proofs.json';
@@ -44,7 +22,7 @@ export const STAKING_CONTRACT = '0x6f25a9e1e677616c1bF7ab54b470b0c82839Adb4';
 const ADMIN_WALLET = '0x4c91d3bed372c11795b9ce9a9017dfe447bf050a';
 const O1 = 'https://launch.o1.exchange/token/0xb200000000000000000000df24ecb8bf51100a01?chain=8453';
 const VIBECLUB_MINT_URL = 'https://vibeverse.dog/vibeclub';
-import { BUILDER_CODE, DATA_SUFFIX, BUILDER_CODE_HEX, appendBuilderSuffix } from '../../config/builderCode';
+import { DATA_SUFFIX, appendBuilderSuffix } from '../../config/builderCode';
 import { STAKING_VAULTS_INFO, ADMIN_WITHDRAWAL_TXS, HOLDER_ROUNDS, VIBECLUB_ROUNDS } from '../../data/rewardsSchedule';
 export { STAKING_VAULTS_INFO, ADMIN_WITHDRAWAL_TXS };
 
@@ -55,7 +33,6 @@ export function getRoyaltyBannerUrl(epochId) {
   }
   return `/vibe-club-royalties-${epoch}.jfif`;
 }
-
 
 export const isBadTxHash = (hash) => {
   if (!hash || typeof hash !== 'string' || !hash.startsWith('0x')) return true;
@@ -375,8 +352,6 @@ const DISTRIBUTOR_ABI = parseAbi([
   'function emergencyWithdraw(address token, uint256 amount) external'
 ]);
 
-
-
 const ERC20_ABI = parseAbi([
   'function balanceOf(address account) view returns (uint256)'
 ]);
@@ -385,31 +360,6 @@ const NFT_ABI = parseAbi([
   'function balanceOf(address owner) view returns (uint256)',
   'function walletMintCount(address owner) view returns (uint256)'
 ]);
-
-function formatCountdown(targetIso) {
-  if (!targetIso) return '';
-  try {
-    const now = new Date().getTime();
-    const target = new Date(targetIso).getTime();
-    const diff = target - now;
-
-    if (diff <= 0) return '00h 00m 00s';
-
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-    const minutes = Math.floor((diff / (1000 * 60)) % 60);
-    const seconds = Math.floor((diff / 1000) % 60);
-
-    const pad = (n) => String(n).padStart(2, '0');
-
-    if (days > 0) {
-      return `${days}d ${pad(hours)}h ${pad(minutes)}m ${pad(seconds)}s`;
-    }
-    return `${pad(hours)}h ${pad(minutes)}m ${pad(seconds)}s`;
-  } catch (e) {
-    return '';
-  }
-}
 
 function formatDigitalCountdown(targetIso) {
   if (!targetIso) return '';

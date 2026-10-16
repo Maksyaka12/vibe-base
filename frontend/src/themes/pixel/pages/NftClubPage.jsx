@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { usePrivy } from '@privy-io/react-auth';
 import { parseEther } from 'viem';
@@ -213,7 +213,6 @@ export default function NftClubPage({ isEmbeddedInBaseApp = false } = {}) {
   const countdownHours = String(Math.floor(totalRemainingSec / 3600)).padStart(2, '0');
   const countdownMins = String(Math.floor((totalRemainingSec % 3600) / 60)).padStart(2, '0');
   const countdownSecs = String(totalRemainingSec % 60).padStart(2, '0');
-
 
   const handleMintWithVibeClick = () => {
     const vibeWei = parseEther(currentDynamicVibeAmount.toString());
@@ -1111,7 +1110,6 @@ export default function NftClubPage({ isEmbeddedInBaseApp = false } = {}) {
             </div>
           </div>
 
-
         </div>
 
         {/* ── FAQ & VIBE CLUB BENEFITS SECTION ── */}
@@ -1252,8 +1250,6 @@ export default function NftClubPage({ isEmbeddedInBaseApp = false } = {}) {
                 </div>
               </div>
             </div>
-
-
 
             {/* FAQ 4: PRIMARY MINT & OPENSEA TRADING */}
             <div className="vv-faq-card" style={{

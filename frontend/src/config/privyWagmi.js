@@ -12,4 +12,3 @@ export const privyWagmiConfig = createConfig({
   dataSuffix: DATA_SUFFIX,
 });
 
-

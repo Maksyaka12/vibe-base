@@ -1,23 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
 import { parseEther } from 'viem';
-import {
-  Wallet,
-  ExternalLink,
-  Gem,
-  Flame,
-  ShieldCheck,
-  CheckCircle2,
-  AlertTriangle,
-  Download,
-  Share2,
-  X
-} from 'lucide-react';
+import { Wallet, ExternalLink, Gem, Flame, ShieldCheck, CheckCircle2, Download, Share2, X } from 'lucide-react';
 import { useUserBalances } from '../../../hooks/useUserBalances';
 import { useVibeNftContract, NFT_CONTRACT_ADDRESS, OPENSEA_COLLECTION_URL } from '../../../hooks/useVibeNftContract';
 import nftNames from '../../../data/nftNames.json';
-import { Button, Card, Badge, StatusPill, ProgressBar, KeyValue, SectionTitle, Alert } from '../components/ui';
+import { Button, Card, StatusPill, ProgressBar, SectionTitle, Alert } from '../components/ui';
 
 // NFT Deck strictly from #5 to #35 (31 NFTs)
 const NFT_DECK = Array.from({ length: 31 }, (_, i) => i + 5);

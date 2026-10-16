@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { CheckCircle2, Gift, Clock, Coins, ArrowRight, Lock, Flame, Info } from 'lucide-react';
 import { formatUnits } from 'viem';

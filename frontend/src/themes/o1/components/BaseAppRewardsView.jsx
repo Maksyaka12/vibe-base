@@ -1,17 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { usePrivy } from '@privy-io/react-auth';
-import {
-  Coins,
-  Lock,
-  ArrowUpRight,
-  ArrowRight,
-  ChevronDown,
-  Info,
-  CheckCircle2,
-  Clock,
-  ExternalLink
-} from 'lucide-react';
+import { Coins, ArrowUpRight, ArrowRight, ChevronDown, Info, Clock, ExternalLink } from 'lucide-react';
 import round1Data from '../../../data/round_1_proofs.json';
 import round2Data from '../../../data/round_2_proofs.json';
 import royalty1Data from '../../../data/royalty_1_proofs.json';

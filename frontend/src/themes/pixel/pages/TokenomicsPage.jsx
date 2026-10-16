@@ -1,23 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import {
-  Flame,
-  Users,
-  Clock,
-  Calculator,
-  Gamepad2,
-  Coins,
-  Crown,
-  ShieldCheck,
-  Gift,
-  ArrowRight,
-  ArrowUpRight,
-  ArrowRightCircle,
-  Loader2,
-  TrendingUp,
-  Calendar,
-  Check
-} from 'lucide-react';
+import { Flame, Users, Clock, Calculator, Coins, Crown, ShieldCheck, Gift, ArrowRight, ArrowUpRight, ArrowRightCircle, Loader2, TrendingUp, Calendar, Check } from 'lucide-react';
 import { parseAbiItem, formatUnits } from 'viem';
 import { publicClient } from '../../../config/rpc';
 
