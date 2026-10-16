@@ -2,8 +2,9 @@ import React from 'react';
 import { Menu, Wallet, Flame, Crown } from 'lucide-react';
 import { usePrivy, useWallets } from '@privy-io/react-auth';
 import { useAccount } from 'wagmi';
-import { useVibeBalances } from '../hooks/useVibeBalances';
-import { useVibeCheckIn } from '../hooks/useVibeCheckIn';
+import { useVibeBalances } from '../../../hooks/useVibeBalances';
+import { useVibeCheckIn } from '../../../hooks/useVibeCheckIn';
+import { ThemeSwitcher } from './ThemeSwitcher';
 
 export function BaseAppHeader({ onOpenSidebar, isDesktop = false }) {
   const { login, authenticated, user } = usePrivy();
@@ -201,6 +202,7 @@ export function BaseAppHeader({ onOpenSidebar, isDesktop = false }) {
             <span>Connect wallet</span>
           </button>
         )}
+        <ThemeSwitcher />
       </div>
     </header>
   );

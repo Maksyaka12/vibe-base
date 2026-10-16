@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { CheckCircle2, Gift, Clock, Coins, ArrowRight, Lock, Flame, Info } from 'lucide-react';
 import { formatUnits } from 'viem';
-import { getPublicClient } from '../config/rpc';
+import { getPublicClient } from '../../../config/rpc';
 import { STAKING_CONTRACT, STAKING_VAULTS_INFO } from '../Checker';
-import { useVibeCheckIn } from '../hooks/useVibeCheckIn';
-import { useVibeAchievements } from '../hooks/useVibeAchievements';
+import { useVibeCheckIn } from '../../../hooks/useVibeCheckIn';
+import { useVibeAchievements } from '../../../hooks/useVibeAchievements';
 import { Button, Card, Badge, PageHeader, SectionTitle } from './ui';
 
 const ADMIN_WALLET = '0x4c91d3bed372c11795b9ce9a9017dfe447bf050a';

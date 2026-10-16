@@ -459,3 +459,74 @@
     transform: translateX(100%);
   }
 }
+
+/* Theme switcher (header) */
+.o1-theme-switcher {
+  position: relative;
+}
+.o1-theme-switcher-trigger {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--r-full);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s ease-out, color 0.15s ease-out;
+}
+.o1-theme-switcher-trigger:hover,
+.o1-theme-switcher-trigger[aria-expanded="true"] {
+  background: var(--surface-2);
+  color: var(--text);
+}
+.o1-theme-switcher-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 160px;
+  padding: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-md);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+  z-index: 100;
+}
+.o1-theme-switcher-label {
+  padding: 6px 10px 4px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+.o1-theme-switcher-item {
+  width: 100%;
+  height: 36px;
+  padding: 0 10px;
+  border: none;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--text-2);
+  font: 500 14px var(--font-sans);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+}
+.o1-theme-switcher-item:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+.o1-theme-switcher-item.active {
+  color: var(--accent);
+}
+
+/* The bottom nav's More sheet carries the theme picker below desktop width */
+@media (max-width: 1023px) {
+  .o1-theme-switcher {
+    display: none;
+  }
+}

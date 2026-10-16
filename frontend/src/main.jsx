@@ -1,20 +1,24 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App.jsx';
-import './index.css';
-import './styles/o1-tokens.css';
-import './styles/o1-components.css';
-import './styles/o1-profile.css';
-import './styles/o1-hub.css';
-import './styles/o1-claim.css';
-import './styles/o1-swap.css';
-import './styles/o1-nft.css';
-import './styles/o1-tokenomics.css';
-import './styles/o1-contracts.css';
-import './styles/o1-admin.css';
+import { THEMES, getTheme } from './theme';
 
-ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+const theme = getTheme();
+document.documentElement.dataset.theme = theme;
+
+const fonts = document.createElement('link');
+fonts.rel = 'stylesheet';
+fonts.href = THEMES.find((t) => t.id === theme).fonts;
+document.head.appendChild(fonts);
+
+const loadTheme = {
+  o1: () => import('./themes/o1'),
+  pixel: () => import('./themes/pixel'),
+};
+
+loadTheme[theme]().then(({ default: App }) => {
+  ReactDOM.createRoot(document.getElementById('root')).render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  );
+});

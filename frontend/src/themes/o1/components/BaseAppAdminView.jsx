@@ -13,16 +13,16 @@ import {
   Users,
   Wallet
 } from 'lucide-react';
-import { publicClient } from '../config/rpc';
-import { DATA_SUFFIX, appendBuilderSuffix } from '../config/builderCode';
-import { useVibeNftContract } from '../hooks/useVibeNftContract';
-import round1Data from '../data/round_1_proofs.json';
-import round2Data from '../data/round_2_proofs.json';
-import royalty1Data from '../data/royalty_1_proofs.json';
-import royalty2Data from '../data/royalty_2_proofs.json';
-import royalty3Data from '../data/royalty_3_proofs.json';
-import royalty4Data from '../data/royalty_4_proofs.json';
-import royalty5Data from '../data/royalty_5_proofs.json';
+import { publicClient } from '../../../config/rpc';
+import { DATA_SUFFIX, appendBuilderSuffix } from '../../../config/builderCode';
+import { useVibeNftContract } from '../../../hooks/useVibeNftContract';
+import round1Data from '../../../data/round_1_proofs.json';
+import round2Data from '../../../data/round_2_proofs.json';
+import royalty1Data from '../../../data/royalty_1_proofs.json';
+import royalty2Data from '../../../data/royalty_2_proofs.json';
+import royalty3Data from '../../../data/royalty_3_proofs.json';
+import royalty4Data from '../../../data/royalty_4_proofs.json';
+import royalty5Data from '../../../data/royalty_5_proofs.json';
 import { Card, Tile, Button, Badge, StatusPill, Alert } from './ui';
 
 export const ADMIN_WALLET = '0x4c91d3bed372c11795b9ce9a9017dfe447bf050a';

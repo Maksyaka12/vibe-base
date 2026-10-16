@@ -14,9 +14,9 @@ import {
   Share2,
   X
 } from 'lucide-react';
-import { useUserBalances } from '../hooks/useUserBalances';
-import { useVibeNftContract, NFT_CONTRACT_ADDRESS, OPENSEA_COLLECTION_URL } from '../hooks/useVibeNftContract';
-import nftNames from '../data/nftNames.json';
+import { useUserBalances } from '../../../hooks/useUserBalances';
+import { useVibeNftContract, NFT_CONTRACT_ADDRESS, OPENSEA_COLLECTION_URL } from '../../../hooks/useVibeNftContract';
+import nftNames from '../../../data/nftNames.json';
 import { Button, Card, Badge, StatusPill, ProgressBar, KeyValue, SectionTitle, Alert } from '../components/ui';
 
 // NFT Deck strictly from #5 to #35 (31 NFTs)

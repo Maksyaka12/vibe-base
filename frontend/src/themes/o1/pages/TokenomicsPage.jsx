@@ -18,7 +18,7 @@ import {
   Lock
 } from 'lucide-react';
 import { parseAbiItem, formatUnits } from 'viem';
-import { publicClient } from '../config/rpc';
+import { publicClient } from '../../../config/rpc';
 import {
   Card,
   Tile,

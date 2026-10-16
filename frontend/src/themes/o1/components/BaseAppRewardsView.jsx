@@ -12,13 +12,13 @@ import {
   Clock,
   ExternalLink
 } from 'lucide-react';
-import round1Data from '../data/round_1_proofs.json';
-import round2Data from '../data/round_2_proofs.json';
-import royalty1Data from '../data/royalty_1_proofs.json';
-import royalty2Data from '../data/royalty_2_proofs.json';
-import royalty3Data from '../data/royalty_3_proofs.json';
-import royalty4Data from '../data/royalty_4_proofs.json';
-import royalty5Data from '../data/royalty_5_proofs.json';
+import round1Data from '../../../data/round_1_proofs.json';
+import round2Data from '../../../data/round_2_proofs.json';
+import royalty1Data from '../../../data/royalty_1_proofs.json';
+import royalty2Data from '../../../data/royalty_2_proofs.json';
+import royalty3Data from '../../../data/royalty_3_proofs.json';
+import royalty4Data from '../../../data/royalty_4_proofs.json';
+import royalty5Data from '../../../data/royalty_5_proofs.json';
 import { Button, Card, Tile, Badge, StatusPill, PageHeader, SectionTitle, Alert } from './ui';
 
 function formatClaimCountdown(targetDate) {

@@ -10,15 +10,18 @@ import {
   FileCode2,
   Shield,
   ArrowUpRight,
-  X
+  X,
+  Palette
 } from 'lucide-react';
 import { usePrivy, useWallets } from '@privy-io/react-auth';
 import { useAccount } from 'wagmi';
+import { THEMES, getTheme, setTheme } from '../../../theme';
 
 const ADMIN_WALLET = '0x4c91d3bed372c11795b9ce9a9017dfe447bf050a';
 
 export function BaseAppBottomNav({ activeTab, onSelectTab }) {
   const [isMoreOpen, setIsMoreOpen] = useState(false);
+  const currentTheme = getTheme();
   const { user } = usePrivy();
   const { wallets } = useWallets();
   const { address: wagmiAddress } = useAccount();
@@ -324,6 +327,28 @@ export function BaseAppBottomNav({ activeTab, onSelectTab }) {
                   <span>Admin panel</span>
                 </button>
               )}
+
+              {/* Theme picker (the header switcher is hidden while the bottom nav is shown) */}
+              <div style={{ marginTop: '8px', paddingTop: '12px', borderTop: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '14px', fontWeight: 500, color: 'var(--text)' }}>
+                  <Palette size={18} color="var(--accent)" />
+                  Theme
+                </span>
+                <div className="seg" role="radiogroup" aria-label="Theme">
+                  {THEMES.map((t) => (
+                    <button
+                      key={t.id}
+                      type="button"
+                      role="radio"
+                      aria-checked={t.id === currentTheme}
+                      aria-selected={t.id === currentTheme}
+                      onClick={() => setTheme(t.id)}
+                    >
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
               <div style={{ marginTop: '8px', paddingTop: '12px', borderTop: '1px solid var(--border)', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                 <a

@@ -3,28 +3,22 @@ import { BrowserRouter, Routes, Route, Link, useLocation, Navigate } from 'react
 import { Copy, Check, Menu, X, ArrowRight, ArrowUpRight, ArrowRightCircle, TrendingUp, Clock, Rocket, Globe, Star, Crown, Laptop, Loader2, Flame, Gift, Users, ShieldCheck, Calculator, Calendar, RotateCcw, Gamepad2, Coins, Sparkles, Lock, ChevronDown, HelpCircle, CheckCircle2 } from 'lucide-react';
 import { PrivyProvider, dataSuffix } from '@privy-io/react-auth';
 import { WagmiProvider as PrivyWagmiProvider } from '@privy-io/wagmi';
-import { privyWagmiConfig } from './config/privyWagmi';
-import { DATA_SUFFIX } from './config/builderCode';
+import { privyWagmiConfig } from '../../config/privyWagmi';
+import { DATA_SUFFIX } from '../../config/builderCode';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createPublicClient, http, formatUnits, parseAbiItem, parseAbi } from 'viem';
 import { base } from 'viem/chains';
-import { publicClient } from './config/rpc';
+import { publicClient } from '../../config/rpc';
 import Checker from './Checker';
 import { BaseAppView } from './components/BaseAppView';
 import NftClubPage from './pages/NftClubPage';
 import ContractsPage from './pages/ContractsPage';
 import BaseAppRewardsView from './components/BaseAppRewardsView';
+import { O1_STAKING_VAULT, O1_STAKING_VAULT_EPOCH_1, O1_STAKING_VAULT_EPOCH_2, O1_STAKING_VAULT_EPOCH_3, O1_STAKING_VAULT_EPOCH_4, O1_STAKING_VAULT_EPOCH_5, O1_STAKING_VAULT_EPOCH_6, STAKING_EPOCHS, VIBECLUB_EPOCHS, GIVEAWAYS_DATA, HOLDER_UNLOCKS } from '../../data/rewardsSchedule';
 import './index.css';
 
 const CA      = '0xb200000000000000000000df24ecb8bf51100a01';
 const O1      = 'https://launch.o1.exchange/token/0xb200000000000000000000df24ecb8bf51100a01?chain=8453';
-const O1_STAKING_VAULT = 'https://launch.o1.exchange/staking/vaults?chain=8453&token=0xb200000000000000000000df24ecb8bf51100a01';
-const O1_STAKING_VAULT_EPOCH_1 = 'https://launch.o1.exchange/staking/vaults/0xafa3ce23e0043b651d98e5a89b55a80b71be2f4a945a745cd6e37316b5075663?chain=8453';
-const O1_STAKING_VAULT_EPOCH_2 = 'https://launch.o1.exchange/staking/vaults/0x5dcabfeb83e84ad87572c531dfa8de915e0b5d8c11e4ca39598a3c6b4fc1e446?chain=8453';
-const O1_STAKING_VAULT_EPOCH_3 = 'https://launch.o1.exchange/staking/vaults/0x5a0d6075197085da4e2b9a790f3be8c297d08effcfca677992489668ebcf8b0c?chain=8453';
-const O1_STAKING_VAULT_EPOCH_4 = 'https://launch.o1.exchange/staking/vaults/0xdd9b4d063653fcc4d8b64d42edfe156002e863b15297d059463554182fa50dd9?chain=8453';
-const O1_STAKING_VAULT_EPOCH_5 = 'https://launch.o1.exchange/staking/vaults/0x795d393bdf9582ac8678aceb6f2228118ae2456406da38a8cb35967c033c0713?chain=8453';
-const O1_STAKING_VAULT_EPOCH_6 = 'https://launch.o1.exchange/staking/vaults/0x110cf0164a5244daf1e3f804d9bcc2b55b1cfbc95ff327aadf82ca3d664d2d08?chain=8453';
 const DEX     = 'https://dexscreener.com/base/0xa1a4159e61ac9fc48aa9e9992c8d4870ef8a496d5749af1d219e8002f74835c5';
 const DEX_EMB = 'https://dexscreener.com/base/0xa1a4159e61ac9fc48aa9e9992c8d4870ef8a496d5749af1d219e8002f74835c5?embed=1&theme=dark&activeTab=chart';
 
@@ -121,7 +115,7 @@ function Nav() {
                     alignItems: 'center',
                     gap: '6px',
                     ...(id === 'hub' ? {
-                      color: 'var(--amber)',
+                      color: '#ff6600',
                       fontWeight: 800
                     } : (id === 'claim' || id === 'checker') ? {
                       color: 'var(--blue)',
@@ -160,7 +154,7 @@ function Nav() {
                 justifyContent: 'center',
                 gap: '6px',
                 ...(id === 'hub' || id === 'rewards' ? {
-                  color: 'var(--amber)',
+                  color: '#ff6600',
                   fontWeight: 800
                 } : (id === 'claim' || id === 'checker') ? {
                   color: 'var(--blue)',
@@ -260,9 +254,9 @@ function About() {
             borderRadius: '0 12px 12px 0',
             padding: '12px 18px',
             display: 'inline-block',
-            borderTop: '1px solid color-mix(in srgb, var(--accent) 12%, transparent)',
-            borderRight: '1px solid color-mix(in srgb, var(--accent) 12%, transparent)',
-            borderBottom: '1px solid color-mix(in srgb, var(--accent) 12%, transparent)'
+            borderTop: '1px solid rgba(0, 82, 255, 0.12)',
+            borderRight: '1px solid rgba(0, 82, 255, 0.12)',
+            borderBottom: '1px solid rgba(0, 82, 255, 0.12)'
           }}>
             <p style={{ margin: 0, fontStyle: 'italic', fontSize: '0.95rem', fontWeight: 600, color: 'var(--ink)', lineHeight: '1.5' }}>
               Vibe belongs to only one owner offchain.<br/>
@@ -534,20 +528,20 @@ function Tokenomics() {
                   </linearGradient>
                   <linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" stopColor="#3b82f6" />
-                    <stop offset="100%" stopColor="var(--accent)" />
+                    <stop offset="100%" stopColor="#0052ff" />
                   </linearGradient>
 
                   <filter id="redGlow" x="-20%" y="-20%" width="140%" height="140%">
                     <feDropShadow dx="0" dy="4" stdDeviation="6" floodColor="#ef4444" floodOpacity="0.25" />
                   </filter>
                   <filter id="blueGlow" x="-20%" y="-20%" width="140%" height="140%">
-                    <feDropShadow dx="0" dy="4" stdDeviation="6" floodColor="var(--accent)" floodOpacity="0.25" />
+                    <feDropShadow dx="0" dy="4" stdDeviation="6" floodColor="#0052ff" floodOpacity="0.25" />
                   </filter>
                 </defs>
 
                 <g transform="translate(210, 140)">
                   {/* Track Ring */}
-                  <circle cx="0" cy="0" r="80" fill="none" stroke="var(--text-2)" strokeWidth="18" />
+                  <circle cx="0" cy="0" r="80" fill="none" stroke="#f1f5f9" strokeWidth="18" />
 
                   {/* 70% Community */}
                   <circle cx="0" cy="0" r="80" fill="none" stroke="url(#blueGradient)" strokeWidth="18"
@@ -565,9 +559,9 @@ function Tokenomics() {
                   <text x="-130" y="-64" fill="#ef4444" fontSize="13" fontWeight="800" textAnchor="end">Burn 30%</text>
 
                   {/* Right Callout (Community 70% - Bottom Right) */}
-                  <circle cx="47" cy="65" r="4" fill="var(--accent)" />
-                  <polyline points="47,65 75,90 115,90" fill="none" stroke="var(--accent)" strokeWidth="1.2" strokeDasharray="3 3" />
-                  <text x="122" y="94" fill="var(--accent)" fontSize="13" fontWeight="800" textAnchor="start">Community 70%</text>
+                  <circle cx="47" cy="65" r="4" fill="#0052ff" />
+                  <polyline points="47,65 75,90 115,90" fill="none" stroke="#0052ff" strokeWidth="1.2" strokeDasharray="3 3" />
+                  <text x="122" y="94" fill="#0052ff" fontSize="13" fontWeight="800" textAnchor="start">Community 70%</text>
 
                   {/* Center Text */}
                   <text x="0" y="-3" fill="var(--ink)" fontSize="30" fontWeight="900" textAnchor="middle" letterSpacing="-0.5px">100%</text>
@@ -581,7 +575,7 @@ function Tokenomics() {
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.2)', padding: '5px 12px', borderRadius: '99px', fontSize: '0.8rem', fontWeight: 800, color: '#ef4444' }}>
                 <Flame size={14} /> Burn 30%
               </div>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'color-mix(in srgb, var(--accent) 8%, transparent)', border: '1px solid color-mix(in srgb, var(--accent) 20%, transparent)', padding: '5px 12px', borderRadius: '99px', fontSize: '0.8rem', fontWeight: 800, color: 'var(--blue)' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(0, 82, 255, 0.08)', border: '1px solid rgba(0, 82, 255, 0.2)', padding: '5px 12px', borderRadius: '99px', fontSize: '0.8rem', fontWeight: 800, color: 'var(--blue)' }}>
                 <Users size={14} /> Community 70%
               </div>
             </div>
@@ -628,10 +622,10 @@ function Tokenomics() {
                 {/* 3. $VIBE Staking (15%) */}
                 <div className="who-r">
                   <div className="who-ico" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Coins color="var(--text-2)" size={20} />
+                    <Coins color="#a855f7" size={20} />
                   </div>
                   <div className="who-t">
-                    $VIBE Staking <span style={{ color: 'var(--text-2)', fontWeight: 900, display: 'inline', marginLeft: '4px' }}>(15%)</span>
+                    $VIBE Staking <span style={{ color: '#a855f7', fontWeight: 900, display: 'inline', marginLeft: '4px' }}>(15%)</span>
                     <span>Yield for locking $VIBE in verified staking pool on o1</span>
                   </div>
                 </div>
@@ -650,10 +644,10 @@ function Tokenomics() {
                 {/* 5. Reserve (70%) */}
                 <div className="who-r">
                   <div className="who-ico" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <ShieldCheck color="var(--green)" size={20} />
+                    <ShieldCheck color="#10b981" size={20} />
                   </div>
                   <div className="who-t">
-                    Reserve <span style={{ color: 'var(--green)', fontWeight: 900, display: 'inline', marginLeft: '4px' }}>(70%)</span>
+                    Reserve <span style={{ color: '#10b981', fontWeight: 900, display: 'inline', marginLeft: '4px' }}>(70%)</span>
                     <span>Buffer for continuous reward refills</span>
                   </div>
                 </div>
@@ -661,9 +655,9 @@ function Tokenomics() {
                 {/* 6. Action Button: Explore Rewards Hub */}
                 <Link to="/hub" className="who-r" style={{ textDecoration: 'none', cursor: 'pointer', background: 'var(--blue)' }}>
                   <div className="who-ico" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Gift color="var(--text)" size={20} />
+                    <Gift color="#fff" size={20} />
                   </div>
-                  <div className="who-t" style={{ color: 'var(--text)' }}>
+                  <div className="who-t" style={{ color: '#fff' }}>
                     Explore Rewards Hub
                     <span style={{ color: 'rgba(255,255,255,0.8)' }}>
                       Track available rewards <ArrowRightCircle size={14} style={{ verticalAlign: 'middle', marginLeft: 4 }} />
@@ -686,12 +680,12 @@ function Tokenomics() {
               <svg viewBox="0 0 420 280" style={{ width: '100%', height: 'auto', display: 'block', overflow: 'visible' }}>
                 <defs>
                   <linearGradient id="commPurpleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="var(--text-2)" />
+                    <stop offset="0%" stopColor="#a855f7" />
                     <stop offset="100%" stopColor="#7c3aed" />
                   </linearGradient>
                   <linearGradient id="commGreenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" stopColor="#34d399" />
-                    <stop offset="100%" stopColor="var(--green)" />
+                    <stop offset="100%" stopColor="#10b981" />
                   </linearGradient>
                   <linearGradient id="commAmberGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" stopColor="#fbbf24" />
@@ -702,7 +696,7 @@ function Tokenomics() {
                     <feDropShadow dx="0" dy="4" stdDeviation="6" floodColor="#7c3aed" floodOpacity="0.25" />
                   </filter>
                   <filter id="commGreenGlow" x="-20%" y="-20%" width="140%" height="140%">
-                    <feDropShadow dx="0" dy="4" stdDeviation="6" floodColor="var(--green)" floodOpacity="0.25" />
+                    <feDropShadow dx="0" dy="4" stdDeviation="6" floodColor="#10b981" floodOpacity="0.25" />
                   </filter>
                   <filter id="commAmberGlow" x="-20%" y="-20%" width="140%" height="140%">
                     <feDropShadow dx="0" dy="4" stdDeviation="6" floodColor="#f59e0b" floodOpacity="0.25" />
@@ -711,7 +705,7 @@ function Tokenomics() {
 
                 <g transform="translate(210, 140)">
                   {/* Track Ring */}
-                  <circle cx="0" cy="0" r="80" fill="none" stroke="var(--text-2)" strokeWidth="18" />
+                  <circle cx="0" cy="0" r="80" fill="none" stroke="#f1f5f9" strokeWidth="18" />
 
                   {/* 1. $VIBE Staking 15% */}
                   <circle cx="0" cy="0" r="80" fill="none" stroke="url(#commPurpleGrad)" strokeWidth="18"
@@ -739,9 +733,9 @@ function Tokenomics() {
                   <text x="150" y="20" fill="#f59e0b" fontSize="12" fontWeight="800" textAnchor="start">NFT Club 15%</text>
 
                   {/* Callout 3: Reserve 70% */}
-                  <circle cx="-65" cy="47" r="4" fill="var(--green)" />
-                  <polyline points="-65,47 -100,75 -140,75" fill="none" stroke="var(--green)" strokeWidth="1.2" strokeDasharray="3 3" />
-                  <text x="-145" y="80" fill="var(--green)" fontSize="12" fontWeight="800" textAnchor="end">Reserve 70%</text>
+                  <circle cx="-65" cy="47" r="4" fill="#10b981" />
+                  <polyline points="-65,47 -100,75 -140,75" fill="none" stroke="#10b981" strokeWidth="1.2" strokeDasharray="3 3" />
+                  <text x="-145" y="80" fill="#10b981" fontSize="12" fontWeight="800" textAnchor="end">Reserve 70%</text>
 
                   {/* Center Text */}
                   <text x="0" y="-3" fill="var(--ink)" fontSize="28" fontWeight="900" textAnchor="middle" letterSpacing="-0.5px">100%</text>
@@ -758,7 +752,7 @@ function Tokenomics() {
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', background: 'rgba(245, 158, 11, 0.08)', border: '1px solid rgba(245, 158, 11, 0.2)', padding: '4px 10px', borderRadius: '99px', fontSize: '0.75rem', fontWeight: 800, color: '#f59e0b' }}>
                 <Crown size={13} /> NFT Club 15%
               </div>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', background: 'color-mix(in srgb, var(--green) 8%, transparent)', border: '1px solid color-mix(in srgb, var(--green) 20%, transparent)', padding: '4px 10px', borderRadius: '99px', fontSize: '0.75rem', fontWeight: 800, color: 'var(--green)' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.2)', padding: '4px 10px', borderRadius: '99px', fontSize: '0.75rem', fontWeight: 800, color: '#10b981' }}>
                 <ShieldCheck size={13} /> Reserve 70%
               </div>
             </div>
@@ -795,7 +789,7 @@ function Tokenomics() {
                 {/* 2. NFTs Utility */}
                 <div className="who-r">
                   <div className="who-ico" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Crown color="var(--green)" size={20} />
+                    <Crown color="#10b981" size={20} />
                   </div>
                   <div className="who-t">
                     NFTs Utility
@@ -817,7 +811,7 @@ function Tokenomics() {
                 {/* 4. Royalties Pool */}
                 <div className="who-r">
                   <div className="who-ico" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Coins color="var(--accent)" size={20} />
+                    <Coins color="#00f5ff" size={20} />
                   </div>
                   <div className="who-t">
                     Royalties Pool
@@ -839,9 +833,9 @@ function Tokenomics() {
                 {/* 6. Action Button: Join Vibe Club */}
                 <a href="https://vibeverse.dog/vibeclub" target="_blank" rel="noreferrer" className="who-r" style={{ textDecoration: 'none', cursor: 'pointer', background: 'var(--blue)' }}>
                   <div className="who-ico" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Crown color="var(--text)" size={20} />
+                    <Crown color="#fff" size={20} />
                   </div>
-                  <div className="who-t" style={{ color: 'var(--text)' }}>
+                  <div className="who-t" style={{ color: '#fff' }}>
                     Join Vibe Club
                     <span style={{ color: 'rgba(255,255,255,0.8)' }}>
                       Mint your NFT <ArrowUpRight size={14} style={{ verticalAlign: 'middle', marginLeft: 4 }} />
@@ -869,20 +863,20 @@ function Tokenomics() {
                   </linearGradient>
                   <linearGradient id="nftBlueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" stopColor="#3b82f6" />
-                    <stop offset="100%" stopColor="var(--accent)" />
+                    <stop offset="100%" stopColor="#0052ff" />
                   </linearGradient>
 
                   <filter id="nftRedGlow" x="-20%" y="-20%" width="140%" height="140%">
                     <feDropShadow dx="0" dy="4" stdDeviation="6" floodColor="#ef4444" floodOpacity="0.25" />
                   </filter>
                   <filter id="nftBlueGlow" x="-20%" y="-20%" width="140%" height="140%">
-                    <feDropShadow dx="0" dy="4" stdDeviation="6" floodColor="var(--accent)" floodOpacity="0.25" />
+                    <feDropShadow dx="0" dy="4" stdDeviation="6" floodColor="#0052ff" floodOpacity="0.25" />
                   </filter>
                 </defs>
 
                 <g transform="translate(210, 140)">
                   {/* Track Ring */}
-                  <circle cx="0" cy="0" r="80" fill="none" stroke="var(--text-2)" strokeWidth="18" />
+                  <circle cx="0" cy="0" r="80" fill="none" stroke="#f1f5f9" strokeWidth="18" />
 
                   {/* 20% Reserved for Community (Spans 0 to 20 -> Offset -2.5, length 15) */}
                   <circle cx="0" cy="0" r="80" fill="none" stroke="url(#nftBlueGrad)" strokeWidth="18"
@@ -900,9 +894,9 @@ function Tokenomics() {
                   <text x="-130" y="-64" fill="#ef4444" fontSize="13" fontWeight="800" textAnchor="end">Burn 80%</text>
 
                   {/* Right Callout (Community 20% - Top Right at 10% of circle) */}
-                  <circle cx="47" cy="-65" r="4" fill="var(--accent)" />
-                  <polyline points="47,-65 80,-80 120,-80" fill="none" stroke="var(--accent)" strokeWidth="1.2" strokeDasharray="3 3" />
-                  <text x="125" y="-76" fill="var(--accent)" fontSize="13" fontWeight="800" textAnchor="start">Community 20%</text>
+                  <circle cx="47" cy="-65" r="4" fill="#0052ff" />
+                  <polyline points="47,-65 80,-80 120,-80" fill="none" stroke="#0052ff" strokeWidth="1.2" strokeDasharray="3 3" />
+                  <text x="125" y="-76" fill="#0052ff" fontSize="13" fontWeight="800" textAnchor="start">Community 20%</text>
 
                   {/* Center Text */}
                   <text x="0" y="-3" fill="var(--ink)" fontSize="30" fontWeight="900" textAnchor="middle" letterSpacing="-0.5px">100%</text>
@@ -916,7 +910,7 @@ function Tokenomics() {
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.2)', padding: '5px 12px', borderRadius: '99px', fontSize: '0.8rem', fontWeight: 800, color: '#ef4444' }}>
                 <Flame size={14} /> Burn 80%
               </div>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'color-mix(in srgb, var(--accent) 8%, transparent)', border: '1px solid color-mix(in srgb, var(--accent) 20%, transparent)', padding: '5px 12px', borderRadius: '99px', fontSize: '0.8rem', fontWeight: 800, color: 'var(--blue)' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(0, 82, 255, 0.08)', border: '1px solid rgba(0, 82, 255, 0.2)', padding: '5px 12px', borderRadius: '99px', fontSize: '0.8rem', fontWeight: 800, color: 'var(--blue)' }}>
                 <Users size={14} /> Community 20%
               </div>
             </div>
@@ -964,8 +958,8 @@ function Tokenomics() {
                   <div className="who-t">Unclaimed Tokens<span>Permanently burned</span></div>
                 </div>
                 <Link to="/claim" className="who-r" style={{textDecoration:'none', cursor:'pointer', background:'var(--blue)'}}>
-                  <div className="who-ico" style={{display:'flex', alignItems:'center', justifyContent:'center'}}><Check color="var(--text)" size={20}/></div>
-                  <div className="who-t" style={{color:'var(--text)'}}>Check your eligibility<span style={{color:'rgba(255,255,255,0.8)'}}>Qualify for the next distribution <ArrowRightCircle size={14} style={{verticalAlign:'middle', marginLeft:4}}/></span></div>
+                  <div className="who-ico" style={{display:'flex', alignItems:'center', justifyContent:'center'}}><Check color="#fff" size={20}/></div>
+                  <div className="who-t" style={{color:'#fff'}}>Check your eligibility<span style={{color:'rgba(255,255,255,0.8)'}}>Qualify for the next distribution <ArrowRightCircle size={14} style={{verticalAlign:'middle', marginLeft:4}}/></span></div>
                 </Link>
               </div>
             </div>
@@ -1242,122 +1236,8 @@ export function getRewardEpochStatus(ep, currentTime = new Date()) {
   return 'upcoming';
 }
 
-const STAKING_EPOCHS = [
-  {
-    epoch: 'Epoch 1',
-    duration: '10 Days',
-    poolAmount: '2,200,000',
-    startTime: '21 Aug, 15:00 UTC',
-    endTime: '31 Aug, 15:00 UTC',
-    startDateObj: new Date('2026-08-21T15:00:00Z'),
-    endDateObj: new Date('2026-08-31T15:00:00Z'),
-    link: O1_STAKING_VAULT_EPOCH_1
-  },
-  {
-    epoch: 'Epoch 2',
-    duration: '10 Days',
-    poolAmount: '2,200,000',
-    startTime: '31 Aug, 16:00 UTC',
-    endTime: '10 Sep, 16:00 UTC',
-    startDateObj: new Date('2026-08-31T16:00:00Z'),
-    endDateObj: new Date('2026-09-10T16:00:00Z'),
-    link: O1_STAKING_VAULT_EPOCH_2
-  },
-  {
-    epoch: 'Epoch 3',
-    duration: '10 Days',
-    poolAmount: '2,200,000',
-    startTime: '10 Sep, 15:00 UTC',
-    endTime: '20 Sep, 15:00 UTC',
-    startDateObj: new Date('2026-09-10T15:00:00Z'),
-    endDateObj: new Date('2026-09-20T15:00:00Z'),
-    link: O1_STAKING_VAULT_EPOCH_3
-  },
-  {
-    epoch: 'Epoch 4',
-    duration: '10 Days',
-    poolAmount: '1,800,000',
-    startTime: '20 Sep, 15:00 UTC',
-    endTime: '30 Sep, 15:00 UTC',
-    startDateObj: new Date('2026-09-20T15:00:00Z'),
-    endDateObj: new Date('2026-09-30T15:00:00Z'),
-    link: O1_STAKING_VAULT_EPOCH_4
-  },
-  {
-    epoch: 'Epoch 5',
-    duration: '10 Days',
-    poolAmount: '1,100,000',
-    startTime: '30 Sep, 15:00 UTC',
-    endTime: '10 Oct, 15:00 UTC',
-    startDateObj: new Date('2026-09-30T15:00:00Z'),
-    endDateObj: new Date('2026-10-10T15:00:00Z'),
-    link: O1_STAKING_VAULT_EPOCH_5
-  },
-  {
-    epoch: 'Epoch 6',
-    duration: '10 Days',
-    poolAmount: '1,100,000',
-    startTime: '10 Oct, 15:00 UTC',
-    endTime: '20 Oct, 15:00 UTC',
-    startDateObj: new Date('2026-10-10T15:00:00Z'),
-    endDateObj: new Date('2026-10-20T15:00:00Z'),
-    link: O1_STAKING_VAULT_EPOCH_6
-  },
-  {
-    epoch: 'Epoch 7',
-    duration: '10 Days',
-    poolAmount: 'TBA',
-    startTime: '20 Oct, 15:00 UTC',
-    endTime: '30 Oct, 15:00 UTC',
-    startDateObj: new Date('2026-10-20T15:00:00Z'),
-    endDateObj: new Date('2026-10-30T15:00:00Z'),
-    link: O1_STAKING_VAULT
-  },
-  {
-    epoch: 'Epoch 8',
-    duration: '10 Days',
-    poolAmount: 'TBA',
-    startTime: '30 Oct, 15:00 UTC',
-    endTime: '09 Nov, 15:00 UTC',
-    startDateObj: new Date('2026-10-30T15:00:00Z'),
-    endDateObj: new Date('2026-11-09T15:00:00Z'),
-    link: O1_STAKING_VAULT
-  },
-  {
-    epoch: 'Epoch 9',
-    duration: '10 Days',
-    poolAmount: 'TBA',
-    startTime: '09 Nov, 15:00 UTC',
-    endTime: '19 Nov, 15:00 UTC',
-    startDateObj: new Date('2026-11-09T15:00:00Z'),
-    endDateObj: new Date('2026-11-19T15:00:00Z'),
-    link: O1_STAKING_VAULT
-  },
-  {
-    epoch: 'Epoch 10',
-    duration: '10 Days',
-    poolAmount: 'TBA',
-    startTime: '19 Nov, 15:00 UTC',
-    endTime: '29 Nov, 15:00 UTC',
-    startDateObj: new Date('2026-11-19T15:00:00Z'),
-    endDateObj: new Date('2026-11-29T15:00:00Z'),
-    link: O1_STAKING_VAULT
-  }
-];
 
 
-const VIBECLUB_EPOCHS = [
-  { epoch: 'Royalty 1', snapshotTime: '28 Aug, 00:00 UTC', claimDate: '28 Aug, 14:00 UTC', snapshotDateObj: new Date('2026-08-28T00:00:00Z'), dateObj: new Date('2026-08-28T14:00:00Z'), nextSnapshotDate: new Date('2026-09-07T00:00:00Z'), poolAmount: '2,500,000 $VIBE' },
-  { epoch: 'Royalty 2', snapshotTime: '7 Sep, 00:00 UTC', claimDate: '7 Sep, 14:00 UTC', snapshotDateObj: new Date('2026-09-07T00:00:00Z'), dateObj: new Date('2026-09-07T14:00:00Z'), nextSnapshotDate: new Date('2026-09-17T00:00:00Z'), poolAmount: '1,900,000 $VIBE' },
-  { epoch: 'Royalty 3', snapshotTime: '17 Sep, 00:00 UTC', claimDate: '17 Sep, 14:00 UTC', snapshotDateObj: new Date('2026-09-17T00:00:00Z'), dateObj: new Date('2026-09-17T14:00:00Z'), nextSnapshotDate: new Date('2026-09-27T00:00:00Z'), poolAmount: '2,000,000 $VIBE' },
-  { epoch: 'Royalty 4', snapshotTime: '27 Sep, 00:00 UTC', claimDate: '27 Sep, 14:00 UTC', snapshotDateObj: new Date('2026-09-27T00:00:00Z'), dateObj: new Date('2026-09-27T14:00:00Z'), nextSnapshotDate: new Date('2026-10-07T00:00:00Z'), poolAmount: '1,100,000 $VIBE' },
-  { epoch: 'Royalty 5', snapshotTime: '7 Oct, 00:00 UTC', claimDate: '7 Oct, 14:00 UTC', snapshotDateObj: new Date('2026-10-07T00:00:00Z'), dateObj: new Date('2026-10-07T14:00:00Z'), nextSnapshotDate: new Date('2026-10-17T00:00:00Z'), poolAmount: '800,000 $VIBE' },
-  { epoch: 'Royalty 6', snapshotTime: '17 Oct, 00:00 UTC', claimDate: '17 Oct, 14:00 UTC', snapshotDateObj: new Date('2026-10-17T00:00:00Z'), dateObj: new Date('2026-10-17T14:00:00Z'), nextSnapshotDate: new Date('2026-10-27T00:00:00Z'), poolAmount: 'TBA' },
-  { epoch: 'Royalty 7', snapshotTime: '27 Oct, 00:00 UTC', claimDate: '27 Oct, 14:00 UTC', snapshotDateObj: new Date('2026-10-27T00:00:00Z'), dateObj: new Date('2026-10-27T14:00:00Z'), nextSnapshotDate: new Date('2026-11-06T00:00:00Z'), poolAmount: 'TBA' },
-  { epoch: 'Royalty 8', snapshotTime: '6 Nov, 00:00 UTC', claimDate: '6 Nov, 14:00 UTC', snapshotDateObj: new Date('2026-11-06T00:00:00Z'), dateObj: new Date('2026-11-06T14:00:00Z'), nextSnapshotDate: new Date('2026-11-16T00:00:00Z'), poolAmount: 'TBA' },
-  { epoch: 'Royalty 9', snapshotTime: '16 Nov, 00:00 UTC', claimDate: '16 Nov, 14:00 UTC', snapshotDateObj: new Date('2026-11-16T00:00:00Z'), dateObj: new Date('2026-11-16T14:00:00Z'), nextSnapshotDate: new Date('2026-11-26T00:00:00Z'), poolAmount: 'TBA' },
-  { epoch: 'Royalty 10', snapshotTime: '26 Nov, 00:00 UTC', claimDate: '26 Nov, 14:00 UTC', snapshotDateObj: new Date('2026-11-26T00:00:00Z'), dateObj: new Date('2026-11-26T14:00:00Z'), nextSnapshotDate: new Date('2026-12-06T00:00:00Z'), poolAmount: 'TBA' },
-];
 
 function formatCountdown(targetDate) {
   if (!targetDate) return '';
@@ -1407,71 +1287,7 @@ function GiveawayCountdown({ targetDate, isOngoing }) {
   );
 }
 
-const GIVEAWAYS_DATA = [
-  {
-    id: 5,
-    title: 'Meme & Art',
-    winners: '6 Winners',
-    prizePool: '$50 in ETH',
-    status: 'ended',
-    distribution: 'Completed',
-    link: 'https://x.com/noelle_base/status/2094038840927203494'
-  },
-  {
-    id: 4,
-    title: '7 NFTs Vibe Club',
-    image: '/rewards/vibe-club.jfif',
-    winners: '7 Winners',
-    prizePool: '7 NFTs',
-    burnNote: '~3M $VIBE burn',
-    status: 'ended',
-    distribution: 'Completed',
-    link: 'https://x.com/vibeB20/status/2092000984671129772'
-  },
-  {
-    id: 3,
-    title: '1000 Holders',
-    image: '/event3.png',
-    winners: '33 Winners',
-    prizePool: 'TBA',
-    status: 'ongoing',
-    distribution: 'Not Started',
-    link: 'https://x.com/vibeB20/status/2085778007960977418'
-  },
-  {
-    id: 1,
-    title: '$1M MC',
-    image: '/event1.png',
-    winners: '50 Winners',
-    prizePool: 'TBA',
-    status: 'ongoing',
-    distribution: 'Not Started',
-    link: 'https://x.com/mksvibe/status/2083993197861073025'
-  },
-  {
-    id: 2,
-    title: 'Base App Welcome Bonus',
-    image: '/event2.png',
-    winners: '350 Winners',
-    prizePool: '1M $VIBE',
-    status: 'ended',
-    distribution: 'In Progress (92%)',
-    link: 'https://x.com/mksvibe/status/2084601445844689003'
-  }
-];
 
-const HOLDER_UNLOCKS = [
-  { unlock: 'Unlock 1', snapshotTime: '26 Aug, 00:00 UTC', unlockDate: '26 Aug, 14:00 UTC', snapshotDateObj: new Date('2026-08-26T00:00:00Z'), dateObj: new Date('2026-08-26T14:00:00Z'), nextSnapshotDate: new Date('2026-09-25T00:00:00Z'), poolAmount: '10,000,000' },
-  { unlock: 'Unlock 2', snapshotTime: '25 Sep, 00:00 UTC', unlockDate: '25 Sep, 14:00 UTC', snapshotDateObj: new Date('2026-09-25T00:00:00Z'), dateObj: new Date('2026-09-25T14:00:00Z'), nextSnapshotDate: new Date('2026-10-25T00:00:00Z'), poolAmount: '10,000,000' },
-  { unlock: 'Unlock 3', snapshotTime: '25 Oct, 00:00 UTC', unlockDate: '25 Oct, 14:00 UTC', snapshotDateObj: new Date('2026-10-25T00:00:00Z'), dateObj: new Date('2026-10-25T14:00:00Z'), nextSnapshotDate: new Date('2026-11-24T00:00:00Z'), poolAmount: '10,000,000' },
-  { unlock: 'Unlock 4', snapshotTime: '24 Nov, 00:00 UTC', unlockDate: '24 Nov, 14:00 UTC', snapshotDateObj: new Date('2026-11-24T00:00:00Z'), dateObj: new Date('2026-11-24T14:00:00Z'), nextSnapshotDate: new Date('2026-12-24T00:00:00Z'), poolAmount: '10,000,000' },
-  { unlock: 'Unlock 5', snapshotTime: '24 Dec, 00:00 UTC', unlockDate: '24 Dec, 14:00 UTC', snapshotDateObj: new Date('2026-12-24T00:00:00Z'), dateObj: new Date('2026-12-24T14:00:00Z'), nextSnapshotDate: new Date('2027-01-23T00:00:00Z'), poolAmount: '10,000,000' },
-  { unlock: 'Unlock 6', snapshotTime: '23 Jan, 00:00 UTC', unlockDate: '23 Jan, 14:00 UTC', snapshotDateObj: new Date('2027-01-23T00:00:00Z'), dateObj: new Date('2027-01-23T14:00:00Z'), nextSnapshotDate: new Date('2027-02-22T00:00:00Z'), poolAmount: '10,000,000' },
-  { unlock: 'Unlock 7', snapshotTime: '22 Feb, 00:00 UTC', unlockDate: '22 Feb, 14:00 UTC', snapshotDateObj: new Date('2027-02-22T00:00:00Z'), dateObj: new Date('2027-02-22T14:00:00Z'), nextSnapshotDate: new Date('2027-03-24T00:00:00Z'), poolAmount: '10,000,000' },
-  { unlock: 'Unlock 8', snapshotTime: '24 Mar, 00:00 UTC', unlockDate: '24 Mar, 14:00 UTC', snapshotDateObj: new Date('2027-03-24T00:00:00Z'), dateObj: new Date('2027-03-24T14:00:00Z'), nextSnapshotDate: new Date('2027-04-23T00:00:00Z'), poolAmount: '10,000,000' },
-  { unlock: 'Unlock 9', snapshotTime: '23 Apr, 00:00 UTC', unlockDate: '23 Apr, 14:00 UTC', snapshotDateObj: new Date('2027-04-23T00:00:00Z'), dateObj: new Date('2027-04-23T14:00:00Z'), nextSnapshotDate: new Date('2027-05-23T00:00:00Z'), poolAmount: '10,000,000' },
-  { unlock: 'Unlock 10', snapshotTime: '23 May, 00:00 UTC', unlockDate: '23 May, 14:00 UTC', snapshotDateObj: new Date('2027-05-23T00:00:00Z'), dateObj: new Date('2027-05-23T14:00:00Z'), nextSnapshotDate: new Date('2027-06-23T00:00:00Z'), poolAmount: '10,000,000' },
-];
 
 function formatClaimCountdown(targetDate) {
   if (!targetDate) return '';
@@ -1535,7 +1351,7 @@ function ClaimCountdownButton({ targetDate, href = "/claim" }) {
         className="btn-fill"
         style={{
           background: 'var(--blue)',
-          color: 'var(--text)',
+          color: '#ffffff',
           padding: '11px 14px',
           fontSize: '0.86rem',
           fontWeight: 800,
@@ -1547,7 +1363,7 @@ function ClaimCountdownButton({ targetDate, href = "/claim" }) {
           width: '100%',
           textDecoration: 'none',
           whiteSpace: 'nowrap',
-          
+          boxShadow: '0 4px 16px rgba(0, 0, 255, 0.3)',
           transition: 'all 0.15s'
         }}
       >
@@ -1568,16 +1384,17 @@ function ClaimCountdownButton({ targetDate, href = "/claim" }) {
         fontSize: '0.86rem',
         fontWeight: 800,
         borderRadius: '12px',
-        background: 'color-mix(in srgb, var(--green) 12%, transparent)',
-        border: '1.5px solid var(--green)',
-        color: 'var(--green)',
+        background: 'rgba(5, 150, 105, 0.12)',
+        border: '1.5px solid #059669',
+        color: '#059669',
         cursor: 'default',
         whiteSpace: 'nowrap',
         gap: '6px',
         fontVariantNumeric: 'tabular-nums',
-        }}
+        boxShadow: '0 0 16px rgba(5, 150, 105, 0.2)'
+      }}
     >
-      <Clock size={14} color="var(--green)" /> Claim in {timeLeft}
+      <Clock size={14} color="#059669" /> Claim in {timeLeft}
     </button>
   );
 }
@@ -1782,12 +1599,12 @@ function Rewards({ isBaseAppMode = false } = {}) {
                   role="button"
                   tabIndex={0}
                   style={{
-                    background: 'var(--surface-2)',
+                    background: '#ffffff',
                     borderRadius: '24px',
-                    border: '2px solid color-mix(in srgb, var(--accent) 18%, transparent)',
+                    border: '2px solid rgba(0, 82, 255, 0.18)',
                     overflow: 'hidden',
                     cursor: 'pointer',
-                    
+                    boxShadow: '0 8px 30px rgba(0, 82, 255, 0.08)',
                     transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
                     display: 'flex',
                     flexDirection: 'column'
@@ -1795,12 +1612,12 @@ function Rewards({ isBaseAppMode = false } = {}) {
                   onMouseEnter={e => {
                     e.currentTarget.style.transform = 'translateY(-6px)';
                     e.currentTarget.style.borderColor = 'var(--blue)';
-                    e.currentTarget.style.boxShadow = '0 16px 36px -4px color-mix(in srgb, var(--accent) 25%, transparent)';
+                    e.currentTarget.style.boxShadow = '0 16px 36px -4px rgba(0, 82, 255, 0.25)';
                   }}
                   onMouseLeave={e => {
                     e.currentTarget.style.transform = 'none';
-                    e.currentTarget.style.borderColor = 'color-mix(in srgb, var(--accent) 18%, transparent)';
-                    e.currentTarget.style.boxShadow = '0 8px 30px color-mix(in srgb, var(--accent) 8%, transparent)';
+                    e.currentTarget.style.borderColor = 'rgba(0, 82, 255, 0.18)';
+                    e.currentTarget.style.boxShadow = '0 8px 30px rgba(0, 82, 255, 0.08)';
                   }}
                 >
                   {/* Card Image Banner */}
@@ -1825,9 +1642,9 @@ function Rewards({ isBaseAppMode = false } = {}) {
                           key={idx}
                           style={{
                             background: '#090d16',
-                            color: b.type === 'active' ? '#22c55e' : b.type === 'coming-soon' ? '#f59e0b' : 'var(--text-3)',
+                            color: b.type === 'active' ? '#22c55e' : b.type === 'coming-soon' ? '#f59e0b' : '#94a3b8',
                             border: b.type === 'active' ? '1px solid rgba(34, 197, 94, 0.4)' : b.type === 'coming-soon' ? '1px solid rgba(245, 158, 11, 0.4)' : '1px solid rgba(148, 163, 184, 0.25)',
-                            
+                            backdropFilter: 'blur(8px)',
                             padding: '3px 8px',
                             borderRadius: '99px',
                             fontSize: '0.66rem',
@@ -1835,9 +1652,10 @@ function Rewards({ isBaseAppMode = false } = {}) {
                             display: 'inline-flex',
                             alignItems: 'center',
                             gap: '5px',
-                            
+                            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.45)',
                             letterSpacing: '0.03em',
-                            }}
+                            textTransform: 'uppercase'
+                          }}
                         >
                           {b.type === 'active' && (
                             <span
@@ -1846,7 +1664,7 @@ function Rewards({ isBaseAppMode = false } = {}) {
                                 height: '5px',
                                 borderRadius: '50%',
                                 background: '#22c55e',
-                                
+                                boxShadow: '0 0 6px #22c55e',
                                 display: 'inline-block'
                               }}
                             />
@@ -1855,7 +1673,7 @@ function Rewards({ isBaseAppMode = false } = {}) {
                             <Lock size={10} color="#f59e0b" strokeWidth={2.3} />
                           )}
                           {b.type === 'upcoming' && (
-                            <Clock size={10} color="var(--text-3)" strokeWidth={2.3} />
+                            <Clock size={10} color="#94a3b8" strokeWidth={2.3} />
                           )}
                           {b.label}
                         </div>
@@ -1864,20 +1682,20 @@ function Rewards({ isBaseAppMode = false } = {}) {
                   </div>
 
                   {/* Card Body: Left Title, Right Compact Explore Button */}
-                  <div style={{ padding: isBaseAppMode ? '12px 14px' : '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: isBaseAppMode ? 'color-mix(in srgb, var(--surface) 95%, transparent)' : 'var(--text)', gap: '12px', width: '100%', boxSizing: 'border-box' }}>
-                    <h3 style={{ margin: 0, fontSize: isBaseAppMode ? '9px' : '1.18rem', fontWeight: 900, color: isBaseAppMode ? 'var(--text)' : 'var(--ink)', letterSpacing: isBaseAppMode ? '0.3px' : '-0.02em', whiteSpace: 'nowrap', fontFamily: isBaseAppMode ? 'var(--font-sans)' : 'inherit' }}>
+                  <div style={{ padding: isBaseAppMode ? '12px 14px' : '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: isBaseAppMode ? 'rgba(4, 20, 48, 0.95)' : '#ffffff', gap: '12px', width: '100%', boxSizing: 'border-box' }}>
+                    <h3 style={{ margin: 0, fontSize: isBaseAppMode ? '9px' : '1.18rem', fontWeight: 900, color: isBaseAppMode ? '#ffffff' : 'var(--ink)', letterSpacing: isBaseAppMode ? '0.3px' : '-0.02em', whiteSpace: 'nowrap', fontFamily: isBaseAppMode ? "'Press Start 2P', monospace" : 'inherit' }}>
                       {cat.label}
                     </h3>
                     <div
                       className="rewards-explore-badge"
                       style={{
                         background: isBaseAppMode ? 'transparent' : 'var(--blue)',
-                        color: isBaseAppMode ? 'var(--accent)' : 'var(--text)',
-                        border: isBaseAppMode ? '1.5px solid var(--accent)' : 'none',
-                        
+                        color: isBaseAppMode ? '#00f5ff' : '#ffffff',
+                        border: isBaseAppMode ? '1.5px solid #00f5ff' : 'none',
+                        boxShadow: isBaseAppMode ? '0 0 10px rgba(0, 245, 255, 0.25)' : '0 3px 12px rgba(0, 82, 255, 0.25)',
                         padding: isBaseAppMode ? '7px 10px' : '9px 18px',
                         fontSize: isBaseAppMode ? '7px' : '0.84rem',
-                        fontFamily: isBaseAppMode ? 'var(--font-sans)' : 'inherit',
+                        fontFamily: isBaseAppMode ? "'Press Start 2P', monospace" : 'inherit',
                         fontWeight: 800,
                         borderRadius: isBaseAppMode ? '8px' : '10px',
                         display: 'inline-flex',
@@ -1891,7 +1709,7 @@ function Rewards({ isBaseAppMode = false } = {}) {
                         transition: 'all 0.2s'
                       }}
                     >
-                      <span>Explore</span> <ArrowRight size={isBaseAppMode ? 11 : 14} color={isBaseAppMode ? 'var(--accent)' : 'var(--text)'} strokeWidth={2.5} />
+                      <span>Explore</span> <ArrowRight size={isBaseAppMode ? 11 : 14} color={isBaseAppMode ? '#00f5ff' : '#ffffff'} strokeWidth={2.5} />
                     </div>
                   </div>
                 </div>
@@ -1920,7 +1738,7 @@ function Rewards({ isBaseAppMode = false } = {}) {
                     question: 'Where do I claim Holder Rewards & Vibe Club rewards?',
                     answer: 'Holder Rewards & Vibe Club rewards are claimed directly in the Rewards Hub.',
                     icon: <Sparkles size={18} color="var(--blue)" />,
-                    iconBg: 'color-mix(in srgb, var(--accent) 8%, transparent)',
+                    iconBg: 'rgba(0, 82, 255, 0.08)',
                     renderAnswer: () => (
                       <span>
                         <strong style={{ color: 'var(--ink)' }}>Holder Rewards</strong> &amp; <strong style={{ color: 'var(--ink)' }}>Vibe Club</strong> rewards are claimed directly in the Rewards Hub.
@@ -1941,11 +1759,11 @@ function Rewards({ isBaseAppMode = false } = {}) {
                   {
                     question: 'What is the rule for unclaimed reward tokens?',
                     answer: 'All unclaimed tokens within the claim period are permanently burned.',
-                    icon: <Flame size={18} color="var(--amber)" />,
+                    icon: <Flame size={18} color="#ff5500" />,
                     iconBg: 'rgba(255, 85, 0, 0.08)',
                     renderAnswer: () => (
                       <span>
-                        All unclaimed tokens within the claim period are <strong style={{ color: 'var(--amber)' }}>permanently burned</strong>.
+                        All unclaimed tokens within the claim period are <strong style={{ color: '#ff5500' }}>permanently burned</strong>.
                       </span>
                     )
                   }
@@ -2019,7 +1837,7 @@ function Rewards({ isBaseAppMode = false } = {}) {
                             fontSize: '0.88rem',
                             color: 'var(--ink2)',
                             lineHeight: 1.55,
-                            borderTop: '1px solid color-mix(in srgb, var(--accent) 8%, transparent)'
+                            borderTop: '1px solid rgba(0, 82, 255, 0.08)'
                           }}
                         >
                           <div style={{ paddingTop: '12px' }}>
@@ -2043,16 +1861,16 @@ function Rewards({ isBaseAppMode = false } = {}) {
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '8px',
-                  background: isBaseAppMode ? 'color-mix(in srgb, var(--bg) 85%, transparent)' : 'var(--text)',
-                  border: isBaseAppMode ? '1.5px solid color-mix(in srgb, var(--accent) 35%, transparent)' : '1.5px solid color-mix(in srgb, var(--accent) 25%, transparent)',
-                  color: isBaseAppMode ? 'var(--accent)' : 'var(--blue)',
+                  background: isBaseAppMode ? 'rgba(2, 11, 26, 0.85)' : '#ffffff',
+                  border: isBaseAppMode ? '1.5px solid rgba(0, 245, 255, 0.35)' : '1.5px solid rgba(0, 82, 255, 0.25)',
+                  color: isBaseAppMode ? '#00f5ff' : 'var(--blue)',
                   fontWeight: 800,
                   fontSize: isBaseAppMode ? '7.5px' : '0.88rem',
-                  fontFamily: isBaseAppMode ? 'var(--font-sans)' : 'var(--font)',
+                  fontFamily: isBaseAppMode ? "'Press Start 2P', monospace" : 'var(--font)',
                   padding: isBaseAppMode ? '8px 14px' : '10px 20px',
                   borderRadius: isBaseAppMode ? '10px' : '14px',
                   cursor: 'pointer',
-                  
+                  boxShadow: isBaseAppMode ? '0 0 10px rgba(0, 245, 255, 0.2)' : '0 2px 8px rgba(0, 82, 255, 0.08)',
                   transition: 'all 0.15s'
                 }}
               >
@@ -2060,7 +1878,7 @@ function Rewards({ isBaseAppMode = false } = {}) {
               </button>
 
               {!isBaseAppMode && (
-                <div style={{ display: 'flex', gap: '6px', background: 'var(--text-2)', padding: '4px', borderRadius: '14px', border: '1px solid var(--text-2)', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', gap: '6px', background: '#f1f5f9', padding: '4px', borderRadius: '14px', border: '1px solid #e2e8f0', flexWrap: 'wrap' }}>
                   {categoryCards.map(c => (
                     <button
                       key={c.id}
@@ -2068,7 +1886,7 @@ function Rewards({ isBaseAppMode = false } = {}) {
                       style={{
                         fontFamily: 'var(--font)',
                         background: activeTab === c.id ? 'var(--blue)' : 'transparent',
-                        color: activeTab === c.id ? 'var(--text)' : 'var(--text-3)',
+                        color: activeTab === c.id ? '#ffffff' : '#64748b',
                         border: 'none',
                         padding: '6px 14px',
                         borderRadius: '10px',
@@ -2094,11 +1912,12 @@ function Rewards({ isBaseAppMode = false } = {}) {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '14px', marginBottom: '28px' }}>
               <div
                 style={{
-                  background: 'color-mix(in srgb, var(--text-2) 55%, transparent)',
+                  background: 'linear-gradient(135deg, rgba(190, 241, 255, 0.55) 0%, rgba(225, 249, 255, 0.75) 100%)',
                   border: '1px solid rgba(0, 160, 255, 0.25)',
                   borderRadius: '16px',
                   padding: '16px 18px',
-                  }}
+                  boxShadow: '0 2px 8px rgba(0, 82, 255, 0.04)'
+                }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
                   <span style={{ fontSize: '0.72rem', fontWeight: 900, color: 'var(--blue)', background: 'rgba(0, 0, 255, 0.12)', width: '22px', height: '22px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>1</span>
@@ -2111,11 +1930,12 @@ function Rewards({ isBaseAppMode = false } = {}) {
 
               <div
                 style={{
-                  background: 'color-mix(in srgb, var(--text-2) 55%, transparent)',
+                  background: 'linear-gradient(135deg, rgba(190, 241, 255, 0.55) 0%, rgba(225, 249, 255, 0.75) 100%)',
                   border: '1px solid rgba(0, 160, 255, 0.25)',
                   borderRadius: '16px',
                   padding: '16px 18px',
-                  }}
+                  boxShadow: '0 2px 8px rgba(0, 82, 255, 0.04)'
+                }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
                   <span style={{ fontSize: '0.72rem', fontWeight: 900, color: 'var(--blue)', background: 'rgba(0, 0, 255, 0.12)', width: '22px', height: '22px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>2</span>
@@ -2128,14 +1948,15 @@ function Rewards({ isBaseAppMode = false } = {}) {
 
               <div
                 style={{
-                  background: 'color-mix(in srgb, var(--text-2) 55%, transparent)',
+                  background: 'linear-gradient(135deg, rgba(190, 241, 255, 0.55) 0%, rgba(225, 249, 255, 0.75) 100%)',
                   border: '1px solid rgba(0, 160, 255, 0.25)',
                   borderRadius: '16px',
                   padding: '16px 18px',
-                  }}
+                  boxShadow: '0 2px 8px rgba(0, 82, 255, 0.04)'
+                }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                  <span style={{ fontSize: '0.72rem', fontWeight: 900, color: 'var(--green)', background: 'color-mix(in srgb, var(--green) 14%, transparent)', width: '22px', height: '22px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>3</span>
+                  <span style={{ fontSize: '0.72rem', fontWeight: 900, color: '#059669', background: 'rgba(16, 185, 129, 0.14)', width: '22px', height: '22px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>3</span>
                   <strong style={{ fontSize: '0.92rem', color: 'var(--ink)', fontWeight: 800 }}>Epoch Reward Pool</strong>
                 </div>
                 <p style={{ margin: 0, fontSize: '0.84rem', color: 'var(--ink2)', lineHeight: 1.45 }}>
@@ -2148,7 +1969,7 @@ function Rewards({ isBaseAppMode = false } = {}) {
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap', marginBottom: '18px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 900, color: 'var(--ink)', letterSpacing: '-0.02em' }}>Staking Epochs</h3>
-                <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-3)', background: 'var(--surface-2)', border: '1px solid var(--text-2)', padding: '2px 8px', borderRadius: '99px' }}>
+                <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748b', background: '#ffffff', border: '1px solid #e2e8f0', padding: '2px 8px', borderRadius: '99px' }}>
                   {filteredStakingEpochs.length}
                 </span>
               </div>
@@ -2158,10 +1979,10 @@ function Rewards({ isBaseAppMode = false } = {}) {
                 style={{
                   display: 'flex',
                   gap: isBaseAppMode ? '4px' : '4px',
-                  background: isBaseAppMode ? 'color-mix(in srgb, var(--bg) 85%, transparent)' : 'var(--text)',
+                  background: isBaseAppMode ? 'rgba(2, 11, 26, 0.85)' : '#ffffff',
                   padding: '3px 4px',
                   borderRadius: '10px',
-                  border: isBaseAppMode ? '1px solid color-mix(in srgb, var(--accent) 25%, transparent)' : '1px solid var(--text-2)',
+                  border: isBaseAppMode ? '1px solid rgba(0, 245, 255, 0.25)' : '1px solid #e2e8f0',
                   flexWrap: 'nowrap',
                   overflowX: 'auto',
                   maxWidth: '100%',
@@ -2180,12 +2001,12 @@ function Rewards({ isBaseAppMode = false } = {}) {
                       key={f.id}
                       onClick={() => setStakingFilter(f.id)}
                       style={{
-                        fontFamily: isBaseAppMode ? 'var(--font-sans)' : 'var(--font)',
+                        fontFamily: isBaseAppMode ? "'Press Start 2P', monospace" : 'var(--font)',
                         padding: isBaseAppMode ? '6px 8px' : '4px 10px',
                         borderRadius: '8px',
                         border: 'none',
-                        background: isFActive ? (isBaseAppMode ? 'var(--accent)' : 'var(--blue)') : 'transparent',
-                        color: isFActive ? 'var(--text)' : (isBaseAppMode ? 'var(--text-2)' : 'var(--text-3)'),
+                        background: isFActive ? (isBaseAppMode ? '#0052ff' : 'var(--blue)') : 'transparent',
+                        color: isFActive ? '#ffffff' : (isBaseAppMode ? '#cbd5e1' : '#64748b'),
                         fontWeight: 800,
                         fontSize: isBaseAppMode ? '6.5px' : '0.72rem',
                         letterSpacing: '-0.01em',
@@ -2193,7 +2014,8 @@ function Rewards({ isBaseAppMode = false } = {}) {
                         flexShrink: 0,
                         cursor: 'pointer',
                         transition: 'all 0.15s',
-                        }}
+                        boxShadow: isFActive && isBaseAppMode ? '0 0 8px rgba(0, 82, 255, 0.4)' : 'none'
+                      }}
                     >
                       {f.label}
                     </button>
@@ -2204,7 +2026,7 @@ function Rewards({ isBaseAppMode = false } = {}) {
 
             {/* 3. Modern Web3 DeFi Epoch Cards Grid with Mascot Integration */}
             {filteredStakingEpochs.length === 0 ? (
-              <div style={{ padding: '36px 20px', textAlign: 'center', background: 'var(--surface-2)', borderRadius: '20px', border: '1px solid var(--text-2)', color: 'var(--text-3)', fontSize: '0.9rem' }}>
+              <div style={{ padding: '36px 20px', textAlign: 'center', background: '#ffffff', borderRadius: '20px', border: '1px solid #e2e8f0', color: '#64748b', fontSize: '0.9rem' }}>
                 No epochs found for this filter.
               </div>
             ) : (
@@ -2226,17 +2048,17 @@ function Rewards({ isBaseAppMode = false } = {}) {
                       key={ep.epoch}
                       style={{
                         background: isActive
-                          ? 'rgba(215, 246, 255, 0.85)'
+                          ? 'linear-gradient(145deg, rgba(215, 246, 255, 0.85) 0%, rgba(240, 252, 255, 0.95) 100%)'
                           : isCompleted
-                          ? 'rgba(241, 245, 249, 0.9)'
-                          : 'rgba(225, 248, 255, 0.55)',
-                        border: isActive ? '2px solid var(--blue)' : isCompleted ? '1.5px solid var(--text-2)' : '1.5px solid rgba(0, 160, 255, 0.25)',
+                          ? 'linear-gradient(145deg, rgba(241, 245, 249, 0.9) 0%, rgba(248, 250, 252, 0.95) 100%)'
+                          : 'linear-gradient(145deg, rgba(225, 248, 255, 0.55) 0%, rgba(245, 253, 255, 0.8) 100%)',
+                        border: isActive ? '2px solid var(--blue)' : isCompleted ? '1.5px solid #cbd5e1' : '1.5px solid rgba(0, 160, 255, 0.25)',
                         borderRadius: '22px',
                         padding: '18px 20px',
                         display: 'flex',
                         flexDirection: 'column',
                         justifyContent: 'space-between',
-                        
+                        boxShadow: isActive ? '0 12px 36px -4px rgba(0, 82, 255, 0.16), 0 2px 10px rgba(0, 0, 0, 0.04)' : '0 4px 16px rgba(0, 82, 255, 0.05)',
                         position: 'relative',
                         transition: 'all 0.2s'
                       }}
@@ -2254,7 +2076,7 @@ function Rewards({ isBaseAppMode = false } = {}) {
                                 borderRadius: '50%',
                                 objectFit: 'cover',
                                 border: isActive ? '2px solid var(--blue)' : '1.5px solid rgba(0, 160, 255, 0.3)',
-                                
+                                boxShadow: '0 2px 8px rgba(0, 82, 255, 0.15)',
                                 flexShrink: 0
                               }}
                             />
@@ -2274,19 +2096,20 @@ function Rewards({ isBaseAppMode = false } = {}) {
                               borderRadius: '99px',
                               fontSize: '0.66rem',
                               fontWeight: 900,
-                              
+                              textTransform: 'uppercase',
                               letterSpacing: '0.04em',
-                              background: isActive ? '#ecfdf5' : isCompleted ? 'var(--text-2)' : 'rgba(255, 255, 255, 0.9)',
-                              color: isActive ? 'var(--green)' : isCompleted ? 'var(--text-3)' : 'var(--text-3)',
-                              border: isActive ? '1px solid #a7f3d0' : isCompleted ? '1px solid var(--text-2)' : '1px solid rgba(0, 160, 255, 0.25)',
+                              background: isActive ? '#ecfdf5' : isCompleted ? '#f1f5f9' : 'rgba(255, 255, 255, 0.9)',
+                              color: isActive ? '#059669' : isCompleted ? '#64748b' : '#64748b',
+                              border: isActive ? '1px solid #a7f3d0' : isCompleted ? '1px solid #cbd5e1' : '1px solid rgba(0, 160, 255, 0.25)',
                               display: 'inline-flex',
                               alignItems: 'center',
                               gap: '5px',
                               whiteSpace: 'nowrap',
                               flexShrink: 0,
-                              }}
+                              boxShadow: isActive ? '0 2px 8px rgba(16, 185, 129, 0.15)' : 'none'
+                            }}
                           >
-                            {isActive && <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--green)',  flexShrink: 0 }} />}
+                            {isActive && <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 6px #10b981', flexShrink: 0 }} />}
                             {isActive ? 'Active' : isCompleted ? 'Ended' : 'Upcoming'}
                           </span>
                         </div>
@@ -2294,32 +2117,32 @@ function Rewards({ isBaseAppMode = false } = {}) {
                         {/* Metric Box (Rewards Pool) */}
                         <div
                           style={{
-                            background: 'var(--surface-2)',
+                            background: '#ffffff',
                             borderRadius: '16px',
                             padding: '14px 16px',
                             border: '1px solid rgba(0, 160, 255, 0.22)',
-                            
+                            boxShadow: '0 3px 12px rgba(0, 82, 255, 0.05)',
                             marginBottom: '14px'
                           }}
                         >
-                          <div style={{ fontSize: isBaseAppMode ? '6.5px' : '0.66rem', color: 'var(--text-3)',  fontWeight: 800, letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap', marginBottom: '4px', fontFamily: isBaseAppMode ? 'var(--font-sans)' : 'inherit' }}>
-                            <Coins size={12} color={isBaseAppMode ? 'var(--accent)' : 'var(--blue)'} /> Rewards Pool
+                          <div style={{ fontSize: isBaseAppMode ? '6.5px' : '0.66rem', color: '#88aacc', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap', marginBottom: '4px', fontFamily: isBaseAppMode ? "'Press Start 2P', monospace" : 'inherit' }}>
+                            <Coins size={12} color={isBaseAppMode ? '#00f5ff' : 'var(--blue)'} /> Rewards Pool
                           </div>
-                          <div style={{ fontSize: isBaseAppMode ? '10px' : '1.42rem', fontWeight: 900, color: isBaseAppMode ? 'var(--accent)' : isActive ? 'var(--ink)' : 'var(--text-3)', marginTop: '2px', letterSpacing: isBaseAppMode ? '0.2px' : '-0.02em', display: 'flex', alignItems: 'baseline', gap: '5px', whiteSpace: 'nowrap', fontFamily: isBaseAppMode ? 'var(--font-sans)' : 'inherit', }}>
-                            {ep.poolAmount} {ep.poolAmount !== 'TBA' && <span style={{ fontSize: isBaseAppMode ? '7.5px' : '0.88rem', color: isBaseAppMode ? 'var(--accent)' : isActive ? 'var(--blue)' : 'var(--text-3)', fontWeight: 800, fontFamily: isBaseAppMode ? 'var(--font-sans)' : 'inherit' }}>$VIBE</span>}
+                          <div style={{ fontSize: isBaseAppMode ? '10px' : '1.42rem', fontWeight: 900, color: isBaseAppMode ? '#00f5ff' : isActive ? 'var(--ink)' : '#64748b', marginTop: '2px', letterSpacing: isBaseAppMode ? '0.2px' : '-0.02em', display: 'flex', alignItems: 'baseline', gap: '5px', whiteSpace: 'nowrap', fontFamily: isBaseAppMode ? "'Press Start 2P', monospace" : 'inherit', textShadow: isBaseAppMode ? '0 0 10px rgba(0, 245, 255, 0.45)' : 'none' }}>
+                            {ep.poolAmount} {ep.poolAmount !== 'TBA' && <span style={{ fontSize: isBaseAppMode ? '7.5px' : '0.88rem', color: isBaseAppMode ? '#00f5ff' : isActive ? 'var(--blue)' : '#94a3b8', fontWeight: 800, fontFamily: isBaseAppMode ? "'Press Start 2P', monospace" : 'inherit' }}>$VIBE</span>}
                           </div>
                         </div>
 
                         {/* Schedule Key-Values with Icons */}
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '16px' }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255, 255, 255, 0.65)', padding: '7px 11px', borderRadius: '10px', border: '1px solid rgba(0, 160, 255, 0.12)', gap: '8px' }}>
-                            <span style={{ color: 'var(--text-3)', fontWeight: 700, fontSize: '0.74rem', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '5px', flexShrink: 0 }}>
+                            <span style={{ color: '#64748b', fontWeight: 700, fontSize: '0.74rem', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '5px', flexShrink: 0 }}>
                               <Calendar size={12} color="#0284c7" /> Start Time
                             </span>
                             <strong style={{ color: isActive ? 'var(--ink)' : '#475569', fontWeight: 700, fontSize: '0.76rem', whiteSpace: 'nowrap', textAlign: 'right' }}>{ep.startTime}</strong>
                           </div>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255, 255, 255, 0.65)', padding: '7px 11px', borderRadius: '10px', border: '1px solid rgba(0, 160, 255, 0.12)', gap: '8px' }}>
-                            <span style={{ color: 'var(--text-3)', fontWeight: 700, fontSize: '0.74rem', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '5px', flexShrink: 0 }}>
+                            <span style={{ color: '#64748b', fontWeight: 700, fontSize: '0.74rem', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '5px', flexShrink: 0 }}>
                               <Clock size={12} color="#0284c7" /> End Time
                             </span>
                             <strong style={{ color: isActive ? 'var(--ink)' : '#475569', fontWeight: 700, fontSize: '0.76rem', whiteSpace: 'nowrap', textAlign: 'right' }}>{ep.endTime}</strong>
@@ -2336,7 +2159,7 @@ function Rewards({ isBaseAppMode = false } = {}) {
                           className="btn-fill"
                           style={{
                             background: 'var(--blue)',
-                            color: 'var(--text)',
+                            color: '#ffffff',
                             padding: '11px 14px',
                             fontSize: '0.86rem',
                             fontWeight: 800,
@@ -2348,7 +2171,7 @@ function Rewards({ isBaseAppMode = false } = {}) {
                             width: '100%',
                             textDecoration: 'none',
                             whiteSpace: 'nowrap',
-                            
+                            boxShadow: '0 4px 16px rgba(0, 0, 255, 0.3)',
                             transition: 'all 0.15s'
                           }}
                         >
@@ -2362,7 +2185,7 @@ function Rewards({ isBaseAppMode = false } = {}) {
                           className="btn-fill"
                           style={{
                             background: 'var(--blue)',
-                            color: 'var(--text)',
+                            color: '#ffffff',
                             padding: '11px 14px',
                             fontSize: '0.86rem',
                             fontWeight: 800,
@@ -2374,7 +2197,7 @@ function Rewards({ isBaseAppMode = false } = {}) {
                             width: '100%',
                             textDecoration: 'none',
                             whiteSpace: 'nowrap',
-                            
+                            boxShadow: '0 4px 16px rgba(0, 82, 255, 0.3)',
                             transition: 'all 0.15s'
                           }}
                         >
@@ -2393,7 +2216,7 @@ function Rewards({ isBaseAppMode = false } = {}) {
                             fontWeight: 800,
                             borderRadius: '12px',
                             background: 'rgba(255, 255, 255, 0.75)',
-                            color: 'var(--text-3)',
+                            color: '#94a3b8',
                             border: '1.5px solid rgba(0, 160, 255, 0.18)',
                             cursor: 'not-allowed',
                             whiteSpace: 'nowrap'
@@ -2446,11 +2269,12 @@ function Rewards({ isBaseAppMode = false } = {}) {
               {/* Step 1 */}
               <div
                 style={{
-                  background: 'color-mix(in srgb, var(--text-2) 55%, transparent)',
+                  background: 'linear-gradient(135deg, rgba(190, 241, 255, 0.55) 0%, rgba(225, 249, 255, 0.75) 100%)',
                   border: '1px solid rgba(0, 160, 255, 0.25)',
                   borderRadius: '16px',
                   padding: '16px 18px',
-                  }}
+                  boxShadow: '0 2px 8px rgba(0, 82, 255, 0.04)'
+                }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
                   <span style={{ fontSize: '0.72rem', fontWeight: 900, color: 'var(--blue)', background: 'rgba(0, 0, 255, 0.12)', width: '22px', height: '22px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>1</span>
@@ -2464,11 +2288,12 @@ function Rewards({ isBaseAppMode = false } = {}) {
               {/* Step 2 */}
               <div
                 style={{
-                  background: 'color-mix(in srgb, var(--text-2) 55%, transparent)',
+                  background: 'linear-gradient(135deg, rgba(190, 241, 255, 0.55) 0%, rgba(225, 249, 255, 0.75) 100%)',
                   border: '1px solid rgba(0, 160, 255, 0.25)',
                   borderRadius: '16px',
                   padding: '16px 18px',
-                  }}
+                  boxShadow: '0 2px 8px rgba(0, 82, 255, 0.04)'
+                }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
                   <span style={{ fontSize: '0.72rem', fontWeight: 900, color: 'var(--blue)', background: 'rgba(0, 0, 255, 0.12)', width: '22px', height: '22px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>2</span>
@@ -2482,14 +2307,15 @@ function Rewards({ isBaseAppMode = false } = {}) {
               {/* Step 3 */}
               <div
                 style={{
-                  background: 'color-mix(in srgb, var(--text-2) 55%, transparent)',
+                  background: 'linear-gradient(135deg, rgba(190, 241, 255, 0.55) 0%, rgba(225, 249, 255, 0.75) 100%)',
                   border: '1px solid rgba(0, 160, 255, 0.25)',
                   borderRadius: '16px',
                   padding: '16px 18px',
-                  }}
+                  boxShadow: '0 2px 8px rgba(0, 82, 255, 0.04)'
+                }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                  <span style={{ fontSize: '0.72rem', fontWeight: 900, color: 'var(--green)', background: 'color-mix(in srgb, var(--green) 14%, transparent)', width: '22px', height: '22px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>3</span>
+                  <span style={{ fontSize: '0.72rem', fontWeight: 900, color: '#059669', background: 'rgba(16, 185, 129, 0.14)', width: '22px', height: '22px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>3</span>
                   <strong style={{ fontSize: '0.92rem', color: 'var(--ink)', fontWeight: 800 }}>Vibe Club Royalty Pool</strong>
                 </div>
                 <p style={{ margin: 0, fontSize: '0.84rem', color: 'var(--ink2)', lineHeight: 1.45 }}>
@@ -2504,7 +2330,7 @@ function Rewards({ isBaseAppMode = false } = {}) {
                 <h3 style={{ fontSize: '1.25rem', fontWeight: 900, margin: 0, color: 'var(--ink)', letterSpacing: '-0.02em' }}>
                   Vibe Club Royalties
                 </h3>
-                <span style={{ fontSize: '0.72rem', fontWeight: 800, background: 'var(--text-2)', color: '#475569', padding: '2px 8px', borderRadius: '99px', border: '1px solid var(--text-2)' }}>
+                <span style={{ fontSize: '0.72rem', fontWeight: 800, background: '#f1f5f9', color: '#475569', padding: '2px 8px', borderRadius: '99px', border: '1px solid #cbd5e1' }}>
                   {filteredVibeClubEpochs.length}
                 </span>
               </div>
@@ -2514,10 +2340,10 @@ function Rewards({ isBaseAppMode = false } = {}) {
                 style={{
                   display: 'flex',
                   gap: isBaseAppMode ? '4px' : '4px',
-                  background: isBaseAppMode ? 'color-mix(in srgb, var(--bg) 85%, transparent)' : 'var(--text-2)',
+                  background: isBaseAppMode ? 'rgba(2, 11, 26, 0.85)' : '#f1f5f9',
                   padding: '3px 4px',
                   borderRadius: '10px',
-                  border: isBaseAppMode ? '1px solid color-mix(in srgb, var(--accent) 25%, transparent)' : '1px solid var(--text-2)',
+                  border: isBaseAppMode ? '1px solid rgba(0, 245, 255, 0.25)' : '1px solid #e2e8f0',
                   flexWrap: 'nowrap',
                   overflowX: 'auto',
                   maxWidth: '100%',
@@ -2536,9 +2362,9 @@ function Rewards({ isBaseAppMode = false } = {}) {
                       key={f.id}
                       onClick={() => setVibeClubFilter(f.id)}
                       style={{
-                        fontFamily: isBaseAppMode ? 'var(--font-sans)' : 'var(--font)',
-                        background: isFActive ? (isBaseAppMode ? 'var(--accent)' : 'var(--blue)') : 'transparent',
-                        color: isFActive ? 'var(--text)' : (isBaseAppMode ? 'var(--text-2)' : 'var(--text-3)'),
+                        fontFamily: isBaseAppMode ? "'Press Start 2P', monospace" : 'var(--font)',
+                        background: isFActive ? (isBaseAppMode ? '#0052ff' : 'var(--blue)') : 'transparent',
+                        color: isFActive ? '#ffffff' : (isBaseAppMode ? '#cbd5e1' : '#64748b'),
                         border: 'none',
                         padding: isBaseAppMode ? '6px 8px' : '4px 10px',
                         borderRadius: '8px',
@@ -2548,7 +2374,8 @@ function Rewards({ isBaseAppMode = false } = {}) {
                         flexShrink: 0,
                         cursor: 'pointer',
                         transition: 'all 0.15s',
-                        }}
+                        boxShadow: isFActive && isBaseAppMode ? '0 0 8px rgba(0, 82, 255, 0.4)' : 'none'
+                      }}
                     >
                       {f.label}
                     </button>
@@ -2559,7 +2386,7 @@ function Rewards({ isBaseAppMode = false } = {}) {
 
             {/* 3. 4 Scalable Vibe Club Epoch Cards Grid */}
             {filteredVibeClubEpochs.length === 0 ? (
-              <div style={{ padding: '36px 20px', textAlign: 'center', background: 'var(--surface-2)', borderRadius: '20px', border: '1px solid var(--text-2)', color: 'var(--text-3)', fontSize: '0.9rem' }}>
+              <div style={{ padding: '36px 20px', textAlign: 'center', background: '#ffffff', borderRadius: '20px', border: '1px solid #e2e8f0', color: '#64748b', fontSize: '0.9rem' }}>
                 No royalty rounds found for this filter.
               </div>
             ) : (
@@ -2582,17 +2409,17 @@ function Rewards({ isBaseAppMode = false } = {}) {
                       key={ep.epoch || idx}
                       style={{
                         background: isActive
-                          ? 'rgba(215, 246, 255, 0.85)'
+                          ? 'linear-gradient(145deg, rgba(215, 246, 255, 0.85) 0%, rgba(240, 252, 255, 0.95) 100%)'
                           : isCompleted
-                          ? 'rgba(241, 245, 249, 0.9)'
-                          : 'rgba(225, 248, 255, 0.55)',
-                        border: isActive ? '2px solid var(--blue)' : isCompleted ? '1.5px solid var(--text-2)' : '1.5px solid rgba(0, 160, 255, 0.25)',
+                          ? 'linear-gradient(145deg, rgba(241, 245, 249, 0.9) 0%, rgba(248, 250, 252, 0.95) 100%)'
+                          : 'linear-gradient(145deg, rgba(225, 248, 255, 0.55) 0%, rgba(245, 253, 255, 0.8) 100%)',
+                        border: isActive ? '2px solid var(--blue)' : isCompleted ? '1.5px solid #cbd5e1' : '1.5px solid rgba(0, 160, 255, 0.25)',
                         borderRadius: '22px',
                         padding: '18px 20px',
                         display: 'flex',
                         flexDirection: 'column',
                         justifyContent: 'space-between',
-                        
+                        boxShadow: isActive ? '0 12px 36px -4px rgba(0, 82, 255, 0.16), 0 2px 10px rgba(0, 0, 0, 0.04)' : '0 4px 16px rgba(0, 82, 255, 0.05)',
                         position: 'relative',
                         transition: 'all 0.2s'
                       }}
@@ -2609,8 +2436,8 @@ function Rewards({ isBaseAppMode = false } = {}) {
                                 height: '38px',
                                 borderRadius: '50%',
                                 objectFit: 'cover',
-                                border: isActive ? '2px solid var(--blue)' : isCompleted ? '1.5px solid var(--text-2)' : '1.5px solid rgba(0, 160, 255, 0.3)',
-                                
+                                border: isActive ? '2px solid var(--blue)' : isCompleted ? '1.5px solid #cbd5e1' : '1.5px solid rgba(0, 160, 255, 0.3)',
+                                boxShadow: isActive ? '0 2px 8px rgba(0, 82, 255, 0.15)' : 'none',
                                 flexShrink: 0
                               }}
                             />
@@ -2625,33 +2452,34 @@ function Rewards({ isBaseAppMode = false } = {}) {
                               borderRadius: '99px',
                               fontSize: '0.66rem',
                               fontWeight: 900,
-                              
+                              textTransform: 'uppercase',
                               letterSpacing: '0.04em',
-                              background: (isClaimLive || isActive) ? '#ecfdf5' : isCompleted ? 'var(--text-2)' : 'rgba(255, 255, 255, 0.9)',
-                              color: (isClaimLive || isActive) ? 'var(--green)' : isCompleted ? 'var(--text-3)' : 'var(--text-3)',
-                              border: (isClaimLive || isActive) ? '1px solid #a7f3d0' : isCompleted ? '1px solid var(--text-2)' : '1px solid rgba(0, 160, 255, 0.25)',
+                              background: (isClaimLive || isActive) ? '#ecfdf5' : isCompleted ? '#f1f5f9' : 'rgba(255, 255, 255, 0.9)',
+                              color: (isClaimLive || isActive) ? '#059669' : isCompleted ? '#64748b' : '#64748b',
+                              border: (isClaimLive || isActive) ? '1px solid #a7f3d0' : isCompleted ? '1px solid #cbd5e1' : '1px solid rgba(0, 160, 255, 0.25)',
                               display: 'inline-flex',
                               alignItems: 'center',
                               gap: '5px',
                               whiteSpace: 'nowrap',
                               flexShrink: 0,
-                              }}
+                              boxShadow: (isClaimLive || isActive) ? '0 2px 8px rgba(16, 185, 129, 0.15)' : 'none'
+                            }}
                           >
                             {isClaimLive ? (
                               <>
-                                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--green)',  flexShrink: 0 }} />
+                                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 6px #10b981', flexShrink: 0 }} />
                                 <ActiveClaimCountdown targetDate={ep.nextSnapshotDate} />
                               </>
                             ) : isActive ? (
                               <>
-                                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--green)',  flexShrink: 0 }} />
+                                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 6px #10b981', flexShrink: 0 }} />
                                 Active
                               </>
                             ) : isCompleted ? (
                               'Ended'
                             ) : (
                               <>
-                                <Lock size={11} color="var(--text-3)" style={{ flexShrink: 0 }} />
+                                <Lock size={11} color="#64748b" style={{ flexShrink: 0 }} />
                                 Locked
                               </>
                             )}
@@ -2661,18 +2489,18 @@ function Rewards({ isBaseAppMode = false } = {}) {
                         {/* Metric Box (Royalty Pool) */}
                         <div
                           style={{
-                            background: 'var(--surface-2)',
+                            background: '#ffffff',
                             borderRadius: '16px',
                             padding: '14px 16px',
                             border: '1px solid rgba(0, 160, 255, 0.22)',
-                            
+                            boxShadow: '0 3px 12px rgba(0, 82, 255, 0.05)',
                             marginBottom: '14px'
                           }}
                         >
-                          <div style={{ fontSize: isBaseAppMode ? '6.5px' : '0.66rem', color: 'var(--text-3)',  fontWeight: 800, letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap', marginBottom: '4px', fontFamily: isBaseAppMode ? 'var(--font-sans)' : 'inherit' }}>
-                            <Coins size={12} color={isBaseAppMode ? 'var(--accent)' : 'var(--blue)'} /> Royalty Pool
+                          <div style={{ fontSize: isBaseAppMode ? '6.5px' : '0.66rem', color: '#88aacc', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap', marginBottom: '4px', fontFamily: isBaseAppMode ? "'Press Start 2P', monospace" : 'inherit' }}>
+                            <Coins size={12} color={isBaseAppMode ? '#00f5ff' : 'var(--blue)'} /> Royalty Pool
                           </div>
-                          <div style={{ fontSize: isBaseAppMode ? '10px' : '1.42rem', fontWeight: 900, color: isBaseAppMode ? 'var(--accent)' : isActive ? 'var(--ink)' : 'var(--text-3)', marginTop: '2px', letterSpacing: isBaseAppMode ? '0.2px' : '-0.02em', display: 'flex', alignItems: 'baseline', gap: '5px', whiteSpace: 'nowrap', fontFamily: isBaseAppMode ? 'var(--font-sans)' : 'inherit', }}>
+                          <div style={{ fontSize: isBaseAppMode ? '10px' : '1.42rem', fontWeight: 900, color: isBaseAppMode ? '#00f5ff' : isActive ? 'var(--ink)' : '#64748b', marginTop: '2px', letterSpacing: isBaseAppMode ? '0.2px' : '-0.02em', display: 'flex', alignItems: 'baseline', gap: '5px', whiteSpace: 'nowrap', fontFamily: isBaseAppMode ? "'Press Start 2P', monospace" : 'inherit', textShadow: isBaseAppMode ? '0 0 10px rgba(0, 245, 255, 0.45)' : 'none' }}>
                             {ep.poolAmount}
                           </div>
                         </div>
@@ -2680,19 +2508,19 @@ function Rewards({ isBaseAppMode = false } = {}) {
                         {/* Schedule Key-Values with Icons */}
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '16px' }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255, 255, 255, 0.65)', padding: '7px 11px', borderRadius: '10px', border: '1px solid rgba(0, 160, 255, 0.12)', gap: '8px' }}>
-                            <span style={{ color: 'var(--text-3)', fontWeight: 700, fontSize: '0.74rem', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '5px', flexShrink: 0 }}>
+                            <span style={{ color: '#64748b', fontWeight: 700, fontSize: '0.74rem', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '5px', flexShrink: 0 }}>
                               <ShieldCheck size={12} color="#0284c7" /> Requirement
                             </span>
                             <strong style={{ color: isActive ? 'var(--ink)' : '#475569', fontWeight: 700, fontSize: '0.76rem', whiteSpace: 'nowrap', textAlign: 'right' }}>NFT Holder</strong>
                           </div>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255, 255, 255, 0.65)', padding: '7px 11px', borderRadius: '10px', border: '1px solid rgba(0, 160, 255, 0.12)', gap: '8px' }}>
-                            <span style={{ color: 'var(--text-3)', fontWeight: 700, fontSize: '0.74rem', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '5px', flexShrink: 0 }}>
+                            <span style={{ color: '#64748b', fontWeight: 700, fontSize: '0.74rem', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '5px', flexShrink: 0 }}>
                               <Clock size={12} color="#0284c7" /> Holder Snapshot
                             </span>
                             <strong style={{ color: isActive ? 'var(--ink)' : '#475569', fontWeight: 700, fontSize: '0.76rem', whiteSpace: 'nowrap', textAlign: 'right' }}>{ep.snapshotTime}</strong>
                           </div>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255, 255, 255, 0.65)', padding: '7px 11px', borderRadius: '10px', border: '1px solid rgba(0, 160, 255, 0.12)', gap: '8px' }}>
-                            <span style={{ color: 'var(--text-3)', fontWeight: 700, fontSize: '0.74rem', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '5px', flexShrink: 0 }}>
+                            <span style={{ color: '#64748b', fontWeight: 700, fontSize: '0.74rem', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '5px', flexShrink: 0 }}>
                               <Calendar size={12} color="#0284c7" /> Claim Date
                             </span>
                             <strong style={{ color: isActive ? 'var(--ink)' : '#475569', fontWeight: 700, fontSize: '0.76rem', whiteSpace: 'nowrap', textAlign: 'right' }}>{ep.claimDate}</strong>
@@ -2713,9 +2541,9 @@ function Rewards({ isBaseAppMode = false } = {}) {
                             fontSize: '0.86rem',
                             fontWeight: 800,
                             borderRadius: '12px',
-                            background: 'var(--text-2)',
-                            color: 'var(--text-3)',
-                            border: '1.5px solid var(--text-2)',
+                            background: '#f1f5f9',
+                            color: '#94a3b8',
+                            border: '1.5px solid #cbd5e1',
                             cursor: 'not-allowed',
                             whiteSpace: 'nowrap',
                             gap: '6px'
@@ -2730,7 +2558,7 @@ function Rewards({ isBaseAppMode = false } = {}) {
                             className="btn-fill"
                             style={{
                               background: 'var(--blue)',
-                              color: 'var(--text)',
+                              color: '#ffffff',
                               padding: '11px 14px',
                               fontSize: '0.86rem',
                               fontWeight: 800,
@@ -2742,7 +2570,7 @@ function Rewards({ isBaseAppMode = false } = {}) {
                               width: '100%',
                               textDecoration: 'none',
                               whiteSpace: 'nowrap',
-                              
+                              boxShadow: '0 4px 16px rgba(0, 0, 255, 0.3)',
                               transition: 'all 0.15s'
                             }}
                           >
@@ -2756,11 +2584,11 @@ function Rewards({ isBaseAppMode = false } = {}) {
                               gap: '5px',
                               fontSize: '0.72rem',
                               fontWeight: 700,
-                              color: 'var(--green)',
+                              color: '#059669',
                               marginTop: '8px'
                             }}
                           >
-                            <CheckCircle2 size={13} color="var(--green)" strokeWidth={2.5} />
+                            <CheckCircle2 size={13} color="#059669" strokeWidth={2.5} />
                             Snapshot Completed: {ep.snapshotTime}
                           </div>
                         </>
@@ -2775,11 +2603,11 @@ function Rewards({ isBaseAppMode = false } = {}) {
                               gap: '5px',
                               fontSize: '0.72rem',
                               fontWeight: 700,
-                              color: 'var(--green)',
+                              color: '#059669',
                               marginTop: '8px'
                             }}
                           >
-                            <CheckCircle2 size={13} color="var(--green)" strokeWidth={2.5} />
+                            <CheckCircle2 size={13} color="#059669" strokeWidth={2.5} />
                             Snapshot Completed: {ep.snapshotTime}
                           </div>
                         </>
@@ -2796,7 +2624,7 @@ function Rewards({ isBaseAppMode = false } = {}) {
                             fontWeight: 800,
                             borderRadius: '12px',
                             background: 'rgba(255, 255, 255, 0.75)',
-                            color: 'var(--text-3)',
+                            color: '#94a3b8',
                             border: '1.5px solid rgba(0, 160, 255, 0.18)',
                             cursor: 'not-allowed',
                             whiteSpace: 'nowrap',
@@ -2845,11 +2673,12 @@ function Rewards({ isBaseAppMode = false } = {}) {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '14px', marginBottom: '28px' }}>
               <div
                 style={{
-                  background: 'color-mix(in srgb, var(--text-2) 55%, transparent)',
+                  background: 'linear-gradient(135deg, rgba(190, 241, 255, 0.55) 0%, rgba(225, 249, 255, 0.75) 100%)',
                   border: '1px solid rgba(0, 160, 255, 0.25)',
                   borderRadius: '16px',
                   padding: '16px 18px',
-                  }}
+                  boxShadow: '0 2px 8px rgba(0, 82, 255, 0.04)'
+                }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
                   <span style={{ fontSize: '0.72rem', fontWeight: 900, color: 'var(--blue)', background: 'rgba(0, 0, 255, 0.12)', width: '22px', height: '22px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>1</span>
@@ -2862,11 +2691,12 @@ function Rewards({ isBaseAppMode = false } = {}) {
 
               <div
                 style={{
-                  background: 'color-mix(in srgb, var(--text-2) 55%, transparent)',
+                  background: 'linear-gradient(135deg, rgba(190, 241, 255, 0.55) 0%, rgba(225, 249, 255, 0.75) 100%)',
                   border: '1px solid rgba(0, 160, 255, 0.25)',
                   borderRadius: '16px',
                   padding: '16px 18px',
-                  }}
+                  boxShadow: '0 2px 8px rgba(0, 82, 255, 0.04)'
+                }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
                   <span style={{ fontSize: '0.72rem', fontWeight: 900, color: 'var(--blue)', background: 'rgba(0, 0, 255, 0.12)', width: '22px', height: '22px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>2</span>
@@ -2879,14 +2709,15 @@ function Rewards({ isBaseAppMode = false } = {}) {
 
               <div
                 style={{
-                  background: 'color-mix(in srgb, var(--text-2) 55%, transparent)',
+                  background: 'linear-gradient(135deg, rgba(190, 241, 255, 0.55) 0%, rgba(225, 249, 255, 0.75) 100%)',
                   border: '1px solid rgba(0, 160, 255, 0.25)',
                   borderRadius: '16px',
                   padding: '16px 18px',
-                  }}
+                  boxShadow: '0 2px 8px rgba(0, 82, 255, 0.04)'
+                }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                  <span style={{ fontSize: '0.72rem', fontWeight: 900, color: 'var(--green)', background: 'color-mix(in srgb, var(--green) 14%, transparent)', width: '22px', height: '22px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>3</span>
+                  <span style={{ fontSize: '0.72rem', fontWeight: 900, color: '#059669', background: 'rgba(16, 185, 129, 0.14)', width: '22px', height: '22px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>3</span>
                   <strong style={{ fontSize: '0.92rem', color: 'var(--ink)', fontWeight: 800 }}>Holder Rewards Pool</strong>
                 </div>
                 <p style={{ margin: 0, fontSize: '0.84rem', color: 'var(--ink2)', lineHeight: 1.45 }}>
@@ -2901,7 +2732,7 @@ function Rewards({ isBaseAppMode = false } = {}) {
                 <h3 style={{ fontSize: '1.25rem', fontWeight: 900, margin: 0, color: 'var(--ink)', letterSpacing: '-0.02em' }}>
                   Holder Rewards
                 </h3>
-                <span style={{ fontSize: '0.72rem', fontWeight: 800, background: 'var(--text-2)', color: '#475569', padding: '2px 8px', borderRadius: '99px', border: '1px solid var(--text-2)' }}>
+                <span style={{ fontSize: '0.72rem', fontWeight: 800, background: '#f1f5f9', color: '#475569', padding: '2px 8px', borderRadius: '99px', border: '1px solid #cbd5e1' }}>
                   {filteredHolderUnlocks.length}
                 </span>
               </div>
@@ -2911,10 +2742,10 @@ function Rewards({ isBaseAppMode = false } = {}) {
                 style={{
                   display: 'flex',
                   gap: isBaseAppMode ? '4px' : '4px',
-                  background: isBaseAppMode ? 'color-mix(in srgb, var(--bg) 85%, transparent)' : 'var(--text-2)',
+                  background: isBaseAppMode ? 'rgba(2, 11, 26, 0.85)' : '#f1f5f9',
                   padding: '3px 4px',
                   borderRadius: '10px',
-                  border: isBaseAppMode ? '1px solid color-mix(in srgb, var(--accent) 25%, transparent)' : '1px solid var(--text-2)',
+                  border: isBaseAppMode ? '1px solid rgba(0, 245, 255, 0.25)' : '1px solid #e2e8f0',
                   flexWrap: 'nowrap',
                   overflowX: 'auto',
                   maxWidth: '100%',
@@ -2933,9 +2764,9 @@ function Rewards({ isBaseAppMode = false } = {}) {
                       key={f.id}
                       onClick={() => setHolderFilter(f.id)}
                       style={{
-                        fontFamily: isBaseAppMode ? 'var(--font-sans)' : 'var(--font)',
-                        background: isFActive ? (isBaseAppMode ? 'var(--accent)' : 'var(--blue)') : 'transparent',
-                        color: isFActive ? 'var(--text)' : (isBaseAppMode ? 'var(--text-2)' : 'var(--text-3)'),
+                        fontFamily: isBaseAppMode ? "'Press Start 2P', monospace" : 'var(--font)',
+                        background: isFActive ? (isBaseAppMode ? '#0052ff' : 'var(--blue)') : 'transparent',
+                        color: isFActive ? '#ffffff' : (isBaseAppMode ? '#cbd5e1' : '#64748b'),
                         border: 'none',
                         padding: isBaseAppMode ? '6px 8px' : '4px 10px',
                         borderRadius: '8px',
@@ -2945,7 +2776,8 @@ function Rewards({ isBaseAppMode = false } = {}) {
                         flexShrink: 0,
                         cursor: 'pointer',
                         transition: 'all 0.15s',
-                        }}
+                        boxShadow: isFActive && isBaseAppMode ? '0 0 8px rgba(0, 82, 255, 0.4)' : 'none'
+                      }}
                     >
                       {f.label}
                     </button>
@@ -2956,7 +2788,7 @@ function Rewards({ isBaseAppMode = false } = {}) {
 
             {/* 3. 10 Scalable Holder Unlock Cards Grid */}
             {filteredHolderUnlocks.length === 0 ? (
-              <div style={{ padding: '36px 20px', textAlign: 'center', background: 'var(--surface-2)', borderRadius: '20px', border: '1px solid var(--text-2)', color: 'var(--text-3)', fontSize: '0.9rem' }}>
+              <div style={{ padding: '36px 20px', textAlign: 'center', background: '#ffffff', borderRadius: '20px', border: '1px solid #e2e8f0', color: '#64748b', fontSize: '0.9rem' }}>
                 No unlock rounds found for this filter.
               </div>
             ) : (
@@ -2979,17 +2811,17 @@ function Rewards({ isBaseAppMode = false } = {}) {
                       key={u.unlock || idx}
                       style={{
                         background: isActive
-                          ? 'rgba(215, 246, 255, 0.85)'
+                          ? 'linear-gradient(145deg, rgba(215, 246, 255, 0.85) 0%, rgba(240, 252, 255, 0.95) 100%)'
                           : isCompleted
-                          ? 'rgba(241, 245, 249, 0.9)'
-                          : 'rgba(225, 248, 255, 0.55)',
-                        border: isActive ? '2px solid var(--blue)' : isCompleted ? '1.5px solid var(--text-2)' : '1.5px solid rgba(0, 160, 255, 0.25)',
+                          ? 'linear-gradient(145deg, rgba(241, 245, 249, 0.9) 0%, rgba(248, 250, 252, 0.95) 100%)'
+                          : 'linear-gradient(145deg, rgba(225, 248, 255, 0.55) 0%, rgba(245, 253, 255, 0.8) 100%)',
+                        border: isActive ? '2px solid var(--blue)' : isCompleted ? '1.5px solid #cbd5e1' : '1.5px solid rgba(0, 160, 255, 0.25)',
                         borderRadius: '22px',
                         padding: '18px 20px',
                         display: 'flex',
                         flexDirection: 'column',
                         justifyContent: 'space-between',
-                        
+                        boxShadow: isActive ? '0 12px 36px -4px rgba(0, 82, 255, 0.16), 0 2px 10px rgba(0, 0, 0, 0.04)' : '0 4px 16px rgba(0, 82, 255, 0.05)',
                         position: 'relative',
                         transition: 'all 0.2s'
                       }}
@@ -3006,8 +2838,8 @@ function Rewards({ isBaseAppMode = false } = {}) {
                                 height: '38px',
                                 borderRadius: '50%',
                                 objectFit: 'cover',
-                                border: isActive ? '2px solid var(--blue)' : isCompleted ? '1.5px solid var(--text-2)' : '1.5px solid rgba(0, 160, 255, 0.3)',
-                                
+                                border: isActive ? '2px solid var(--blue)' : isCompleted ? '1.5px solid #cbd5e1' : '1.5px solid rgba(0, 160, 255, 0.3)',
+                                boxShadow: isActive ? '0 2px 8px rgba(0, 82, 255, 0.15)' : 'none',
                                 flexShrink: 0
                               }}
                             />
@@ -3022,33 +2854,34 @@ function Rewards({ isBaseAppMode = false } = {}) {
                               borderRadius: '99px',
                               fontSize: '0.66rem',
                               fontWeight: 900,
-                              
+                              textTransform: 'uppercase',
                               letterSpacing: '0.04em',
-                              background: (isClaimLive || isActive) ? '#ecfdf5' : isCompleted ? 'var(--text-2)' : 'rgba(255, 255, 255, 0.9)',
-                              color: (isClaimLive || isActive) ? 'var(--green)' : isCompleted ? 'var(--text-3)' : 'var(--text-3)',
-                              border: (isClaimLive || isActive) ? '1px solid #a7f3d0' : isCompleted ? '1px solid var(--text-2)' : '1px solid rgba(0, 160, 255, 0.25)',
+                              background: (isClaimLive || isActive) ? '#ecfdf5' : isCompleted ? '#f1f5f9' : 'rgba(255, 255, 255, 0.9)',
+                              color: (isClaimLive || isActive) ? '#059669' : isCompleted ? '#64748b' : '#64748b',
+                              border: (isClaimLive || isActive) ? '1px solid #a7f3d0' : isCompleted ? '1px solid #cbd5e1' : '1px solid rgba(0, 160, 255, 0.25)',
                               display: 'inline-flex',
                               alignItems: 'center',
                               gap: '5px',
                               whiteSpace: 'nowrap',
                               flexShrink: 0,
-                              }}
+                              boxShadow: (isClaimLive || isActive) ? '0 2px 8px rgba(16, 185, 129, 0.15)' : 'none'
+                            }}
                           >
                             {isClaimLive ? (
                               <>
-                                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--green)',  flexShrink: 0 }} />
+                                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 6px #10b981', flexShrink: 0 }} />
                                 <ActiveClaimCountdown targetDate={u.nextSnapshotDate} />
                               </>
                             ) : isActive ? (
                               <>
-                                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--green)',  flexShrink: 0 }} />
+                                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 6px #10b981', flexShrink: 0 }} />
                                 Active
                               </>
                             ) : isCompleted ? (
                               'Ended'
                             ) : (
                               <>
-                                <Lock size={11} color="var(--text-3)" style={{ flexShrink: 0 }} />
+                                <Lock size={11} color="#64748b" style={{ flexShrink: 0 }} />
                                 Locked
                               </>
                             )}
@@ -3058,38 +2891,38 @@ function Rewards({ isBaseAppMode = false } = {}) {
                         {/* Metric Box (Rewards Pool) */}
                         <div
                           style={{
-                            background: 'var(--surface-2)',
+                            background: '#ffffff',
                             borderRadius: '16px',
                             padding: '14px 16px',
                             border: '1px solid rgba(0, 160, 255, 0.22)',
-                            
+                            boxShadow: '0 3px 12px rgba(0, 82, 255, 0.05)',
                             marginBottom: '14px'
                           }}
                         >
-                          <div style={{ fontSize: isBaseAppMode ? '6.5px' : '0.66rem', color: 'var(--text-3)',  fontWeight: 800, letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap', marginBottom: '4px', fontFamily: isBaseAppMode ? 'var(--font-sans)' : 'inherit' }}>
-                            <Coins size={12} color={isBaseAppMode ? 'var(--accent)' : 'var(--blue)'} /> Rewards Pool
+                          <div style={{ fontSize: isBaseAppMode ? '6.5px' : '0.66rem', color: '#88aacc', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap', marginBottom: '4px', fontFamily: isBaseAppMode ? "'Press Start 2P', monospace" : 'inherit' }}>
+                            <Coins size={12} color={isBaseAppMode ? '#00f5ff' : 'var(--blue)'} /> Rewards Pool
                           </div>
-                          <div style={{ fontSize: isBaseAppMode ? '10px' : '1.42rem', fontWeight: 900, color: isBaseAppMode ? 'var(--accent)' : isActive ? 'var(--ink)' : 'var(--text-3)', marginTop: '2px', letterSpacing: isBaseAppMode ? '0.2px' : '-0.02em', display: 'flex', alignItems: 'baseline', gap: '5px', whiteSpace: 'nowrap', fontFamily: isBaseAppMode ? 'var(--font-sans)' : 'inherit', }}>
-                            {u.poolAmount} <span style={{ fontSize: isBaseAppMode ? '7.5px' : '0.88rem', color: isBaseAppMode ? 'var(--accent)' : isActive ? 'var(--blue)' : 'var(--text-3)', fontWeight: 800, fontFamily: isBaseAppMode ? 'var(--font-sans)' : 'inherit' }}>$VIBE</span>
+                          <div style={{ fontSize: isBaseAppMode ? '10px' : '1.42rem', fontWeight: 900, color: isBaseAppMode ? '#00f5ff' : isActive ? 'var(--ink)' : '#64748b', marginTop: '2px', letterSpacing: isBaseAppMode ? '0.2px' : '-0.02em', display: 'flex', alignItems: 'baseline', gap: '5px', whiteSpace: 'nowrap', fontFamily: isBaseAppMode ? "'Press Start 2P', monospace" : 'inherit', textShadow: isBaseAppMode ? '0 0 10px rgba(0, 245, 255, 0.45)' : 'none' }}>
+                            {u.poolAmount} <span style={{ fontSize: isBaseAppMode ? '7.5px' : '0.88rem', color: isBaseAppMode ? '#00f5ff' : isActive ? 'var(--blue)' : '#94a3b8', fontWeight: 800, fontFamily: isBaseAppMode ? "'Press Start 2P', monospace" : 'inherit' }}>$VIBE</span>
                           </div>
                         </div>
 
                         {/* Schedule Key-Values with Icons */}
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '16px' }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255, 255, 255, 0.65)', padding: '7px 11px', borderRadius: '10px', border: '1px solid rgba(0, 160, 255, 0.12)', gap: '8px' }}>
-                            <span style={{ color: 'var(--text-3)', fontWeight: 700, fontSize: '0.74rem', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '5px', flexShrink: 0 }}>
+                            <span style={{ color: '#64748b', fontWeight: 700, fontSize: '0.74rem', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '5px', flexShrink: 0 }}>
                               <ShieldCheck size={12} color="#0284c7" /> Requirement
                             </span>
                             <strong style={{ color: isActive ? 'var(--ink)' : '#475569', fontWeight: 700, fontSize: '0.76rem', whiteSpace: 'nowrap', textAlign: 'right' }}>5M+ $VIBE Balance</strong>
                           </div>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255, 255, 255, 0.65)', padding: '7px 11px', borderRadius: '10px', border: '1px solid rgba(0, 160, 255, 0.12)', gap: '8px' }}>
-                            <span style={{ color: 'var(--text-3)', fontWeight: 700, fontSize: '0.74rem', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '5px', flexShrink: 0 }}>
+                            <span style={{ color: '#64748b', fontWeight: 700, fontSize: '0.74rem', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '5px', flexShrink: 0 }}>
                               <Clock size={12} color="#0284c7" /> Balance Snapshot
                             </span>
                             <strong style={{ color: isActive ? 'var(--ink)' : '#475569', fontWeight: 700, fontSize: '0.76rem', whiteSpace: 'nowrap', textAlign: 'right' }}>{u.snapshotTime}</strong>
                           </div>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255, 255, 255, 0.65)', padding: '7px 11px', borderRadius: '10px', border: '1px solid rgba(0, 160, 255, 0.12)', gap: '8px' }}>
-                            <span style={{ color: 'var(--text-3)', fontWeight: 700, fontSize: '0.74rem', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '5px', flexShrink: 0 }}>
+                            <span style={{ color: '#64748b', fontWeight: 700, fontSize: '0.74rem', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '5px', flexShrink: 0 }}>
                               <Calendar size={12} color="#0284c7" /> Unlock Date
                             </span>
                             <strong style={{ color: isActive ? 'var(--ink)' : '#475569', fontWeight: 700, fontSize: '0.76rem', whiteSpace: 'nowrap', textAlign: 'right' }}>{u.unlockDate}</strong>
@@ -3110,9 +2943,9 @@ function Rewards({ isBaseAppMode = false } = {}) {
                             fontSize: '0.86rem',
                             fontWeight: 800,
                             borderRadius: '12px',
-                            background: 'var(--text-2)',
-                            color: 'var(--text-3)',
-                            border: '1.5px solid var(--text-2)',
+                            background: '#f1f5f9',
+                            color: '#94a3b8',
+                            border: '1.5px solid #cbd5e1',
                             cursor: 'not-allowed',
                             whiteSpace: 'nowrap',
                             gap: '6px'
@@ -3127,7 +2960,7 @@ function Rewards({ isBaseAppMode = false } = {}) {
                             className="btn-fill"
                             style={{
                               background: 'var(--blue)',
-                              color: 'var(--text)',
+                              color: '#ffffff',
                               padding: '11px 14px',
                               fontSize: '0.86rem',
                               fontWeight: 800,
@@ -3139,7 +2972,7 @@ function Rewards({ isBaseAppMode = false } = {}) {
                               width: '100%',
                               textDecoration: 'none',
                               whiteSpace: 'nowrap',
-                              
+                              boxShadow: '0 4px 16px rgba(0, 0, 255, 0.3)',
                               transition: 'all 0.15s'
                             }}
                           >
@@ -3153,11 +2986,11 @@ function Rewards({ isBaseAppMode = false } = {}) {
                               gap: '5px',
                               fontSize: '0.72rem',
                               fontWeight: 700,
-                              color: 'var(--green)',
+                              color: '#059669',
                               marginTop: '8px'
                             }}
                           >
-                            <CheckCircle2 size={13} color="var(--green)" strokeWidth={2.5} />
+                            <CheckCircle2 size={13} color="#059669" strokeWidth={2.5} />
                             Snapshot Completed: {u.snapshotTime}
                           </div>
                         </>
@@ -3172,11 +3005,11 @@ function Rewards({ isBaseAppMode = false } = {}) {
                               gap: '5px',
                               fontSize: '0.72rem',
                               fontWeight: 700,
-                              color: 'var(--green)',
+                              color: '#059669',
                               marginTop: '8px'
                             }}
                           >
-                            <CheckCircle2 size={13} color="var(--green)" strokeWidth={2.5} />
+                            <CheckCircle2 size={13} color="#059669" strokeWidth={2.5} />
                             Snapshot Completed: {u.snapshotTime}
                           </div>
                         </>
@@ -3193,7 +3026,7 @@ function Rewards({ isBaseAppMode = false } = {}) {
                             fontWeight: 800,
                             borderRadius: '12px',
                             background: 'rgba(255, 255, 255, 0.75)',
-                            color: 'var(--text-3)',
+                            color: '#94a3b8',
                             border: '1.5px solid rgba(0, 160, 255, 0.18)',
                             cursor: 'not-allowed',
                             whiteSpace: 'nowrap',
@@ -3221,7 +3054,7 @@ function Rewards({ isBaseAppMode = false } = {}) {
                 <h3 style={{ fontSize: '1.25rem', fontWeight: 900, margin: 0, color: 'var(--ink)', letterSpacing: '-0.02em' }}>
                   Giveaways
                 </h3>
-                <span style={{ fontSize: '0.72rem', fontWeight: 800, background: 'var(--text-2)', color: '#475569', padding: '2px 8px', borderRadius: '99px', border: '1px solid var(--text-2)' }}>
+                <span style={{ fontSize: '0.72rem', fontWeight: 800, background: '#f1f5f9', color: '#475569', padding: '2px 8px', borderRadius: '99px', border: '1px solid #cbd5e1' }}>
                   {filteredGiveaways.length}
                 </span>
               </div>
@@ -3231,10 +3064,10 @@ function Rewards({ isBaseAppMode = false } = {}) {
                 style={{
                   display: 'flex',
                   gap: isBaseAppMode ? '4px' : '4px',
-                  background: isBaseAppMode ? 'color-mix(in srgb, var(--bg) 85%, transparent)' : 'var(--text-2)',
+                  background: isBaseAppMode ? 'rgba(2, 11, 26, 0.85)' : '#f1f5f9',
                   padding: '3px 4px',
                   borderRadius: '10px',
-                  border: isBaseAppMode ? '1px solid color-mix(in srgb, var(--accent) 25%, transparent)' : '1px solid var(--text-2)',
+                  border: isBaseAppMode ? '1px solid rgba(0, 245, 255, 0.25)' : '1px solid #e2e8f0',
                   flexWrap: 'nowrap',
                   overflowX: 'auto',
                   maxWidth: '100%',
@@ -3252,9 +3085,9 @@ function Rewards({ isBaseAppMode = false } = {}) {
                       key={f.id}
                       onClick={() => setGiveawayFilter(f.id)}
                       style={{
-                        fontFamily: isBaseAppMode ? 'var(--font-sans)' : 'var(--font)',
-                        background: isFActive ? (isBaseAppMode ? 'var(--accent)' : 'var(--blue)') : 'transparent',
-                        color: isFActive ? 'var(--text)' : (isBaseAppMode ? 'var(--text-2)' : 'var(--text-3)'),
+                        fontFamily: isBaseAppMode ? "'Press Start 2P', monospace" : 'var(--font)',
+                        background: isFActive ? (isBaseAppMode ? '#0052ff' : 'var(--blue)') : 'transparent',
+                        color: isFActive ? '#ffffff' : (isBaseAppMode ? '#cbd5e1' : '#64748b'),
                         border: 'none',
                         padding: isBaseAppMode ? '6px 8px' : '4px 10px',
                         borderRadius: '8px',
@@ -3264,7 +3097,8 @@ function Rewards({ isBaseAppMode = false } = {}) {
                         flexShrink: 0,
                         cursor: 'pointer',
                         transition: 'all 0.15s',
-                        }}
+                        boxShadow: isFActive && isBaseAppMode ? '0 0 8px rgba(0, 82, 255, 0.4)' : 'none'
+                      }}
                     >
                       {f.label}
                     </button>
@@ -3275,7 +3109,7 @@ function Rewards({ isBaseAppMode = false } = {}) {
 
             {/* Giveaways Grid */}
             {filteredGiveaways.length === 0 ? (
-              <div style={{ padding: '36px 20px', textAlign: 'center', background: 'var(--surface-2)', borderRadius: '20px', border: '1px solid var(--text-2)', color: 'var(--text-3)', fontSize: '0.9rem' }}>
+              <div style={{ padding: '36px 20px', textAlign: 'center', background: '#ffffff', borderRadius: '20px', border: '1px solid #e2e8f0', color: '#64748b', fontSize: '0.9rem' }}>
                 No giveaways found for this filter.
               </div>
             ) : (
@@ -3294,15 +3128,17 @@ function Rewards({ isBaseAppMode = false } = {}) {
                       key={ev.id}
                       style={{
                         background: isOngoing
-                          ? 'rgba(215, 246, 255, 0.85)'
-                          : 'rgba(225, 248, 255, 0.55)',
+                          ? 'linear-gradient(145deg, rgba(215, 246, 255, 0.85) 0%, rgba(240, 252, 255, 0.95) 100%)'
+                          : 'linear-gradient(145deg, rgba(225, 248, 255, 0.55) 0%, rgba(245, 253, 255, 0.8) 100%)',
                         border: isOngoing ? '2px solid var(--blue)' : '1.5px solid rgba(0, 160, 255, 0.25)',
                         borderRadius: '22px',
                         padding: '18px 20px',
                         display: 'flex',
                         flexDirection: 'column',
                         justifyContent: 'space-between',
-                        
+                        boxShadow: isOngoing
+                          ? '0 12px 36px -4px rgba(0, 82, 255, 0.16), 0 2px 10px rgba(0, 0, 0, 0.04)'
+                          : '0 4px 16px rgba(0, 82, 255, 0.05)',
                         position: 'relative',
                         transition: 'all 0.2s'
                       }}
@@ -3320,7 +3156,7 @@ function Rewards({ isBaseAppMode = false } = {}) {
                                 borderRadius: '50%',
                                 objectFit: 'cover',
                                 border: isOngoing ? '2px solid var(--blue)' : '1.5px solid rgba(0, 160, 255, 0.3)',
-                                
+                                boxShadow: '0 2px 8px rgba(0, 82, 255, 0.15)',
                                 flexShrink: 0
                               }}
                             />
@@ -3344,26 +3180,27 @@ function Rewards({ isBaseAppMode = false } = {}) {
                               borderRadius: '99px',
                               fontSize: '0.66rem',
                               fontWeight: 900,
-                              
+                              textTransform: 'uppercase',
                               letterSpacing: '0.04em',
                               background: isOngoing ? '#ecfdf5' : 'rgba(255, 255, 255, 0.9)',
-                              color: isOngoing ? 'var(--green)' : 'var(--text-3)',
+                              color: isOngoing ? '#059669' : '#64748b',
                               border: isOngoing ? '1px solid #a7f3d0' : '1px solid rgba(0, 160, 255, 0.25)',
                               display: 'inline-flex',
                               alignItems: 'center',
                               gap: '5px',
                               whiteSpace: 'nowrap',
                               flexShrink: 0,
-                              }}
+                              boxShadow: isOngoing ? '0 2px 8px rgba(16, 185, 129, 0.15)' : 'none'
+                            }}
                           >
                             {isOngoing ? (
                               <>
-                                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--green)',  flexShrink: 0 }} />
+                                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 6px #10b981', flexShrink: 0 }} />
                                 Ongoing
                               </>
                             ) : (
                               <>
-                                <Clock size={11} color="var(--text-3)" style={{ flexShrink: 0 }} />
+                                <Clock size={11} color="#64748b" style={{ flexShrink: 0 }} />
                                 Ended
                               </>
                             )}
@@ -3373,21 +3210,21 @@ function Rewards({ isBaseAppMode = false } = {}) {
                         {/* Metric Box (Prize Pool) */}
                         <div
                           style={{
-                            background: 'var(--surface-2)',
+                            background: '#ffffff',
                             borderRadius: '16px',
                             padding: '14px 16px',
                             border: '1px solid rgba(0, 160, 255, 0.22)',
-                            
+                            boxShadow: '0 3px 12px rgba(0, 82, 255, 0.05)',
                             marginBottom: '14px'
                           }}
                         >
-                          <div style={{ fontSize: isBaseAppMode ? '6.5px' : '0.66rem', color: 'var(--text-3)',  fontWeight: 800, letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap', marginBottom: '4px', fontFamily: isBaseAppMode ? 'var(--font-sans)' : 'inherit' }}>
-                            <Coins size={12} color={isBaseAppMode ? 'var(--accent)' : 'var(--blue)'} /> Prize Pool
+                          <div style={{ fontSize: isBaseAppMode ? '6.5px' : '0.66rem', color: '#88aacc', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap', marginBottom: '4px', fontFamily: isBaseAppMode ? "'Press Start 2P', monospace" : 'inherit' }}>
+                            <Coins size={12} color={isBaseAppMode ? '#00f5ff' : 'var(--blue)'} /> Prize Pool
                           </div>
-                          <div style={{ fontSize: isBaseAppMode ? '10px' : '1.38rem', fontWeight: 900, color: isBaseAppMode ? 'var(--accent)' : isOngoing ? 'var(--ink)' : 'var(--text-3)', marginTop: '2px', letterSpacing: isBaseAppMode ? '0.2px' : '-0.02em', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '6px', fontFamily: isBaseAppMode ? 'var(--font-sans)' : 'inherit', }}>
+                          <div style={{ fontSize: isBaseAppMode ? '10px' : '1.38rem', fontWeight: 900, color: isBaseAppMode ? '#00f5ff' : isOngoing ? 'var(--ink)' : '#64748b', marginTop: '2px', letterSpacing: isBaseAppMode ? '0.2px' : '-0.02em', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '6px', fontFamily: isBaseAppMode ? "'Press Start 2P', monospace" : 'inherit', textShadow: isBaseAppMode ? '0 0 10px rgba(0, 245, 255, 0.45)' : 'none' }}>
                             <span>{ev.prizePool}</span>
                             {ev.burnNote && (
-                              <span style={{ fontSize: isBaseAppMode ? '6.5px' : '0.72rem', color: '#ef4444', fontWeight: 800, background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.2)', padding: '2px 7px', borderRadius: '99px', display: 'inline-flex', alignItems: 'center', gap: '3px', fontFamily: isBaseAppMode ? 'var(--font-sans)' : 'inherit' }}>
+                              <span style={{ fontSize: isBaseAppMode ? '6.5px' : '0.72rem', color: '#ef4444', fontWeight: 800, background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.2)', padding: '2px 7px', borderRadius: '99px', display: 'inline-flex', alignItems: 'center', gap: '3px', fontFamily: isBaseAppMode ? "'Press Start 2P', monospace" : 'inherit' }}>
                                 🔥 {ev.burnNote}
                               </span>
                             )}
@@ -3398,7 +3235,7 @@ function Rewards({ isBaseAppMode = false } = {}) {
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '16px' }}>
                           {ev.distribution && (
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255, 255, 255, 0.65)', padding: '7px 11px', borderRadius: '10px', border: '1px solid rgba(0, 160, 255, 0.12)', gap: '8px' }}>
-                              <span style={{ color: 'var(--text-3)', fontWeight: 700, fontSize: '0.74rem', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '5px', flexShrink: 0 }}>
+                              <span style={{ color: '#64748b', fontWeight: 700, fontSize: '0.74rem', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '5px', flexShrink: 0 }}>
                                 <Gift size={12} color="#0284c7" /> Distribution
                               </span>
                               <strong style={{ color: isOngoing ? 'var(--ink)' : '#475569', fontWeight: 700, fontSize: '0.76rem', whiteSpace: 'nowrap', textAlign: 'right' }}>{ev.distribution}</strong>
@@ -3406,7 +3243,7 @@ function Rewards({ isBaseAppMode = false } = {}) {
                           )}
                           {ev.winners && (
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255, 255, 255, 0.65)', padding: '7px 11px', borderRadius: '10px', border: '1px solid rgba(0, 160, 255, 0.12)', gap: '8px' }}>
-                              <span style={{ color: 'var(--text-3)', fontWeight: 700, fontSize: '0.74rem', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '5px', flexShrink: 0 }}>
+                              <span style={{ color: '#64748b', fontWeight: 700, fontSize: '0.74rem', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '5px', flexShrink: 0 }}>
                                 <Users size={12} color="#0284c7" /> Winners
                               </span>
                               <strong style={{ color: isOngoing ? 'var(--ink)' : '#475569', fontWeight: 700, fontSize: '0.76rem', whiteSpace: 'nowrap', textAlign: 'right' }}>{ev.winners}</strong>
@@ -3414,7 +3251,7 @@ function Rewards({ isBaseAppMode = false } = {}) {
                           )}
                           {ev.deadlineDate && (
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255, 255, 255, 0.65)', padding: '7px 11px', borderRadius: '10px', border: '1px solid rgba(0, 160, 255, 0.12)', gap: '8px' }}>
-                              <span style={{ color: 'var(--text-3)', fontWeight: 700, fontSize: '0.74rem', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '5px', flexShrink: 0 }}>
+                              <span style={{ color: '#64748b', fontWeight: 700, fontSize: '0.74rem', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '5px', flexShrink: 0 }}>
                                 <Clock size={12} color="#0284c7" /> Deadline
                               </span>
                               <GiveawayCountdown targetDate={ev.deadlineDate} isOngoing={isOngoing} />
@@ -3430,8 +3267,8 @@ function Rewards({ isBaseAppMode = false } = {}) {
                         rel="noreferrer"
                         className={isOngoing ? 'btn-fill' : ''}
                         style={{
-                          background: isOngoing ? 'var(--blue)' : 'var(--text)',
-                          color: isOngoing ? 'var(--text)' : 'var(--ink)',
+                          background: isOngoing ? 'var(--blue)' : '#ffffff',
+                          color: isOngoing ? '#ffffff' : 'var(--ink)',
                           border: isOngoing ? 'none' : '1.5px solid rgba(0, 160, 255, 0.35)',
                           padding: '11px 14px',
                           fontSize: '0.86rem',
@@ -3444,12 +3281,12 @@ function Rewards({ isBaseAppMode = false } = {}) {
                           width: '100%',
                           textDecoration: 'none',
                           whiteSpace: 'nowrap',
-                          
+                          boxShadow: isOngoing ? '0 4px 16px rgba(0, 0, 255, 0.3)' : '0 1px 4px rgba(0,0,0,0.02)',
                           transition: 'all 0.15s'
                         }}
                       >
                         <span>{isOngoing ? 'Participate' : 'View Event'}</span>
-                        <ArrowUpRight size={15} strokeWidth={2.5} color={isOngoing ? 'var(--text)' : 'var(--blue)'} />
+                        <ArrowUpRight size={15} strokeWidth={2.5} color={isOngoing ? '#ffffff' : 'var(--blue)'} />
                       </a>
                     </div>
                   );
@@ -3519,7 +3356,7 @@ class ErrorBoundary extends React.Component {
     if (this.state.hasError) {
       return (
         <div style={{ padding: '140px 20px 100px 20px', textAlign: 'center', maxWidth: '640px', margin: '0 auto' }}>
-          <div style={{ background: 'var(--surface-2)', border: '1.5px solid #fecaca', borderRadius: '24px', padding: '32px 24px', }}>
+          <div style={{ background: '#ffffff', border: '1.5px solid #fecaca', borderRadius: '24px', padding: '32px 24px', boxShadow: '0 8px 30px rgba(239, 68, 68, 0.08)' }}>
             <h3 style={{ color: '#ef4444', fontWeight: 900, fontSize: '1.35rem', marginBottom: '10px' }}>Something went wrong</h3>
             <p style={{ color: 'var(--muted)', fontSize: '0.88rem', marginBottom: '16px' }}>An error occurred while loading this view.</p>
             <pre style={{ background: '#fef2f2', padding: '14px', borderRadius: '12px', textAlign: 'left', overflow: 'auto', border: '1px solid #fecaca', color: '#991b1b', fontSize: '0.8rem', whiteSpace: 'pre-wrap', wordBreak: 'break-word', maxHeight: '180px' }}>
@@ -3528,7 +3365,7 @@ class ErrorBoundary extends React.Component {
             <button
               onClick={() => window.location.reload()}
               className="btn-fill"
-              style={{ marginTop: '20px', padding: '10px 24px', background: 'var(--blue)', color: 'var(--text)', border: 'none', borderRadius: '12px', fontWeight: 800, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+              style={{ marginTop: '20px', padding: '10px 24px', background: 'var(--blue)', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 800, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
             >
               <RotateCcw size={16} /> Reload Page
             </button>
@@ -3627,7 +3464,7 @@ export default function App() {
         supportedChains: [base],
         appearance: {
           theme: 'dark',
-          accentColor: '#66BEFF',
+          accentColor: '#00f5ff',
           logo: '/new-logo-vibe.png',
           showWalletLoginFirst: true,
         },
