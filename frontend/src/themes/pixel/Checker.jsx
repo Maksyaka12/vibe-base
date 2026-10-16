@@ -805,7 +805,11 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
         setClaimedHistory(prev => {
           const prevList = Array.isArray(prev) ? prev : [];
           const nonStaking = prevList.filter(h => h && !h.id?.startsWith('staking-'));
-          const updated = getSortedClaimedHistory([...stakingItems, ...nonStaking]);
+          // Explorer responses can be partial (rate limits / Cloudflare), so keep staking claims
+          // found earlier and only add or refresh the ones returned now.
+          const freshIds = new Set(stakingItems.map(i => i.id));
+          const keptStaking = prevList.filter(h => h && h.id?.startsWith('staking-') && !freshIds.has(h.id));
+          const updated = getSortedClaimedHistory([...stakingItems, ...keptStaking, ...nonStaking]);
           localStorage.setItem(`vibe_claim_history_${lowerUser}`, JSON.stringify(updated));
           return updated;
         });
