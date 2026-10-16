@@ -223,7 +223,40 @@ export async function fetchUserClaimTransactions(userAddress, customClient = nul
       console.warn('RPC log query error:', rpcLogErr);
     }
 
-    // 2. Query Base explorer API (Blockscout) for full history across all rounds
+    // 2. All staking claims of this wallet in one request: EpochRewardClaimed logs filtered by user.
+    // Paging through token transfers below can miss old claims on busy wallets.
+    let stakingLogsLoaded = false;
+    const stakingLogsUrl = `https://base.blockscout.com/api?module=logs&action=getLogs&address=${STAKING_CONTRACT}&fromBlock=0&toBlock=latest&topic0=${CLAIM_TOPIC}&topic3=0x${lowerUser.slice(2).padStart(64, '0')}&topic0_3_opr=and`;
+    for (let attempt = 0; attempt < 3 && !stakingLogsLoaded; attempt++) {
+      try {
+        const res = await fetch(stakingLogsUrl);
+        if (!res.ok) continue;
+        const data = await res.json();
+        if (!Array.isArray(data?.result)) continue;
+        for (const log of data.result) {
+          const vaultId = log.topics?.[1]?.toLowerCase();
+          const matchedVault = STAKING_VAULTS_INFO.find(v => v.id.toLowerCase() === vaultId);
+          if (!matchedVault || isBadTxHash(log.transactionHash)) continue;
+          const key = `staking-${matchedVault.roundId}`;
+          map[key] = {
+            id: key,
+            type: 'staking',
+            roundId: matchedVault.roundId,
+            vaultId: matchedVault.id,
+            title: `Staking Rewards · Epoch ${matchedVault.roundId}`,
+            amount: Math.round(Number(formatUnits(BigInt(log.data), 18))),
+            txHash: log.transactionHash,
+            timestamp: new Date(parseInt(log.timeStamp, 16) * 1000).toISOString(),
+            link: `https://launch.o1.exchange/staking/vaults/${matchedVault.id}?chain=8453`
+          };
+        }
+        stakingLogsLoaded = true;
+      } catch (e) {
+        console.warn('Error fetching staking claim logs:', e);
+      }
+    }
+
+    // 3. Query Base explorer API (Blockscout) for full history across all rounds
     let url = `https://base.blockscout.com/api/v2/addresses/${lowerUser}/token-transfers?type=ERC-20&token=${CA}`;
     let pageCount = 0;
 
@@ -294,7 +327,7 @@ export async function fetchUserClaimTransactions(userAddress, customClient = nul
                 amount: expectedAmt
               };
             }
-          } else if (from === STAKING_CA_LOWER) {
+          } else if (from === STAKING_CA_LOWER && !stakingLogsLoaded) {
             try {
               const r = await rpcClient.getTransactionReceipt({ hash: txHash });
               const claimLog = r.logs.find(l => l.topics[0] === CLAIM_TOPIC);
