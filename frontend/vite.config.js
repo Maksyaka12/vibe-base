@@ -81,8 +81,32 @@ function themeScope() {
 }
 themeScope.postcss = true
 
+// Serves /api/schedule during `npm run dev` with the same handler as the Vercel function.
+function scheduleApiDev() {
+  return {
+    name: 'schedule-api-dev',
+    apply: 'serve',
+    configureServer(server) {
+      server.middlewares.use('/api/schedule', async (req, res) => {
+        const { handleSchedule } = await server.ssrLoadModule('/api/_lib/schedule.js')
+        let body
+        if (req.method === 'PUT') {
+          let raw = ''
+          for await (const chunk of req) raw += chunk
+          try { body = JSON.parse(raw) } catch { body = null }
+        }
+        const query = Object.fromEntries(new URL(req.url, 'http://localhost').searchParams)
+        const result = await handleSchedule({ method: req.method, query, body })
+        res.statusCode = result.status
+        for (const [k, v] of Object.entries(result.headers)) res.setHeader(k, v)
+        res.end(JSON.stringify(result.body))
+      })
+    },
+  }
+}
+
 export default defineConfig({
-  plugins: [react(), inlineCss()],
+  plugins: [react(), inlineCss(), scheduleApiDev()],
   css: {
     postcss: { plugins: [themeScope()] },
   },

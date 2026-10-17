@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { THEMES, getTheme } from './theme';
+import { loadPublishedSchedule } from './data/scheduleLoader';
 
 const theme = getTheme();
 document.documentElement.dataset.theme = theme;
@@ -15,7 +16,8 @@ const loadTheme = {
   pixel: () => import('./themes/pixel'),
 };
 
-loadTheme[theme]().then(({ default: App }) => {
+// Themes read the schedule only while rendering, so it just has to be applied before the first render.
+Promise.all([loadPublishedSchedule(), loadTheme[theme]()]).then(([, { default: App }]) => {
   ReactDOM.createRoot(document.getElementById('root')).render(
     <React.StrictMode>
       <App />

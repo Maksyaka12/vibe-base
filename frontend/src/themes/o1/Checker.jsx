@@ -1133,18 +1133,10 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
   const totalExpiredTokens = (Boolean(address && isVibeClubRoyalty3Ended && !isVibeClubRoyalty3Claimed && royalty3Data?.claims?.[address.toLowerCase()]) ? (royalty3Data.claims[address.toLowerCase()].amount || 18018) : 0) + (Boolean(address && isVibeClubRoyalty2Ended && !isVibeClubRoyalty2Claimed && royalty2Data?.claims?.[address.toLowerCase()]) ? (royalty2Data.claims[address.toLowerCase()].amount || 17117) : 0) + (Boolean(address && isVibeClubRoyalty1Ended && !isVibeClubRoyalty1Claimed && royalty1Data?.claims?.[address.toLowerCase()]) ? (royalty1Data.claims[address.toLowerCase()].amount || 22935) : 0) + (Boolean(address && isHolderRound1Ended && !isHolderRound1Claimed && round1Data?.claims?.[address.toLowerCase()]) ? (round1Data.claims[address.toLowerCase()].amount || 126127) : 0);
 
   // Next Upcoming Unlocks to Display
-  const upcomingHolderRound = (isHolderRound2Live || isHolderRound2Ended) ? HOLDER_ROUNDS[2] : ((isHolderRound1Live || isHolderRound1Ended) ? HOLDER_ROUNDS[1] : HOLDER_ROUNDS[0]);
-  const upcomingVibeClubRound = isVibeClubRoyalty5Live || isVibeClubRoyalty5Ended
-    ? VIBECLUB_ROUNDS[5]
-    : (isVibeClubRoyalty4Live || isVibeClubRoyalty4Ended
-      ? VIBECLUB_ROUNDS[4]
-      : (isVibeClubRoyalty3Live || isVibeClubRoyalty3Ended
-        ? VIBECLUB_ROUNDS[3]
-        : (isVibeClubRoyalty2Live || isVibeClubRoyalty2Ended
-          ? VIBECLUB_ROUNDS[2]
-          : (isVibeClubRoyalty1Live || isVibeClubRoyalty1Ended
-            ? VIBECLUB_ROUNDS[1]
-            : VIBECLUB_ROUNDS[0]))));
+  // The next round whose claim has not opened yet (rounds come from the shared, admin-editable schedule)
+  const nextRound = (rounds) => rounds.find(r => currentTime < new Date(r.targetDate)) || rounds[rounds.length - 1];
+  const upcomingHolderRound = nextRound(HOLDER_ROUNDS);
+  const upcomingVibeClubRound = nextRound(VIBECLUB_ROUNDS);
 
   // ⚡ High-Speed Admin Metrics Unified Multicall (<350ms)
   const fetchAdminMetrics = async (overrideType, overrideEpoch, overrideCa) => {

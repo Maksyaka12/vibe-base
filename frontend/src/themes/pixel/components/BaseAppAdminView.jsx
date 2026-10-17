@@ -5,6 +5,7 @@ import { parseEther, parseUnits, formatUnits, encodeFunctionData, parseAbi } fro
 import { publicClient } from '../../../config/rpc';
 import { DATA_SUFFIX, appendBuilderSuffix } from '../../../config/builderCode';
 import { useVibeNftContract } from '../../../hooks/useVibeNftContract';
+import { setTheme } from '../../../theme';
 import round1Data from '../../../data/round_1_proofs.json';
 import round2Data from '../../../data/round_2_proofs.json';
 import royalty1Data from '../../../data/royalty_1_proofs.json';
@@ -778,6 +779,44 @@ export function BaseAppAdminView() {
           )}
         </div>
       )}
+
+      {/* The reward schedule editor (pools, dates, vault links) lives in the O1 theme's admin */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '10px',
+          flexWrap: 'wrap',
+          background: 'rgba(4, 14, 36, 0.8)',
+          border: '1.5px solid rgba(255, 170, 0, 0.4)',
+          borderRadius: '12px',
+          padding: '10px 12px',
+          marginBottom: '16px',
+          fontFamily: "'Press Start 2P', monospace",
+          fontSize: '7px',
+          color: '#ffaa00',
+          lineHeight: 1.6
+        }}
+      >
+        <span>REWARD SCHEDULE EDITOR (POOLS, DATES, VAULT LINKS) IS IN THE O1 THEME ADMIN.</span>
+        <button
+          type="button"
+          onClick={() => setTheme('o1')}
+          style={{
+            background: 'rgba(255, 170, 0, 0.15)',
+            border: '1px solid #ffaa00',
+            color: '#ffaa00',
+            borderRadius: '6px',
+            padding: '6px 10px',
+            fontFamily: "'Press Start 2P', monospace",
+            fontSize: '6.5px',
+            cursor: 'pointer'
+          }}
+        >
+          OPEN IN O1
+        </button>
+      </div>
 
       {/* 3 Main Module Tabs */}
       <div

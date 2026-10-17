@@ -107,3 +107,132 @@
     align-items: stretch;
   }
 }
+
+/* ── Reward schedule editor ── */
+.o1-sched {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.o1-sched-tabs {
+  align-self: flex-start;
+  flex-wrap: wrap;
+  border-radius: var(--r-md);
+}
+.o1-sched-tabs button {
+  border-radius: 10px;
+}
+.o1-sched-count {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  opacity: 0.7;
+}
+.o1-sched-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.o1-sched-row {
+  position: relative;
+  padding: 14px 52px 14px 16px;
+  display: grid;
+  grid-template-columns: 90px repeat(3, minmax(0, 1fr));
+  gap: 10px 12px;
+  align-items: start;
+}
+.o1-sched-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.o1-sched-field.wide {
+  grid-column: span 2;
+}
+.o1-sched-field .o1-admin-input {
+  height: 38px;
+  padding: 0 10px;
+  color-scheme: dark;
+}
+.o1-sched-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-3);
+}
+.o1-sched-hint.ok {
+  color: var(--green);
+}
+.o1-sched-remove {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-3);
+  cursor: pointer;
+  transition: color 0.15s ease-out, border-color 0.15s ease-out;
+}
+.o1-sched-remove:hover {
+  color: var(--red);
+  border-color: var(--red-bd);
+}
+.o1-sched-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 12px 0;
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+}
+.o1-sched-state {
+  margin-right: auto;
+  font-size: 13px;
+  color: var(--text-3);
+}
+.o1-sched-state .err {
+  color: var(--red);
+}
+.o1-sched-history-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+  font-family: var(--font-mono);
+  color: var(--text-2);
+}
+
+@media (max-width: 1023px) {
+  /* keep the publish bar above the mobile bottom tab bar */
+  .o1-sched-actions {
+    bottom: calc(64px + env(safe-area-inset-bottom));
+  }
+}
+@media (max-width: 900px) {
+  .o1-sched-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 520px) {
+  .o1-sched-row {
+    grid-template-columns: 1fr;
+  }
+  .o1-sched-field.wide {
+    grid-column: auto;
+  }
+}
