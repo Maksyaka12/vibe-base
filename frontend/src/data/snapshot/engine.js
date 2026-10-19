@@ -78,9 +78,10 @@ class FatalFetchError extends Error {}
 // Blockscout is slow and rate-limited: one request at a time, a pause between pages, retries on errors.
 async function blockscoutJson(url, headers) {
   let limited = 0;
+  let lastIssue = 'no response';
   for (let attempt = 0; attempt < 8; attempt++) {
     const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 30000);
+    const timer = setTimeout(() => ctrl.abort(), 65000);
     try {
       const res = await fetch(url, { signal: ctrl.signal, headers });
       if (res.status === 503 || res.status === 401 || res.status === 403) {
@@ -94,19 +95,21 @@ async function blockscoutJson(url, headers) {
         await sleep(5000);
         continue;
       }
-      if (res.ok) {
-        const data = await res.json();
-        if (data.status === '1' || data.message === 'No records found') return data;
-      }
+      const text = await res.text();
+      let data = null;
+      try { data = JSON.parse(text); } catch {}
+      if (res.ok && data && (data.status === '1' || data.message === 'No records found')) return data;
+      lastIssue = `HTTP ${res.status}: ${(data ? JSON.stringify(data) : text).slice(0, 160)}`;
       await sleep(3000);
     } catch (e) {
       if (e instanceof FatalFetchError) throw e;
+      lastIssue = e.name === 'AbortError' ? 'request timed out' : (e.message || String(e));
       await sleep(3000);
     } finally {
       clearTimeout(timer);
     }
   }
-  throw new Error('Blockscout is not responding, please try again in a few minutes');
+  throw new Error(`Blockscout did not return transfer logs (${lastIssue}). Please try again in a few minutes.`);
 }
 
 const LOGS_PAGE = 1000;
