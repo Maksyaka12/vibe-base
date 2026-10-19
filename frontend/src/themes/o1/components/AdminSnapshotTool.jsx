@@ -103,7 +103,7 @@ export function AdminSnapshotTool({ activeAddress, wallets, onUseRoot }) {
 
   const adminWallet = () => wallets.find((w) => w.address.toLowerCase() === activeAddress?.toLowerCase()) || wallets[0];
 
-  // One signature lets the server use its Blockscout key for this run (holder snapshots only).
+  // One signature lets the server use its Alchemy key for this run (holder snapshots only).
   const blockscoutProxy = async () => {
     const wallet = adminWallet();
     if (!wallet) throw new Error('Connect the admin wallet to run a holder snapshot.');
@@ -111,7 +111,7 @@ export function AdminSnapshotTool({ activeAddress, wallets, onUseRoot }) {
     const issuedAt = new Date().toISOString();
     const provider = await wallet.getEthereumProvider();
     const signature = await provider.request({ method: 'personal_sign', params: [stringToHex(adminSessionMessage({ address: wallet.address, issuedAt })), wallet.address] });
-    return { url: '/api/blockscout', headers: { 'x-admin-address': wallet.address, 'x-admin-issued': issuedAt, 'x-admin-signature': signature } };
+    return { url: '/api/transfers', headers: { 'x-admin-address': wallet.address, 'x-admin-issued': issuedAt, 'x-admin-signature': signature } };
   };
 
   const run = async () => {

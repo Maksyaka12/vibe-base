@@ -90,7 +90,7 @@ async function blockscoutJson(url, headers) {
       }
       if (res.status === 429) {
         if (++limited >= 3) {
-          throw new FatalFetchError('Blockscout request limit reached. Set BLOCKSCOUT_API_KEY in Vercel (free key from dev.blockscout.com) and run again.');
+          throw new FatalFetchError('Blockscout request limit reached. Run the snapshot while connected with the admin wallet (uses the server Alchemy key).');
         }
         await sleep(5000);
         continue;
@@ -119,8 +119,8 @@ const LOGS_MAX_PAGES = 10; // Blockscout stops paging after 10,000 results; then
 // (Blockscout's holder list is incomplete for this token, so it is not used.)
 // cache = { block, receivers } from an earlier scan: only newer transfers are fetched, and a cache that
 // already reaches past the snapshot is enough on its own (extra wallets are filtered by balance later).
-// proxy = { url, headers }: our admin-only /api/blockscout (Blockscout PRO API with the server's key).
-// Without it, the public Base instance is used directly (only ~10 log searches per hour).
+// proxy = { url, headers }: our admin-only /api/transfers (Alchemy Transfers API with the server's key).
+// Without it, the public Blockscout instance is used directly (only ~10 log searches per hour).
 async function receiversUntil(snapshotBlock, onProgress, { proxy = null, cache = null, onCache = () => {} } = {}) {
   const out = new Set(cache?.receivers || []);
   const cachedBlock = cache?.block ? BigInt(cache.block) : -1n;
@@ -128,19 +128,17 @@ async function receiversUntil(snapshotBlock, onProgress, { proxy = null, cache =
     onProgress(`Using saved transfer history: ${out.size} receiving wallets`);
     return { receivers: out, block: cachedBlock };
   }
-  const pageUrl = (fromBlock, page) => {
-    const q = `fromBlock=${fromBlock}&toBlock=${snapshotBlock}&page=${page}&offset=${LOGS_PAGE}`;
-    return proxy
-      ? `${proxy.url}?${q}`
-      : `${BLOCKSCOUT_PUBLIC}module=logs&action=getLogs&address=${VIBE_TOKEN}&topic0=${TRANSFER_TOPIC}&${q}`;
-  };
+  if (proxy) return receiversViaProxy(snapshotBlock, cachedBlock + 1n, out, onProgress, proxy, onCache);
+
+  const pageUrl = (fromBlock, page) =>
+    `${BLOCKSCOUT_PUBLIC}module=logs&action=getLogs&address=${VIBE_TOKEN}&topic0=${TRANSFER_TOPIC}&fromBlock=${fromBlock}&toBlock=${snapshotBlock}&page=${page}&offset=${LOGS_PAGE}`;
   let fromBlock = cachedBlock + 1n;
   let logs = 0;
   for (;;) {
     let lastBlock = fromBlock;
     let full = true;
     for (let page = 1; page <= LOGS_MAX_PAGES; page++) {
-      const data = await blockscoutJson(pageUrl(fromBlock, page), proxy?.headers);
+      const data = await blockscoutJson(pageUrl(fromBlock, page));
       const result = data.result || [];
       for (const l of result) {
         out.add(`0x${l.topics[2].slice(26)}`.toLowerCase());
@@ -161,6 +159,46 @@ async function receiversUntil(snapshotBlock, onProgress, { proxy = null, cache =
     if (!full || lastBlock <= fromBlock) break;
     fromBlock = lastBlock;
   }
+  return { receivers: out, block: snapshotBlock };
+}
+
+async function proxyPage(url, headers) {
+  for (let attempt = 0; attempt < 5; attempt++) {
+    let res;
+    try {
+      res = await fetch(url, { headers });
+    } catch (e) {
+      await sleep(2000);
+      continue;
+    }
+    const body = await res.json().catch(() => ({}));
+    if (res.ok) return body;
+    // Configuration and access problems will not fix themselves: stop with the server's message.
+    if ([400, 401, 403, 503].includes(res.status)) throw new Error(body.error || `Request refused (${res.status})`);
+    if (attempt === 4) throw new Error(body.error || `Transfer history request failed (${res.status})`);
+    await sleep(2000 * (attempt + 1));
+  }
+  throw new Error('Transfer history service is not reachable');
+}
+
+async function receiversViaProxy(snapshotBlock, fromBlock, out, onProgress, proxy, onCache) {
+  let pageKey = null;
+  let seen = 0;
+  do {
+    const q = new URLSearchParams({ fromBlock: fromBlock.toString(), toBlock: snapshotBlock.toString() });
+    if (pageKey) q.set('pageKey', pageKey);
+    const data = await proxyPage(`${proxy.url}?${q}`, proxy.headers);
+    let lastBlock = 0;
+    for (const t of data.transfers) {
+      if (t.to) out.add(t.to.toLowerCase());
+      lastBlock = t.block;
+    }
+    seen += data.transfers.length;
+    pageKey = data.pageKey;
+    // Transfers come in block order: everything before the last block seen is complete, save progress.
+    if (pageKey && lastBlock > 0) onCache({ block: String(lastBlock - 1), receivers: [...out] });
+    onProgress(`Transfers up to the snapshot: ${seen.toLocaleString()} scanned, ${out.size} receiving wallets`);
+  } while (pageKey);
   return { receivers: out, block: snapshotBlock };
 }
 

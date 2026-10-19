@@ -85,7 +85,7 @@ themeScope.postcss = true
 const DEV_API = {
   '/api/schedule': ['/api/_lib/schedule.js', 'handleSchedule'],
   '/api/snapshots': ['/api/_lib/snapshots.js', 'handleSnapshots'],
-  '/api/blockscout': ['/api/_lib/blockscout.js', 'handleBlockscout'],
+  '/api/transfers': ['/api/_lib/transfers.js', 'handleTransfers'],
 }
 
 function scheduleApiDev() {
