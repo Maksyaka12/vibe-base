@@ -236,3 +236,106 @@
     grid-column: auto;
   }
 }
+
+/* ── Reward snapshot tool ── */
+.o1-snap-form {
+  display: grid;
+  grid-template-columns: 110px repeat(2, minmax(0, 1fr));
+  gap: 10px 12px;
+}
+.o1-snap-form .o1-sched-field:nth-child(n + 4) {
+  grid-column: span 1;
+}
+.o1-snap-progress {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-2);
+}
+.o1-spin {
+  animation: o1-spin 1s linear infinite;
+}
+@keyframes o1-spin {
+  to { transform: rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .o1-spin { animation: none; }
+}
+.o1-snap-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+.o1-snap-root {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+}
+.o1-snap-root code {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text);
+}
+.o1-snap-icon-btn {
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-2);
+  cursor: pointer;
+}
+.o1-snap-icon-btn:hover {
+  color: var(--text);
+  background: var(--surface-3);
+}
+.o1-snap-table-wrap {
+  max-height: 520px;
+  overflow: auto;
+}
+.o1-snap-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.o1-snap-table th {
+  position: sticky;
+  top: 0;
+  background: var(--surface-2);
+  text-align: left;
+  font-weight: 500;
+  color: var(--text-3);
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+}
+.o1-snap-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-mono);
+  color: var(--text);
+  white-space: nowrap;
+}
+.o1-snap-table tr:hover td {
+  background: var(--surface-2);
+}
+.o1-snap-table a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+@media (max-width: 700px) {
+  .o1-snap-form,
+  .o1-snap-tiles {
+    grid-template-columns: 1fr;
+  }
+}

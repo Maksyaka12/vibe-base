@@ -81,14 +81,19 @@ function themeScope() {
 }
 themeScope.postcss = true
 
-// Serves /api/schedule during `npm run dev` with the same handler as the Vercel function.
+// Serves /api/* during `npm run dev` with the same handlers as the Vercel functions.
+const DEV_API = {
+  '/api/schedule': ['/api/_lib/schedule.js', 'handleSchedule'],
+  '/api/snapshots': ['/api/_lib/snapshots.js', 'handleSnapshots'],
+}
+
 function scheduleApiDev() {
   return {
-    name: 'schedule-api-dev',
+    name: 'api-dev',
     apply: 'serve',
     configureServer(server) {
-      server.middlewares.use('/api/schedule', async (req, res) => {
-        const { handleSchedule } = await server.ssrLoadModule('/api/_lib/schedule.js')
+      for (const [route, [modulePath, exportName]] of Object.entries(DEV_API)) server.middlewares.use(route, async (req, res) => {
+        const handle = (await server.ssrLoadModule(modulePath))[exportName]
         let body
         if (req.method === 'PUT') {
           let raw = ''
@@ -96,7 +101,7 @@ function scheduleApiDev() {
           try { body = JSON.parse(raw) } catch { body = null }
         }
         const query = Object.fromEntries(new URL(req.url, 'http://localhost').searchParams)
-        const result = await handleSchedule({ method: req.method, query, body })
+        const result = await handle({ method: req.method, query, body })
         res.statusCode = result.status
         for (const [k, v] of Object.entries(result.headers)) res.setHeader(k, v)
         res.end(JSON.stringify(result.body))

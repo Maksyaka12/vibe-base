@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { usePrivy, useWallets } from '@privy-io/react-auth';
 import { useAccount, useDisconnect } from 'wagmi';
 import { parseEther, parseUnits, formatUnits, encodeFunctionData, parseAbi } from 'viem';
-import { Coins, Crown, Sparkles, ShieldAlert, ExternalLink, Wallet, CalendarClock } from 'lucide-react';
+import { Coins, Crown, Sparkles, ShieldAlert, ExternalLink, Wallet, CalendarClock, Camera } from 'lucide-react';
 import { publicClient } from '../../../config/rpc';
 import { DATA_SUFFIX, appendBuilderSuffix } from '../../../config/builderCode';
 import { useVibeNftContract } from '../../../hooks/useVibeNftContract';
@@ -15,6 +15,7 @@ import royalty4Data from '../../../data/royalty_4_proofs.json';
 import royalty5Data from '../../../data/royalty_5_proofs.json';
 import { Card, Tile, Button, Alert } from './ui';
 import { AdminScheduleEditor } from './AdminScheduleEditor';
+import { AdminSnapshotTool } from './AdminSnapshotTool';
 
 export const ADMIN_WALLET = '0x4c91d3bed372c11795b9ce9a9017dfe447bf050a';
 export const VIBE_TOKEN_CA = '0xb200000000000000000000df24ecb8bf51100a01';
@@ -634,9 +635,34 @@ export function BaseAppAdminView() {
         >
           <CalendarClock size={15} /> Schedule
         </button>
+        <button
+          className={`o1-admin-tab-btn ${activeTab === 'snapshots' ? 'active' : ''}`}
+          onClick={() => setActiveTab('snapshots')}
+        >
+          <Camera size={15} /> Snapshots
+        </button>
       </div>
 
       {activeTab === 'schedule' && <AdminScheduleEditor activeAddress={activeAddress} wallets={wallets} />}
+      {activeTab === 'snapshots' && (
+        <AdminSnapshotTool
+          activeAddress={activeAddress}
+          wallets={wallets}
+          onUseRoot={({ type, round, root }) => {
+            const epoch = String(round);
+            if (type === 'holder') {
+              setHolderEpochId(epoch);
+              setHolderMerkleRoot(root);
+              setActiveTab('holder');
+            } else {
+              setRoyaltyEpochId(epoch);
+              setRoyaltyMerkleRoot(root);
+              setActiveTab('royalty');
+            }
+            fetchDistributorMetrics(type, epoch);
+          }}
+        />
+      )}
 
       {/* ── TAB 1: HOLDERS ── */}
       {activeTab === 'holder' && (
