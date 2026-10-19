@@ -942,6 +942,21 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
       }
 
       // 4. On-chain claim status checks & Explorer Tx Hash Sync
+      // Claim status straight from the contract, before the (slow) explorer history lookup below,
+      // so claim cards appear as soon as the chain answers.
+      const earlyStatus = {};
+      [['holder', 1, 3], ['holder', 2, 4], ['vibeclub', 1, 5], ['vibeclub', 2, 6], ['vibeclub', 3, 7], ['vibeclub', 4, 8], ['vibeclub', 5, 9]].forEach(([type, id, i]) => {
+        if (results[i]?.status === 'success') earlyStatus[`${type}-${id}`] = results[i].result === true ? 'claimed' : 'unclaimed';
+      });
+      extraRounds.forEach((r, i) => {
+        if (results[10 + i]?.status === 'success') earlyStatus[`${r.type}-${r.id}`] = results[10 + i].result === true ? 'claimed' : 'unclaimed';
+      });
+      setClaimStatus(prev => {
+        const next = { ...prev };
+        for (const [k, v] of Object.entries(earlyStatus)) if (prev[k] !== 'claiming') next[k] = v;
+        return next;
+      });
+
       const hasAnyClaim = results[3]?.result === true || results[4]?.result === true || results[5]?.result === true || results[6]?.result === true || results[7]?.result === true || results[8]?.result === true || results[9]?.result === true || results.slice(10).some(r => r?.result === true);
       let txMap = {};
       if (hasAnyClaim) {
