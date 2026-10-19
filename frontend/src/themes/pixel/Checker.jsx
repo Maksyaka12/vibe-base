@@ -23,11 +23,13 @@ const ADMIN_WALLET = '0x4c91d3bed372c11795b9ce9a9017dfe447bf050a';
 const O1 = 'https://launch.o1.exchange/token/0xb200000000000000000000df24ecb8bf51100a01?chain=8453';
 const VIBECLUB_MINT_URL = 'https://vibeverse.dog/vibeclub';
 import { DATA_SUFFIX, appendBuilderSuffix } from '../../config/builderCode';
-import { STAKING_VAULTS_INFO, ADMIN_WITHDRAWAL_TXS, HOLDER_ROUNDS, VIBECLUB_ROUNDS } from '../../data/rewardsSchedule';
+import { STAKING_VAULTS_INFO, ADMIN_WITHDRAWAL_TXS, HOLDER_ROUNDS, VIBECLUB_ROUNDS, royaltyBannerFor } from '../../data/rewardsSchedule';
 export { STAKING_VAULTS_INFO, ADMIN_WITHDRAWAL_TXS };
 
 export function getRoyaltyBannerUrl(epochId) {
   const epoch = Number(epochId) || 1;
+  const uploaded = royaltyBannerFor(epoch); // set in Admin → Schedule → Vibe Club royalties
+  if (uploaded) return uploaded;
   if (epoch === 1) {
     return '/vibe-club-royalties-banner.jpg';
   }

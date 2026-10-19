@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import { stringToHex } from 'viem';
-import { Plus, Trash2, Upload, RotateCcw, History, CheckCircle2, AlertCircle, Link2 } from 'lucide-react';
+import { Plus, Trash2, Upload, RotateCcw, History, CheckCircle2, AlertCircle, Link2, ImageUp } from 'lucide-react';
 import { SCHEDULE } from '../../../data/rewardsSchedule';
 import { validateSchedule, hashScheduleJson, scheduleSignMessage } from '../../../data/scheduleSchema';
 import { fetchPublishedSchedule, applyPublishedSchedule } from '../../../data/scheduleLoader';
 import { Card, Button, Alert } from './ui';
+import { pickAdminWallet, adminSessionHeaders, compressImage } from './adminSession';
 
 const TABS = [
   { id: 'staking', label: 'Staking epochs' },
@@ -52,6 +53,66 @@ function Field({ label, children, wide }) {
       <span className="o1-admin-label">{label}</span>
       {children}
     </label>
+  );
+}
+
+// Built-in banner files used when no image was uploaded for the round.
+const defaultBanner = (round) => (Number(round) === 1 ? '/vibe-club-royalties-banner.jpg' : `/vibe-club-royalties-${round}.jfif`);
+
+// "Claimed" banner of a royalty round: shown in the claim modal, the share dialog and its download.
+function BannerField({ round, value, onChange, wallet }) {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const [broken, setBroken] = useState(false);
+  const preview = value || defaultBanner(round);
+
+  const upload = async (file) => {
+    if (!file) return;
+    setError('');
+    setBusy(true);
+    try {
+      const image = await compressImage(file);
+      const res = await fetch(`/api/banner?round=${round}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', ...(await adminSessionHeaders(wallet)) },
+        body: JSON.stringify({ type: image.type, data: image.data }),
+      });
+      const body = await res.json();
+      if (!res.ok) throw new Error(body.error || `Upload failed (${res.status})`);
+      setBroken(false);
+      onChange(body.url);
+    } catch (e) {
+      setError(e?.shortMessage || e?.message || 'Upload failed');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="o1-sched-field o1-sched-banner">
+      <span className="o1-admin-label">Claimed banner {value ? '(uploaded)' : '(built-in file)'}</span>
+      <div className="o1-sched-banner-row">
+        {broken ? (
+          <div className="o1-sched-banner-thumb empty">No image</div>
+        ) : (
+          <img className="o1-sched-banner-thumb" src={preview} alt={`Royalty ${round} banner`} onError={() => setBroken(true)} />
+        )}
+        <div className="o1-sched-banner-actions">
+          <label className={`btn btn-secondary btn-sm${busy ? ' is-busy' : ''}`}>
+            <ImageUp size={14} /> {busy ? 'Uploading…' : 'Upload image'}
+            <input type="file" accept="image/*" hidden disabled={busy} onChange={(e) => { upload(e.target.files?.[0]); e.target.value = ''; }} />
+          </label>
+          {value && (
+            <Button variant="ghost" size="sm" onClick={() => { setBroken(false); onChange(''); }}>
+              Use built-in file
+            </Button>
+          )}
+          <span className="o1-sched-hint">
+            {error ? <span style={{ color: 'var(--red)' }}>{error}</span> : 'JPEG/PNG, compressed automatically. Publish the schedule to apply.'}
+          </span>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -202,6 +263,14 @@ export function AdminScheduleEditor({ activeAddress, wallets }) {
                 <Field label="Snapshot (UTC)"><input className="o1-admin-input" type="datetime-local" value={toInput(r.snapshot)} onChange={(e) => update(i, { snapshot: fromInput(e.target.value) })} /></Field>
                 <Field label={tab === 'royalties' ? 'Claim opens (UTC)' : 'Unlock (UTC)'}><input className="o1-admin-input" type="datetime-local" value={toInput(r[dateKey])} onChange={(e) => update(i, { [dateKey]: fromInput(e.target.value) })} /></Field>
                 <Field label="Pool ($VIBE or TBA)"><input className="o1-admin-input" value={r.pool} onChange={(e) => update(i, { pool: e.target.value })} /></Field>
+                {tab === 'royalties' && (
+                  <BannerField
+                    round={r.round}
+                    value={r.banner || ''}
+                    onChange={(banner) => update(i, { banner })}
+                    wallet={pickAdminWallet(wallets, activeAddress)}
+                  />
+                )}
               </>
             )}
 

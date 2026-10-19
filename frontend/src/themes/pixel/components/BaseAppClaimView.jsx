@@ -130,6 +130,9 @@ function BaseAppClaimCountdownButton({ targetDate, onClaim }) {
   );
 }
 
+// Royalty round of a claim-history item: its roundId, or the number in its id (vibeclub-6).
+const royaltyRoundOf = (item, fallback = 5) => item?.roundId || Number(item?.id?.match(/(\d+)$/)?.[1]) || fallback;
+
 export function BaseAppClaimView(props) {
   const {
     address,
@@ -181,7 +184,7 @@ export function BaseAppClaimView(props) {
   // Download / Save Banner
   const handleDownloadBanner = async () => {
     setDownloadingBanner(true);
-    const ep = shareModalItem?.roundId || (shareModalItem?.id?.includes('5') ? 5 : (shareModalItem?.id?.includes('4') ? 4 : (shareModalItem?.id?.includes('3') ? 3 : (shareModalItem?.id?.includes('2') ? 2 : (activeRoyaltyEpochId || 5)))));
+    const ep = royaltyRoundOf(shareModalItem);
     const imageUrl = getRoyaltyBannerUrl(ep);
     const fileName = `vibe-club-royalties-${ep}-claimed.jpg`;
     try {
@@ -1385,11 +1388,11 @@ export function BaseAppClaimView(props) {
             {/* Banner Preview */}
             <div className="claim-share-modal-banner-wrap">
               <img
-                src={getRoyaltyBannerUrl(shareModalItem?.roundId || (shareModalItem?.id?.includes('5') ? 5 : (shareModalItem?.id?.includes('4') ? 4 : (shareModalItem?.id?.includes('3') ? 3 : (shareModalItem?.id?.includes('2') ? 2 : (activeRoyaltyEpochId || 5))))))}
+                src={getRoyaltyBannerUrl(royaltyRoundOf(shareModalItem))}
                 alt="Claim Banner"
                 className="claim-share-modal-banner-img"
                 onError={(e) => {
-                  const ep = shareModalItem?.roundId || (shareModalItem?.id?.includes('5') ? 5 : (shareModalItem?.id?.includes('4') ? 4 : (shareModalItem?.id?.includes('3') ? 3 : (shareModalItem?.id?.includes('2') ? 2 : (activeRoyaltyEpochId || 5)))));
+                  const ep = royaltyRoundOf(shareModalItem);
                   if (!e.currentTarget.src.includes('.jpg')) {
                     e.currentTarget.src = `/vibe-club-royalties-${ep}.jpg`;
                   } else {

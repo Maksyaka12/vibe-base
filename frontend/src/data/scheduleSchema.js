@@ -85,6 +85,8 @@ export function validateSchedule(input) {
       pool: pool(r.pool, `${l} pool`),
     };
     if (r.nextSnapshot) out.nextSnapshot = iso(r.nextSnapshot, `${l} next snapshot`);
+    // Royalties only: image shown in the 'claimed' modal and share dialog.
+    if (dateKey === 'claim' && r.banner) out.banner = url(r.banner, `${l} banner`);
     if (new Date(out[dateKey]) < new Date(out.snapshot)) fail(`${l}: ${dateKey} must not be before the snapshot`);
     return out;
   });

@@ -10,6 +10,7 @@ export const stakingVaultLink = (vaultId) => `https://launch.o1.exchange/staking
 // Dates are ISO strings in UTC. Pools are display strings without the "$VIBE" suffix, or "TBA".
 // vaultId is the o1 staking vault id (0x + 64 hex) once the vault exists, otherwise ''.
 // nextSnapshot is optional; when omitted it is the next round's snapshot (or one interval later).
+// Royalties may carry banner: URL of the 'claimed' image (uploaded in the admin panel).
 export const DEFAULT_SCHEDULE = {
   staking: [
     { epoch: 1, start: '2026-08-21T15:00:00Z', end: '2026-08-31T15:00:00Z', pool: '2,200,000', vaultId: '0xafa3ce23e0043b651d98e5a89b55a80b71be2f4a945a745cd6e37316b5075663' },
@@ -173,6 +174,11 @@ export let VIBECLUB_ROUNDS;
 export let HOLDER_UNLOCKS;
 export let HOLDER_ROUNDS;
 export let GIVEAWAYS_DATA;
+
+// Banner uploaded in the admin panel for a royalty round ('' when none, then themes use their own files).
+export function royaltyBannerFor(round) {
+  return SCHEDULE.royalties.find((r) => r.round === Number(round))?.banner || '';
+}
 
 export function applySchedule(schedule) {
   const next = derive(schedule);

@@ -3,7 +3,8 @@ import { stringToHex } from 'viem';
 import { Play, Upload, Copy, Check, Download, ArrowUpRight, AlertCircle, CheckCircle2, Loader2, Eye } from 'lucide-react';
 import { SCHEDULE } from '../../../data/rewardsSchedule';
 import { hashScheduleJson } from '../../../data/scheduleSchema';
-import { snapshotSignMessage, adminSessionMessage } from '../../../data/snapshot/publish';
+import { snapshotSignMessage } from '../../../data/snapshot/publish';
+import { pickAdminWallet, adminSessionHeaders } from './adminSession';
 import { Card, Button, Alert, Tile } from './ui';
 
 const TYPES = [
@@ -101,17 +102,12 @@ export function AdminSnapshotTool({ activeAddress, wallets, onUseRoot }) {
 
   const alreadyPublished = published.find((p) => p.type === type && p.round === Number(round));
 
-  const adminWallet = () => wallets.find((w) => w.address.toLowerCase() === activeAddress?.toLowerCase()) || wallets[0];
+  const adminWallet = () => pickAdminWallet(wallets, activeAddress);
 
-  // One signature lets the server use its Alchemy key for this run (holder snapshots only).
+  // One signature lets the server use its Alchemy key (holder snapshots only).
   const blockscoutProxy = async () => {
-    const wallet = adminWallet();
-    if (!wallet) throw new Error('Connect the admin wallet to run a holder snapshot.');
     setProgress('Sign the message in your wallet to start…');
-    const issuedAt = new Date().toISOString();
-    const provider = await wallet.getEthereumProvider();
-    const signature = await provider.request({ method: 'personal_sign', params: [stringToHex(adminSessionMessage({ address: wallet.address, issuedAt })), wallet.address] });
-    return { url: '/api/transfers', headers: { 'x-admin-address': wallet.address, 'x-admin-issued': issuedAt, 'x-admin-signature': signature } };
+    return { url: '/api/transfers', headers: await adminSessionHeaders(adminWallet()) };
   };
 
   const run = async () => {

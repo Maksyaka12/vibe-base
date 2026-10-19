@@ -86,6 +86,7 @@ const DEV_API = {
   '/api/schedule': ['/api/_lib/schedule.js', 'handleSchedule'],
   '/api/snapshots': ['/api/_lib/snapshots.js', 'handleSnapshots'],
   '/api/transfers': ['/api/_lib/transfers.js', 'handleTransfers'],
+  '/api/banner': ['/api/_lib/banner.js', 'handleBanner'],
 }
 
 function scheduleApiDev() {
@@ -105,7 +106,7 @@ function scheduleApiDev() {
         const result = await handle({ method: req.method, query, body, headers: req.headers })
         res.statusCode = result.status
         for (const [k, v] of Object.entries(result.headers)) res.setHeader(k, v)
-        res.end(JSON.stringify(result.body))
+        res.end(result.raw ?? JSON.stringify(result.body))
       })
     },
   }
