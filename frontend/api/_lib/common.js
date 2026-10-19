@@ -3,9 +3,10 @@
 // Storage: Upstash Redis REST (env KV_REST_API_URL/KV_REST_API_TOKEN or UPSTASH_REDIS_REST_URL/TOKEN).
 // Without those env vars: local dev keeps files in frontend/.data, on Vercel writes fail with a clear message.
 
-import { createPublicClient } from 'viem';
+import { createPublicClient, recoverMessageAddress } from 'viem';
 import { base } from 'viem/chains';
 import { rpcTransports } from '../../src/config/rpc.js';
+import { adminSessionMessage } from '../../src/data/snapshot/publish.js';
 
 const MAX_SIGNATURE_AGE_MS = 10 * 60 * 1000;
 const DEFAULT_ADMINS = ['0x4c91d3bed372c11795b9ce9a9017dfe447bf050a'];
@@ -34,6 +35,28 @@ export async function checkAdminSignature({ address, issuedAt, signature, messag
     valid = false;
   }
   return valid ? null : json(401, { error: 'Signature check failed' });
+}
+
+// Short admin "session": the admin signs adminSessionMessage once, then sends address/issuedAt/signature
+// as headers. Plain wallets are checked locally (no RPC), smart wallets fall back to an onchain check.
+const SESSION_MAX_AGE_MS = 2 * 60 * 60 * 1000;
+
+export async function checkAdminSession(headers = {}) {
+  const address = headers['x-admin-address'];
+  const issuedAt = headers['x-admin-issued'];
+  const signature = headers['x-admin-signature'];
+  if (!isAdmin(address)) return json(403, { error: 'Admin wallet required' });
+  const issued = Date.parse(issuedAt);
+  if (Number.isNaN(issued) || Date.now() - issued > SESSION_MAX_AGE_MS || issued - Date.now() > 60000) return json(401, { error: 'Admin session expired, run again to re-sign' });
+  const message = adminSessionMessage({ address, issuedAt });
+  try {
+    const recovered = await recoverMessageAddress({ message, signature });
+    if (recovered.toLowerCase() === address.toLowerCase()) return null;
+  } catch {}
+  try {
+    if (await verifier.verifyMessage({ address, message, signature })) return null;
+  } catch {}
+  return json(401, { error: 'Admin signature check failed' });
 }
 
 // ---- key-value storage ----

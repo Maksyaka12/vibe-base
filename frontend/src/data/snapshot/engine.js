@@ -3,9 +3,9 @@
 import { createPublicClient, http, fallback, parseAbi, parseUnits, formatUnits } from 'viem';
 import { base } from 'viem/chains';
 import { claimLeaf, buildMerkleTree } from './merkle.js';
+import { VIBE_TOKEN, VIBE_CLUB_NFT, TRANSFER_TOPIC } from './constants.js';
 
-export const VIBE_TOKEN = '0xb200000000000000000000df24ecb8bf51100a01';
-export const VIBE_CLUB_NFT = '0x9E92307Dbec2d0aE4BBF14cA93E1cA00edC4b886';
+export { VIBE_TOKEN, VIBE_CLUB_NFT };
 const NFT_MAX_SUPPLY = 333;
 
 export const HOLDER_DEFAULTS = { minBalance: 5000000, cap: 500000 };
@@ -23,7 +23,8 @@ const NFT_EXCLUSIONS = ['0x0000000000000000000000000000000000000000', '0x0000000
 
 // Free nodes that serve historical state (balances at any past block); mainnet.base.org rate-limits hardest.
 const ARCHIVE_RPCS = ['https://base.drpc.org', 'https://1rpc.io/base', 'https://base-mainnet.public.blastapi.io', 'https://mainnet.base.org'];
-const BLOCKSCOUT_V1 = 'https://base.blockscout.com/api';
+// Etherscan-style log search on the public Base instance (~10 requests/hour without a key).
+const BLOCKSCOUT_PUBLIC = 'https://base.blockscout.com/api?';
 
 const archive = createPublicClient({
   chain: base,
@@ -72,18 +73,23 @@ export async function blockAtTime(unix, onProgress = () => {}) {
   return retry(() => archive.getBlock({ blockNumber: lo }));
 }
 
+class FatalFetchError extends Error {}
+
 // Blockscout is slow and rate-limited: one request at a time, a pause between pages, retries on errors.
-// Without an API key its log search allows only ~10 requests per hour.
-async function blockscoutJson(url) {
+async function blockscoutJson(url, headers) {
   let limited = 0;
   for (let attempt = 0; attempt < 8; attempt++) {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), 30000);
     try {
-      const res = await fetch(url, { signal: ctrl.signal });
+      const res = await fetch(url, { signal: ctrl.signal, headers });
+      if (res.status === 503 || res.status === 401 || res.status === 403) {
+        const body = await res.json().catch(() => ({}));
+        throw new FatalFetchError(body.error || `Request refused (${res.status})`);
+      }
       if (res.status === 429) {
         if (++limited >= 3) {
-          throw new Error('Blockscout request limit reached. Add a free Blockscout API key (dev.blockscout.com) and run again.');
+          throw new FatalFetchError('Blockscout request limit reached. Set BLOCKSCOUT_API_KEY in Vercel (free key from dev.blockscout.com) and run again.');
         }
         await sleep(5000);
         continue;
@@ -94,7 +100,7 @@ async function blockscoutJson(url) {
       }
       await sleep(3000);
     } catch (e) {
-      if (e.message?.startsWith('Blockscout request limit')) throw e;
+      if (e instanceof FatalFetchError) throw e;
       await sleep(3000);
     } finally {
       clearTimeout(timer);
@@ -103,7 +109,6 @@ async function blockscoutJson(url) {
   throw new Error('Blockscout is not responding, please try again in a few minutes');
 }
 
-const TRANSFER_TOPIC = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
 const LOGS_PAGE = 1000;
 const LOGS_MAX_PAGES = 10; // Blockscout stops paging after 10,000 results; then we move the block window.
 
@@ -111,22 +116,28 @@ const LOGS_MAX_PAGES = 10; // Blockscout stops paging after 10,000 results; then
 // (Blockscout's holder list is incomplete for this token, so it is not used.)
 // cache = { block, receivers } from an earlier scan: only newer transfers are fetched, and a cache that
 // already reaches past the snapshot is enough on its own (extra wallets are filtered by balance later).
-async function receiversUntil(snapshotBlock, onProgress, { apiKey = '', cache = null, onCache = () => {} } = {}) {
+// proxy = { url, headers }: our admin-only /api/blockscout (Blockscout PRO API with the server's key).
+// Without it, the public Base instance is used directly (only ~10 log searches per hour).
+async function receiversUntil(snapshotBlock, onProgress, { proxy = null, cache = null, onCache = () => {} } = {}) {
   const out = new Set(cache?.receivers || []);
   const cachedBlock = cache?.block ? BigInt(cache.block) : -1n;
   if (cachedBlock >= snapshotBlock) {
     onProgress(`Using saved transfer history: ${out.size} receiving wallets`);
     return { receivers: out, block: cachedBlock };
   }
-  const keyParam = apiKey ? `&apikey=${encodeURIComponent(apiKey)}` : '';
+  const pageUrl = (fromBlock, page) => {
+    const q = `fromBlock=${fromBlock}&toBlock=${snapshotBlock}&page=${page}&offset=${LOGS_PAGE}`;
+    return proxy
+      ? `${proxy.url}?${q}`
+      : `${BLOCKSCOUT_PUBLIC}module=logs&action=getLogs&address=${VIBE_TOKEN}&topic0=${TRANSFER_TOPIC}&${q}`;
+  };
   let fromBlock = cachedBlock + 1n;
   let logs = 0;
   for (;;) {
     let lastBlock = fromBlock;
     let full = true;
     for (let page = 1; page <= LOGS_MAX_PAGES; page++) {
-      const url = `${BLOCKSCOUT_V1}?module=logs&action=getLogs&address=${VIBE_TOKEN}&topic0=${TRANSFER_TOPIC}&fromBlock=${fromBlock}&toBlock=${snapshotBlock}&page=${page}&offset=${LOGS_PAGE}${keyParam}`;
-      const data = await blockscoutJson(url);
+      const data = await blockscoutJson(pageUrl(fromBlock, page), proxy?.headers);
       const result = data.result || [];
       for (const l of result) {
         out.add(`0x${l.topics[2].slice(26)}`.toLowerCase());
@@ -210,13 +221,13 @@ function finalize({ type, round, pool, block, rows, rules }) {
   };
 }
 
-export async function runHolderSnapshot({ round, pool, at, block: blockOverride, minBalance = HOLDER_DEFAULTS.minBalance, cap = HOLDER_DEFAULTS.cap }, onProgress = () => {}, { apiKey = '', cache = null, onCache = () => {} } = {}) {
+export async function runHolderSnapshot({ round, pool, at, block: blockOverride, minBalance = HOLDER_DEFAULTS.minBalance, cap = HOLDER_DEFAULTS.cap }, onProgress = () => {}, { proxy = null, cache = null, onCache = () => {} } = {}) {
   const block = blockOverride
     ? await retry(() => archive.getBlock({ blockNumber: BigInt(blockOverride) }))
     : await blockAtTime(Math.floor(new Date(at).getTime() / 1000), onProgress);
   onProgress(`Snapshot block #${block.number} (${new Date(Number(block.timestamp) * 1000).toISOString()})`);
 
-  const scanned = await receiversUntil(block.number, onProgress, { apiKey, cache, onCache });
+  const scanned = await receiversUntil(block.number, onProgress, { proxy, cache, onCache });
   onCache({ block: scanned.block.toString(), receivers: [...scanned.receivers] });
   const candidates = scanned.receivers;
   const addrs = [...candidates].filter((a) => !HOLDER_EXCLUSIONS.includes(a));

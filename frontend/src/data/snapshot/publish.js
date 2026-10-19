@@ -11,3 +11,8 @@ export function snapshotSignMessage({ address, issuedAt, type, round, root, hash
     `Payload SHA-256: ${hash}`,
   ].join('\n');
 }
+
+// Signed once per run so the server lets the admin use its Blockscout key.
+export function adminSessionMessage({ address, issuedAt }) {
+  return ['Vibe Hub: admin data access', `Admin: ${String(address).toLowerCase()}`, `Issued: ${issuedAt}`].join('\n');
+}

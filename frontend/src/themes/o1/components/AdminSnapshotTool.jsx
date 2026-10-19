@@ -3,7 +3,7 @@ import { stringToHex } from 'viem';
 import { Play, Upload, Copy, Check, Download, ArrowUpRight, AlertCircle, CheckCircle2, Loader2, Eye } from 'lucide-react';
 import { SCHEDULE } from '../../../data/rewardsSchedule';
 import { hashScheduleJson } from '../../../data/scheduleSchema';
-import { snapshotSignMessage } from '../../../data/snapshot/publish';
+import { snapshotSignMessage, adminSessionMessage } from '../../../data/snapshot/publish';
 import { Card, Button, Alert, Tile } from './ui';
 
 const TYPES = [
@@ -16,8 +16,7 @@ const num = (n) => Number(n).toLocaleString('en-US');
 const toInput = (iso) => (iso ? iso.slice(0, 19) : '');
 const fromInput = (value) => (value ? `${value.length === 16 ? `${value}:00` : value}Z` : '');
 const poolNumber = (pool) => (pool && pool !== 'TBA' ? Number(String(pool).replace(/,/g, '')) : '');
-// Admin-only conveniences kept in this browser: the Blockscout key and the scanned transfer history.
-const KEY_STORAGE = 'vibe_blockscout_key';
+// The scanned transfer history is kept in this browser so later holder snapshots only fetch new transfers.
 const CACHE_STORAGE = 'vibe_receivers_cache_v1';
 const readLocal = (k, fallback) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : fallback; } catch { return fallback; } };
 const writeLocal = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
@@ -69,7 +68,6 @@ export function AdminSnapshotTool({ activeAddress, wallets, onUseRoot }) {
   const [pool, setPool] = useState(initial.pool);
   const [minBalance, setMinBalance] = useState(5000000);
   const [cap, setCap] = useState(500000);
-  const [apiKey, setApiKey] = useState(() => readLocal(KEY_STORAGE, ''));
 
   const [running, setRunning] = useState(false);
   const [progress, setProgress] = useState('');
@@ -103,6 +101,19 @@ export function AdminSnapshotTool({ activeAddress, wallets, onUseRoot }) {
 
   const alreadyPublished = published.find((p) => p.type === type && p.round === Number(round));
 
+  const adminWallet = () => wallets.find((w) => w.address.toLowerCase() === activeAddress?.toLowerCase()) || wallets[0];
+
+  // One signature lets the server use its Blockscout key for this run (holder snapshots only).
+  const blockscoutProxy = async () => {
+    const wallet = adminWallet();
+    if (!wallet) throw new Error('Connect the admin wallet to run a holder snapshot.');
+    setProgress('Sign the message in your wallet to start…');
+    const issuedAt = new Date().toISOString();
+    const provider = await wallet.getEthereumProvider();
+    const signature = await provider.request({ method: 'personal_sign', params: [stringToHex(adminSessionMessage({ address: wallet.address, issuedAt })), wallet.address] });
+    return { url: '/api/blockscout', headers: { 'x-admin-address': wallet.address, 'x-admin-issued': issuedAt, 'x-admin-signature': signature } };
+  };
+
   const run = async () => {
     setStatus(null);
     setResult(null);
@@ -119,7 +130,7 @@ export function AdminSnapshotTool({ activeAddress, wallets, onUseRoot }) {
       const params = { round: Number(round), pool: Number(pool), at };
       const snap = type === 'holder'
         ? await engine.runHolderSnapshot({ ...params, minBalance: Number(minBalance), cap: Number(cap) }, setProgress, {
-            apiKey: apiKey.trim(),
+            proxy: await blockscoutProxy(),
             cache: readLocal(CACHE_STORAGE, null),
             onCache: (c) => writeLocal(CACHE_STORAGE, c),
           })
@@ -135,7 +146,7 @@ export function AdminSnapshotTool({ activeAddress, wallets, onUseRoot }) {
   };
 
   const publish = async () => {
-    const wallet = wallets.find((w) => w.address.toLowerCase() === activeAddress?.toLowerCase()) || wallets[0];
+    const wallet = adminWallet();
     if (!wallet) {
       setStatus({ tone: 'danger', text: 'Connect the admin wallet to publish.' });
       return;
@@ -233,18 +244,6 @@ export function AdminSnapshotTool({ activeAddress, wallets, onUseRoot }) {
               <label className="o1-sched-field">
                 <span className="o1-admin-label">Cap per wallet ($VIBE)</span>
                 <input className="o1-admin-input" type="number" min="1" value={cap} onChange={(e) => setCap(e.target.value)} disabled={running} />
-              </label>
-              <label className="o1-sched-field">
-                <span className="o1-admin-label">Blockscout API key (saved in this browser)</span>
-                <input
-                  className="o1-admin-input"
-                  type="password"
-                  autoComplete="off"
-                  placeholder="Needed for the first holder snapshot"
-                  value={apiKey}
-                  onChange={(e) => { setApiKey(e.target.value); writeLocal(KEY_STORAGE, e.target.value.trim()); }}
-                  disabled={running}
-                />
               </label>
             </>
           )}

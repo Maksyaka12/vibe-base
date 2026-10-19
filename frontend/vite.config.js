@@ -85,6 +85,7 @@ themeScope.postcss = true
 const DEV_API = {
   '/api/schedule': ['/api/_lib/schedule.js', 'handleSchedule'],
   '/api/snapshots': ['/api/_lib/snapshots.js', 'handleSnapshots'],
+  '/api/blockscout': ['/api/_lib/blockscout.js', 'handleBlockscout'],
 }
 
 function scheduleApiDev() {
@@ -101,7 +102,7 @@ function scheduleApiDev() {
           try { body = JSON.parse(raw) } catch { body = null }
         }
         const query = Object.fromEntries(new URL(req.url, 'http://localhost').searchParams)
-        const result = await handle({ method: req.method, query, body })
+        const result = await handle({ method: req.method, query, body, headers: req.headers })
         res.statusCode = result.status
         for (const [k, v] of Object.entries(result.headers)) res.setHeader(k, v)
         res.end(JSON.stringify(result.body))
