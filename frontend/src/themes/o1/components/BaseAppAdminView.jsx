@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { usePrivy, useWallets } from '@privy-io/react-auth';
 import { useAccount, useDisconnect } from 'wagmi';
 import { parseEther, parseUnits, formatUnits, encodeFunctionData, parseAbi } from 'viem';
-import { Coins, Crown, Sparkles, ShieldAlert, ExternalLink, Wallet, CalendarClock, Camera } from 'lucide-react';
+import { Coins, Crown, Sparkles, ShieldAlert, ExternalLink, Wallet, CalendarClock, Camera, CheckCircle2, AlertCircle } from 'lucide-react';
 import { publicClient } from '../../../config/rpc';
 import { DATA_SUFFIX, appendBuilderSuffix } from '../../../config/builderCode';
 import { useVibeNftContract } from '../../../hooks/useVibeNftContract';
@@ -43,6 +43,51 @@ const ERC20_ABI = parseAbi([
   'function approve(address spender, uint256 amount) returns (bool)'
 ]);
 
+// Proofs bundled with the site, by epoch. Pools are the amounts each round distributed.
+const BUILT_IN_HOLDER_ROUNDS = {
+  1: { claims: round1Data?.claims, merkleRoot: round1Data?.merkleRoot, pool: 10000000 },
+  2: { claims: round2Data?.claims, merkleRoot: round2Data?.merkleRoot, pool: 10000000 },
+};
+const BUILT_IN_ROYALTY_ROUNDS = {
+  1: { claims: royalty1Data?.claims, merkleRoot: royalty1Data?.merkleRoot, pool: 2500000 },
+  2: { claims: royalty2Data?.claims, merkleRoot: royalty2Data?.merkleRoot, pool: 1900000 },
+  3: { claims: royalty3Data?.claims, merkleRoot: royalty3Data?.merkleRoot, pool: 2000000 },
+  4: { claims: royalty4Data?.claims, merkleRoot: royalty4Data?.merkleRoot, pool: 1100000 },
+  5: { claims: royalty5Data?.claims, merkleRoot: royalty5Data?.merkleRoot, pool: royalty5Data?.poolAmount || 800000 },
+};
+
+// One line under the distributor metrics: where the round's data comes from and whether the contract has its root.
+function RoundStatus({ metrics, label }) {
+  if (metrics.loading || !metrics.rootStatus) return null;
+  const funded = metrics.contractBalance >= metrics.unclaimedTokens;
+  const text = {
+    'no-snapshot': `${label}: no published snapshot. Run and publish it in the Snapshots tab.`,
+    'not-set': `${label}: snapshot ready (${metrics.totalPool.toLocaleString()} $VIBE pool), Merkle root not set on the contract yet.`,
+    match: `${label}: Merkle root on the contract matches the snapshot (${metrics.totalPool.toLocaleString()} $VIBE pool).${funded ? '' : ' The contract balance does not cover the unclaimed amount yet.'}`,
+    mismatch: `${label}: the Merkle root on the contract differs from the published snapshot. Claims will fail until they match.`,
+  }[metrics.rootStatus];
+  const tone = metrics.rootStatus === 'match' && funded ? 'success' : metrics.rootStatus === 'mismatch' ? 'danger' : 'warn';
+  return (
+    <Alert tone={tone} icon={tone === 'success' ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}>
+      {text}
+    </Alert>
+  );
+}
+
+// Snapshots published from Admin → Snapshots, fetched once per round and kept for the session.
+const publishedSnapshots = {};
+async function loadPublishedSnapshot(type, epoch) {
+  const k = `${type}:${epoch}`;
+  if (!(k in publishedSnapshots)) {
+    publishedSnapshots[k] = fetch(`/api/snapshots?type=${type}&round=${epoch}`, { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : null))
+      .catch(() => null);
+  }
+  const snap = await publishedSnapshots[k];
+  if (!snap) delete publishedSnapshots[k]; // try again next refresh (it may be published later)
+  return snap;
+}
+
 export function BaseAppAdminView() {
   const { authenticated, user, login, logout } = usePrivy();
   const { wallets } = useWallets();
@@ -81,7 +126,7 @@ export function BaseAppAdminView() {
     contractBalance: 0,
     claimedTokens: 0,
     claimedWalletsCount: 0,
-    totalWalletsCount: 42,
+    totalWalletsCount: 0,
     unclaimedTokens: 0,
     loading: false
   });
@@ -90,7 +135,7 @@ export function BaseAppAdminView() {
     contractBalance: 0,
     claimedTokens: 0,
     claimedWalletsCount: 0,
-    totalWalletsCount: 111,
+    totalWalletsCount: 0,
     unclaimedTokens: 0,
     loading: false
   });
@@ -224,11 +269,12 @@ export function BaseAppAdminView() {
     else setRoyaltyMetrics(prev => ({ ...prev, loading: true }));
 
     try {
-      const claims = Object.values(
-        isHolder
-          ? (epoch === '2' ? (round2Data?.claims || {}) : (round1Data?.claims || {}))
-          : (epoch === '5' ? (royalty5Data?.claims || {}) : (epoch === '4' ? (royalty4Data?.claims || {}) : (epoch === '3' ? (royalty3Data?.claims || {}) : (epoch === '2' ? (royalty2Data?.claims || {}) : (royalty1Data?.claims || {})))))
-      );
+      // Rounds shipped with the site use their bundled proofs; newer ones use the snapshot published from Admin → Snapshots.
+      const builtIn = isHolder ? BUILT_IN_HOLDER_ROUNDS[epoch] : BUILT_IN_ROYALTY_ROUNDS[epoch];
+      const published = builtIn ? null : await loadPublishedSnapshot(type, epoch);
+      const source = builtIn || published;
+      const claims = Object.values(source?.claims || {});
+      const snapshotRoot = source?.merkleRoot || null;
 
       const calls = [
         {
@@ -236,6 +282,12 @@ export function BaseAppAdminView() {
           abi: parseAbi(['function balanceOf(address) view returns (uint256)']),
           functionName: 'balanceOf',
           args: [contractAddress]
+        },
+        {
+          address: contractAddress,
+          abi: parseAbi(['function merkleRoots(uint256 epochId) view returns (bytes32)']),
+          functionName: 'merkleRoots',
+          args: [BigInt(epoch)]
         },
         ...claims.map(c => ({
           address: contractAddress,
@@ -250,19 +302,27 @@ export function BaseAppAdminView() {
       const balWei = (results[0]?.status === 'success' && results[0].result !== undefined) ? results[0].result : 0n;
       const contractBalance = Math.round(Number(formatUnits(balWei, 18)));
 
+      const onchainRoot = results[1]?.status === 'success' ? results[1].result : null;
+
       let claimedWalletsCount = 0;
       let claimedTokens = 0;
 
       for (let i = 0; i < claims.length; i++) {
-        if (results[i + 1]?.status === 'success' && results[i + 1]?.result === true) {
+        if (results[i + 2]?.status === 'success' && results[i + 2]?.result === true) {
           claimedWalletsCount++;
           claimedTokens += (claims[i].amount || 0);
         }
       }
 
-      const totalWalletsCount = claims.length || (isHolder ? (epoch === '2' ? Object.keys(round2Data?.claims || {}).length : 42) : 111);
-      const totalPool = isHolder ? 10000000 : (epoch === '5' ? (royalty5Data?.poolAmount || 800000) : (epoch === '4' ? 1100000 : (epoch === '3' ? 2000000 : (epoch === '2' ? 1900000 : 2500000))));
+      const totalWalletsCount = claims.length;
+      const totalPool = source?.pool || 0;
       const unclaimedTokens = Math.max(0, totalPool - claimedTokens);
+      const ZERO_ROOT = `0x${'0'.repeat(64)}`;
+      const rootStatus = !source
+        ? 'no-snapshot'
+        : !onchainRoot || onchainRoot === ZERO_ROOT
+          ? 'not-set'
+          : onchainRoot.toLowerCase() === snapshotRoot?.toLowerCase() ? 'match' : 'mismatch';
 
       const metrics = {
         contractBalance,
@@ -270,6 +330,8 @@ export function BaseAppAdminView() {
         claimedWalletsCount,
         totalWalletsCount,
         unclaimedTokens,
+        totalPool,
+        rootStatus,
         loading: false
       };
 
@@ -700,6 +762,7 @@ export function BaseAppAdminView() {
               value={holderMetrics.loading ? '...' : `${holderMetrics.unclaimedTokens.toLocaleString()} $VIBE`}
             />
           </div>
+          <RoundStatus metrics={holderMetrics} label={`Unlock #${holderEpochId}`} />
 
           {/* Action 1: Merkle Root */}
           <Card style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -842,6 +905,7 @@ export function BaseAppAdminView() {
               value={royaltyMetrics.loading ? '...' : `${royaltyMetrics.unclaimedTokens.toLocaleString()} $VIBE`}
             />
           </div>
+          <RoundStatus metrics={royaltyMetrics} label={`Royalty #${royaltyEpochId}`} />
 
           {/* Action 1: Merkle Root */}
           <Card style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
