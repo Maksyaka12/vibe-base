@@ -44,6 +44,7 @@
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
+  container-type: inline-size; /* lets the amount scale with the banner */
   border-radius: var(--r-md);
   overflow: hidden;
   border: 1px solid var(--border);
@@ -53,7 +54,7 @@
 .o1-claim-banner-img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   display: block;
 }
 
@@ -68,9 +69,14 @@
   z-index: 2;
 }
 
+/* The empty area of the frame under "YOUR ALLOCATION" in allocation-banner.png (1792x1008):
+   x 72-1142, y 520-888. */
 .o1-claim-banner-amount-wrap {
   position: absolute;
-  inset: 0;
+  left: 4%;
+  width: 59.7%;
+  top: 51.5%;
+  height: 36.5%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -80,7 +86,8 @@
 
 .o1-claim-banner-amount {
   font-family: var(--mono);
-  font-size: clamp(24px, 5vw, 44px);
+  font-size: clamp(20px, 3.6vw, 44px);
+  font-size: 6.6cqw;
   font-weight: 700;
   color: var(--green);
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
@@ -379,4 +386,22 @@
   color: var(--green);
   font-size: 14px;
   font-weight: 600;
+}
+
+/* Desktop: smaller banner on the left, countdown and claim button on the right */
+@media (min-width: 900px) {
+  .o1-claim-active-card.has-claim {
+    flex-direction: row;
+    align-items: center;
+    gap: 24px;
+  }
+  .o1-claim-active-card.has-claim .o1-claim-banner-box {
+    flex: 0 0 min(520px, 58%);
+  }
+  .o1-claim-active-card.has-claim .o1-claim-action-row {
+    flex: 1;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+  }
 }

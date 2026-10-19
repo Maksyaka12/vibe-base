@@ -1144,7 +1144,8 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
 
   const activeHolderClaimed = isRoundClaimed('holder', activeHolderEpochId);
   const activeHolderLive = isRoundLive(activeHolderRound);
-  const activeHolderAvailable = activeHolderLive && !activeHolderClaimed;
+  // Only once the contract has answered for this round, so an already-claimed round never flashes as claimable.
+  const activeHolderAvailable = activeHolderLive && !activeHolderClaimed && claimStatus[roundClaimKey('holder', activeHolderEpochId)] !== undefined;
 
   // Check Claim Status for Royalty 1 Vibe Club
   const isVibeClubRoyalty1Claimed = (Array.isArray(claimedHistory) && claimedHistory.some(c => c && c.id === 'vibeclub-1')) || claimStatus['vibeclub-1'] === 'claimed';
@@ -1187,7 +1188,7 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
 
   const activeRoyaltyClaimed = isRoundClaimed('vibeclub', activeRoyaltyEpochId);
   const activeRoyaltyLive = isRoundLive(activeRoyaltyRound);
-  const activeRoyaltyAvailable = activeRoyaltyLive && !activeRoyaltyClaimed;
+  const activeRoyaltyAvailable = activeRoyaltyLive && !activeRoyaltyClaimed && claimStatus[roundClaimKey('vibeclub', activeRoyaltyEpochId)] !== undefined;
 
   // Check if connected wallet is Admin / Contract Owner
   const isAdmin = !!(address && (address.toLowerCase() === ADMIN_WALLET.toLowerCase()));
