@@ -564,13 +564,13 @@ export function BaseAppClaimView(props) {
                 >
                   <Clock size={11} color="#88aacc" />
                   <span>CLAIM WINDOW ENDS:</span>
-                  <span>{formatCountdownLive(upcomingHolderRound?.targetDate || '2026-09-25T14:00:00Z')}</span>
+                  <span>{formatCountdownLive(activeHolderRound?.nextSnapshotDate || upcomingHolderRound?.targetDate || '2026-09-25T14:00:00Z')}</span>
                 </div>
               </div>
             )}
 
             {/* Vibe Club Royalty Active Claim Card */}
-            {((activeRoyaltyAvailable !== undefined ? activeRoyaltyAvailable : isVibeClubRoyalty1Available) && isVibeClubEligible) && (
+            {((activeRoyaltyAvailable !== undefined ? activeRoyaltyAvailable : isVibeClubRoyalty1Available) && hasConfirmedRoyaltyClaim) && (
               <div
                 className="claim-card"
                 style={{
@@ -787,7 +787,7 @@ export function BaseAppClaimView(props) {
                 >
                   <Clock size={11} color="#88aacc" />
                   <span>CLAIM WINDOW ENDS:</span>
-                  <span>{formatCountdownLive(upcomingVibeClubRound?.targetDate || activeRoyaltyRound?.nextSnapshotDate || '2026-09-17T14:00:00Z')}</span>
+                  <span>{formatCountdownLive(activeRoyaltyRound?.nextSnapshotDate || upcomingVibeClubRound?.targetDate || '2026-09-17T14:00:00Z')}</span>
                 </div>
               </div>
             )}

@@ -80,7 +80,7 @@ export function AdminSnapshotTool({ activeAddress, wallets, onUseRoot }) {
   const timer = useRef(null);
 
   const loadPublished = () =>
-    fetch('/api/snapshots', { cache: 'no-store' })
+    fetch('/api/snapshots?fresh=1', { cache: 'no-store' })
       .then((r) => r.json())
       .then((d) => setPublished(d.snapshots || []))
       .catch(() => {});

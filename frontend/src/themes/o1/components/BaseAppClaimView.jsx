@@ -212,7 +212,7 @@ export function BaseAppClaimView(props) {
   // Compute pending claimable amount
   const pendingClaimableTokens = (
     ((activeHolderAvailable !== undefined ? activeHolderAvailable : isHolderRound1Available) && hasConfirmedHolderClaim ? (holderRewardAmount || 500000) : 0) +
-    (((activeRoyaltyAvailable !== undefined ? activeRoyaltyAvailable : isVibeClubRoyalty1Available) && isVibeClubEligible) ? (vibeClubRewardAmount || (activeRoyaltyEpochId === 4 ? 9909 : (activeRoyaltyEpochId === 3 ? 18018 : (activeRoyaltyEpochId === 2 ? 17117 : 22935)))) : 0)
+    (((activeRoyaltyAvailable !== undefined ? activeRoyaltyAvailable : isVibeClubRoyalty1Available) && hasConfirmedRoyaltyClaim) ? (vibeClubRewardAmount || (activeRoyaltyEpochId === 4 ? 9909 : (activeRoyaltyEpochId === 3 ? 18018 : (activeRoyaltyEpochId === 2 ? 17117 : 22935)))) : 0)
   );
 
   return (
@@ -291,7 +291,7 @@ export function BaseAppClaimView(props) {
                     <Clock size={14} color="var(--text-3)" />
                     <span>Claim window ends:</span>
                     <span style={{ fontFamily: 'var(--mono)', color: 'var(--text)' }}>
-                      {formatCountdownLive(upcomingHolderRound?.targetDate || '2026-09-25T14:00:00Z')}
+                      {formatCountdownLive(activeHolderRound?.nextSnapshotDate || upcomingHolderRound?.targetDate || '2026-09-25T14:00:00Z')}
                     </span>
                   </div>
 
@@ -317,7 +317,7 @@ export function BaseAppClaimView(props) {
             )}
 
             {/* Vibe Club Royalty Active Claim Card */}
-            {((activeRoyaltyAvailable !== undefined ? activeRoyaltyAvailable : isVibeClubRoyalty1Available) && isVibeClubEligible) && (
+            {((activeRoyaltyAvailable !== undefined ? activeRoyaltyAvailable : isVibeClubRoyalty1Available) && hasConfirmedRoyaltyClaim) && (
               <div className="o1-claim-active-card has-claim">
                 <div className="o1-claim-banner-box">
                   <img
@@ -344,7 +344,7 @@ export function BaseAppClaimView(props) {
                     <Clock size={14} color="var(--text-3)" />
                     <span>Claim window ends:</span>
                     <span style={{ fontFamily: 'var(--mono)', color: 'var(--text)' }}>
-                      {formatCountdownLive(upcomingVibeClubRound?.targetDate || activeRoyaltyRound?.nextSnapshotDate || '2026-09-17T14:00:00Z')}
+                      {formatCountdownLive(activeRoyaltyRound?.nextSnapshotDate || upcomingVibeClubRound?.targetDate || '2026-09-17T14:00:00Z')}
                     </span>
                   </div>
 

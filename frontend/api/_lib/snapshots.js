@@ -55,7 +55,7 @@ export async function handleSnapshots({ method, query = {}, body }) {
       }
       const index = Object.values(await db.hgetall(INDEX_KEY));
       index.sort((a, b) => String(b.publishedAt).localeCompare(String(a.publishedAt)));
-      return json(200, { snapshots: index }, { 'Cache-Control': 'no-store' });
+      return json(200, { snapshots: index }, { 'Cache-Control': query.fresh ? 'no-store' : 'public, max-age=0, s-maxage=15, stale-while-revalidate=60' });
     }
 
     if (method === 'PUT') {
