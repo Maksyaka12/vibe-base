@@ -16,6 +16,11 @@ import royalty5Data from '../../../data/royalty_5_proofs.json';
 import { Card, Tile, Button, Alert } from './ui';
 import { AdminScheduleEditor } from './AdminScheduleEditor';
 import { AdminSnapshotTool } from './AdminSnapshotTool';
+import { HOLDER_ROUNDS, VIBECLUB_ROUNDS } from '../../../data/rewardsSchedule';
+import { roundProofs } from '../../../data/claimRounds';
+
+// The round the Rewards Hub shows as current: the latest one whose snapshot has passed.
+const currentRoundId = (rounds) => String(([...rounds].reverse().find((r) => Date.now() >= new Date(r.snapshotIso).getTime()) || rounds[0])?.id || 1);
 
 export const ADMIN_WALLET = '0x4c91d3bed372c11795b9ce9a9017dfe447bf050a';
 export const VIBE_TOKEN_CA = '0xb200000000000000000000df24ecb8bf51100a01';
@@ -107,14 +112,14 @@ export function BaseAppAdminView() {
   const [successMessage, setSuccessMessage] = useState('');
 
   // 1. Holder & Royalties states
-  const [holderEpochId, setHolderEpochId] = useState('2');
-  const [holderMerkleRoot, setHolderMerkleRoot] = useState(round2Data?.merkleRoot || round1Data?.merkleRoot || '');
+  const [holderEpochId, setHolderEpochId] = useState(() => currentRoundId(HOLDER_ROUNDS));
+  const [holderMerkleRoot, setHolderMerkleRoot] = useState(() => roundProofs('holder', currentRoundId(HOLDER_ROUNDS))?.merkleRoot || '');
   const [holderWithdrawAmount, setHolderWithdrawAmount] = useState('');
   const [holderBurnAmount, setHolderBurnAmount] = useState('');
   const [holderCommunityAmount, setHolderCommunityAmount] = useState('');
 
-  const [royaltyEpochId, setRoyaltyEpochId] = useState('5');
-  const [royaltyMerkleRoot, setRoyaltyMerkleRoot] = useState(royalty5Data?.merkleRoot || '0xf9b9bfb3b409ed97ed3923b0d8c506a057ec659feb2d9199831369373c7d3903');
+  const [royaltyEpochId, setRoyaltyEpochId] = useState(() => currentRoundId(VIBECLUB_ROUNDS));
+  const [royaltyMerkleRoot, setRoyaltyMerkleRoot] = useState(() => roundProofs('royalty', currentRoundId(VIBECLUB_ROUNDS))?.merkleRoot || '');
   const [royaltyWithdrawAmount, setRoyaltyWithdrawAmount] = useState('');
   const [royaltyBurnAmount, setRoyaltyBurnAmount] = useState('');
   const [royaltyCommunityAmount, setRoyaltyCommunityAmount] = useState('');
@@ -776,8 +781,7 @@ export function BaseAppAdminView() {
                 onChange={(e) => {
                   const newEpoch = e.target.value;
                   setHolderEpochId(newEpoch);
-                  if (newEpoch === '2') setHolderMerkleRoot(round2Data?.merkleRoot || '');
-                  else if (newEpoch === '1') setHolderMerkleRoot(round1Data?.merkleRoot || '');
+                  setHolderMerkleRoot(roundProofs('holder', newEpoch)?.merkleRoot || '');
                   fetchDistributorMetrics('holder', newEpoch);
                 }}
                 placeholder="Round"
@@ -919,11 +923,7 @@ export function BaseAppAdminView() {
                 onChange={(e) => {
                   const ep = e.target.value;
                   setRoyaltyEpochId(ep);
-                  if (ep === '5') setRoyaltyMerkleRoot(royalty5Data?.merkleRoot || '0xf9b9bfb3b409ed97ed3923b0d8c506a057ec659feb2d9199831369373c7d3903');
-                  else if (ep === '4') setRoyaltyMerkleRoot(royalty4Data?.merkleRoot || '0xc0623fa72aa0c8e17c3b91d6e44707cb8222b323390ced057b7d233105682b8f');
-                  else if (ep === '3') setRoyaltyMerkleRoot(royalty3Data?.merkleRoot || '0xc733c726b9082f9038c5d1ea28f7ca7cc7e72783f5f7f80258246c95c0a6c706');
-                  else if (ep === '2') setRoyaltyMerkleRoot(royalty2Data?.merkleRoot || '0x6d1de63ef8aa00a4c851ce6ec950e9424961c6e1b8df44e344bfbc5d13b31766');
-                  else if (ep === '1') setRoyaltyMerkleRoot(royalty1Data?.merkleRoot || '0xb07d57c152a5a549646b9bb74b62fbe755910c2cfae868a2bf613e5bc8565a0c');
+                  setRoyaltyMerkleRoot(roundProofs('royalty', ep)?.merkleRoot || '');
                   fetchDistributorMetrics('royalty', ep);
                 }}
                 placeholder="Epoch"
