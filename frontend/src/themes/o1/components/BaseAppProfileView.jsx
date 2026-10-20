@@ -567,13 +567,11 @@ export function BaseAppProfileView(props) {
                     <span className="o1-checkin-streak-num">{streak || 0}</span>
                     <span className="o1-checkin-streak-unit">{streak === 1 ? 'day' : 'days'}</span>
                   </div>
-                  <div className="o1-checkin-sub">
-                    {!address
-                      ? 'Connect wallet to start daily streak'
-                      : hasCheckedInToday
-                      ? `Checked in today · next in ${timeUntilNext}`
-                      : 'Check in to maintain your onchain streak'}
-                  </div>
+                  {(!address || hasCheckedInToday) && (
+                    <div className="o1-checkin-sub">
+                      {!address ? 'Connect wallet to start daily streak' : `Checked in today · next in ${timeUntilNext}`}
+                    </div>
+                  )}
                 </div>
               </div>
 
