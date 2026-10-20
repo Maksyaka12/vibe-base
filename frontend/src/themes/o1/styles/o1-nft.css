@@ -203,6 +203,20 @@
   margin: 0;
 }
 
+.o1-nft-perk-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.o1-nft-perk-link:hover {
+  color: var(--accent-hover);
+  text-decoration: underline;
+}
+
 /* ── Success Modal ── */
 .o1-nft-modal-overlay {
   position: fixed;

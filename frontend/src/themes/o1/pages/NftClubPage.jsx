@@ -442,7 +442,7 @@ export default function NftClubPage({ isEmbeddedInBaseApp = false } = {}) {
               <span className="o1-nft-perk-title">Lifetime royalties</span>
             </div>
             <p className="o1-nft-perk-desc">
-              Holders receive regular $VIBE dividends distributed every 10 days. The royalty pool constitutes 15% of the community reward pool.
+              NFT holders are eligible to claim regular $VIBE royalties every 10 days. The royalty pool constitutes 15% of the community reward pool.
             </p>
           </div>
 
@@ -451,10 +451,10 @@ export default function NftClubPage({ isEmbeddedInBaseApp = false } = {}) {
               <div className="o1-nft-perk-icon">
                 <Flame size={18} />
               </div>
-              <span className="o1-nft-perk-title">80% auto-burn</span>
+              <span className="o1-nft-perk-title">Mint burn mechanism</span>
             </div>
             <p className="o1-nft-perk-desc">
-              80% of all mint revenue buys and permanently burns $VIBE tokens directly onchain, while 20% bolsters the community pool.
+              80% of all mint revenue buys and permanently burns $VIBE tokens directly onchain, while 20% goes into the rewards pool.
             </p>
           </div>
 
@@ -463,10 +463,13 @@ export default function NftClubPage({ isEmbeddedInBaseApp = false } = {}) {
               <div className="o1-nft-perk-icon">
                 <ShieldCheck size={18} />
               </div>
-              <span className="o1-nft-perk-title">Secondary trading</span>
+              <span className="o1-nft-perk-title">Secondary market</span>
             </div>
             <p className="o1-nft-perk-desc">
-              Fully verified smart contract tradeable on OpenSea. Genesis club utility stays bound to the NFT holder address at each snapshot.
+              Mint is available only on this official Vibe launchpad page. The collection is fully verified &amp; tradeable on{' '}
+              <a href={OPENSEA_COLLECTION_URL} target="_blank" rel="noopener noreferrer" className="o1-nft-perk-link">
+                OpenSea <ExternalLink size={11} />
+              </a>
             </p>
           </div>
         </div>
