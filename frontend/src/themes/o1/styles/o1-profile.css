@@ -160,6 +160,29 @@
   transition: border-color var(--ease-fast);
 }
 
+.o1-reward-tile.is-link {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  border-color: var(--accent-border);
+  background: color-mix(in srgb, var(--accent) 6%, var(--surface));
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+}
+
+.o1-reward-tile.is-link:hover {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface));
+  transform: translateY(-1px);
+}
+
+.o1-reward-tile-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--accent);
+  font-weight: 600;
+}
+
 .o1-reward-tile:hover {
   border-color: var(--border-hover);
 }

@@ -517,19 +517,32 @@ export function BaseAppProfileView(props) {
                 </div>
               </div>
 
-              {/* Tile 3: Available now */}
-              <div className="o1-reward-tile">
-                <div className="o1-reward-tile-header">
-                  <span className="o1-reward-tile-label">Available now</span>
-                  <Gift size={16} color={totalAvailableCount > 0 ? 'var(--accent)' : 'var(--text-3)'} />
-                </div>
-                <div className={`o1-reward-tile-value ${totalAvailableCount > 0 ? 'accent' : 'neutral'}`}>
-                  +{totalAvailableTokens > 0 ? Math.round(totalAvailableTokens).toLocaleString('en-US') : '0'} $VIBE
-                </div>
-                <div className="o1-reward-tile-sub">
-                  {totalAvailableCount > 0 ? `${totalAvailableCount} ready to claim` : '0 rewards ready'}
-                </div>
-              </div>
+              {/* Tile 3: Available now (opens the Claim Portal when something is claimable) */}
+              {(() => {
+                const canClaim = totalAvailableCount > 0;
+                const TileTag = canClaim ? Link : 'div';
+                return (
+                  <TileTag
+                    {...(canClaim ? { to: getLinkPath('/claim') } : {})}
+                    className={`o1-reward-tile ${canClaim ? 'is-link' : ''}`}
+                  >
+                    <div className="o1-reward-tile-header">
+                      <span className="o1-reward-tile-label">Available now</span>
+                      <Gift size={16} color={canClaim ? 'var(--accent)' : 'var(--text-3)'} />
+                    </div>
+                    <div className={`o1-reward-tile-value ${canClaim ? 'accent' : 'neutral'}`}>
+                      +{totalAvailableTokens > 0 ? Math.round(totalAvailableTokens).toLocaleString('en-US') : '0'} $VIBE
+                    </div>
+                    <div className="o1-reward-tile-sub">
+                      {canClaim ? (
+                        <span className="o1-reward-tile-cta">
+                          {totalAvailableCount} ready · Claim now <ArrowRight size={12} />
+                        </span>
+                      ) : '0 rewards ready'}
+                    </div>
+                  </TileTag>
+                );
+              })()}
 
               {/* Tile 4: Expired claims */}
               <div className="o1-reward-tile">

@@ -405,3 +405,11 @@
     gap: 14px;
   }
 }
+
+/* "No pending claims": same surface as the stat tiles above, so it does not float on the page background. */
+.o1-claim-empty {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 40px 24px;
+}

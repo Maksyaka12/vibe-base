@@ -257,6 +257,7 @@ export function BaseAppClaimView(props) {
 
         {totalAvailableCount === 0 ? (
           <EmptyState
+            className="o1-claim-empty"
             icon={<Gift size={32} color="var(--text-3)" />}
             title="No pending claims"
             description="You do not have any active allocations waiting to be claimed. Review upcoming snapshot rounds below."
