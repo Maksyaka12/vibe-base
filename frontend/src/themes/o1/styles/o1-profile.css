@@ -7,11 +7,12 @@
   box-sizing: border-box;
 }
 
+/* Left card stretches to the height of the dashboard + check-in column, so both end on one line. */
 .o1-profile-layout {
   display: grid;
-  grid-template-columns: 360px 1fr;
+  grid-template-columns: minmax(340px, 400px) 1fr;
   gap: 24px;
-  align-items: start;
+  align-items: stretch;
 }
 
 @media (max-width: 960px) {
@@ -22,7 +23,13 @@
 }
 
 /* ── Left Column: Identity / NFT Card ── */
+.o1-profile-left {
+  display: flex;
+  min-width: 0;
+}
+
 .o1-nft-card {
+  flex: 1;
   padding: 16px;
   display: flex;
   flex-direction: column;
@@ -31,7 +38,8 @@
 
 .o1-nft-frame {
   position: relative;
-  aspect-ratio: 1 / 1;
+  flex: 1;
+  min-height: 220px;
   width: 100%;
   border-radius: var(--r-md);
   overflow: hidden;
@@ -43,10 +51,21 @@
 }
 
 .o1-nft-img {
+  /* absolute, so the picture fills the frame without pushing the card taller */
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+@media (max-width: 960px) {
+  .o1-nft-frame {
+    flex: none;
+    min-height: 0;
+    aspect-ratio: 1 / 1;
+  }
 }
 
 .o1-nft-img.non-member {
@@ -288,6 +307,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  margin-top: 32px;
 }
 
 .o1-achievements-header {
@@ -295,6 +315,49 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  flex-wrap: wrap;
+}
+
+.o1-achievements-progress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.o1-achievements-progress-bar {
+  width: 160px;
+  height: 6px;
+  border-radius: var(--r-full);
+  background: var(--surface-3);
+  overflow: hidden;
+}
+
+.o1-achievements-progress-bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--accent), var(--green));
+  transition: width 0.4s ease;
+}
+
+/* Groups as a board: two side by side, the five-tile group across the full width. */
+.o1-achievements-board {
+  display: grid;
+  grid-template-columns: 2fr 3fr;
+  gap: 16px;
+}
+
+.o1-achievements-group.wide {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 860px) {
+  .o1-achievements-board {
+    grid-template-columns: 1fr;
+  }
+  .o1-achievements-progress-bar {
+    width: 100px;
+  }
 }
 
 .o1-achievements-group {

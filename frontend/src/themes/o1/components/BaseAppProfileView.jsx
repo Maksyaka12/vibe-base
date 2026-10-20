@@ -431,7 +431,7 @@ export function BaseAppProfileView(props) {
 
       <div className="o1-profile-layout">
         {/* ── Left Column: Identity / NFT Card ── */}
-        <div>
+        <div className="o1-profile-left">
           <Card className="o1-nft-card">
             <div className="o1-nft-frame">
               <img
@@ -602,55 +602,63 @@ export function BaseAppProfileView(props) {
             </div>
           </div>
 
-          {/* Section 3: Achievements */}
-          <div className="o1-achievements-container">
-            <div className="o1-achievements-header">
-              <SectionTitle
-                title="Achievements"
-                subtitle="Onchain credentials and milestones"
-              />
-              <Badge tone={unlockedCount > 0 ? 'success' : 'neutral'} pill>
-                {unlockedCount}/{totalAchievementsCount} unlocked
-              </Badge>
-            </div>
+        </div>
+      </div>
 
-            {/* Subgroup 1: Rewards Eligibility */}
-            <div className="o1-achievements-group">
-              <div className="o1-achievements-group-header">
-                <span className="o1-achievements-group-title">Rewards eligibility</span>
-                <span className="o1-achievements-group-count">
-                  {REWARDS_ELIGIBILITY_ACHIEVEMENTS.filter(a => a.unlocked).length}/{REWARDS_ELIGIBILITY_ACHIEVEMENTS.length}
-                </span>
-              </div>
-              <div className="o1-achievements-grid o1-achievements-grid-2">
-                {REWARDS_ELIGIBILITY_ACHIEVEMENTS.map(renderAchievementCard)}
-              </div>
+      {/* ── Achievements: full width under the identity + dashboard row ── */}
+      <div className="o1-achievements-container">
+        <div className="o1-achievements-header">
+          <SectionTitle
+            title="Achievements"
+            subtitle="Onchain credentials and milestones"
+          />
+          <div className="o1-achievements-progress">
+            <div className="o1-achievements-progress-bar">
+              <span style={{ width: `${totalAchievementsCount ? (unlockedCount / totalAchievementsCount) * 100 : 0}%` }} />
             </div>
+            <Badge tone={unlockedCount > 0 ? 'success' : 'neutral'} pill>
+              {unlockedCount}/{totalAchievementsCount} unlocked
+            </Badge>
+          </div>
+        </div>
 
-            {/* Subgroup 2: Active Dog */}
-            <div className="o1-achievements-group">
-              <div className="o1-achievements-group-header">
-                <span className="o1-achievements-group-title">Active dog</span>
-                <span className="o1-achievements-group-count">
-                  {ACTIVE_DOG_ACHIEVEMENTS.filter(a => a.unlocked).length}/{ACTIVE_DOG_ACHIEVEMENTS.length}
-                </span>
-              </div>
-              <div className="o1-achievements-grid o1-achievements-grid-3">
-                {ACTIVE_DOG_ACHIEVEMENTS.map(renderAchievementCard)}
-              </div>
+        <div className="o1-achievements-board">
+          {/* Subgroup 1: Rewards Eligibility */}
+          <div className="o1-achievements-group">
+            <div className="o1-achievements-group-header">
+              <span className="o1-achievements-group-title">Rewards eligibility</span>
+              <span className="o1-achievements-group-count">
+                {REWARDS_ELIGIBILITY_ACHIEVEMENTS.filter(a => a.unlocked).length}/{REWARDS_ELIGIBILITY_ACHIEVEMENTS.length}
+              </span>
             </div>
+            <div className="o1-achievements-grid o1-achievements-grid-2">
+              {REWARDS_ELIGIBILITY_ACHIEVEMENTS.map(renderAchievementCard)}
+            </div>
+          </div>
 
-            {/* Subgroup 3: Dog Staker */}
-            <div className="o1-achievements-group">
-              <div className="o1-achievements-group-header">
-                <span className="o1-achievements-group-title">Dog staker</span>
-                <span className="o1-achievements-group-count">
-                  {DOG_STAKER_ACHIEVEMENTS.filter(a => a.unlocked).length}/{DOG_STAKER_ACHIEVEMENTS.length}
-                </span>
-              </div>
-              <div className="o1-achievements-grid o1-achievements-grid-5">
-                {DOG_STAKER_ACHIEVEMENTS.map(renderAchievementCard)}
-              </div>
+          {/* Subgroup 2: Active Dog */}
+          <div className="o1-achievements-group">
+            <div className="o1-achievements-group-header">
+              <span className="o1-achievements-group-title">Active dog</span>
+              <span className="o1-achievements-group-count">
+                {ACTIVE_DOG_ACHIEVEMENTS.filter(a => a.unlocked).length}/{ACTIVE_DOG_ACHIEVEMENTS.length}
+              </span>
+            </div>
+            <div className="o1-achievements-grid o1-achievements-grid-3">
+              {ACTIVE_DOG_ACHIEVEMENTS.map(renderAchievementCard)}
+            </div>
+          </div>
+
+          {/* Subgroup 3: Dog Staker */}
+          <div className="o1-achievements-group wide">
+            <div className="o1-achievements-group-header">
+              <span className="o1-achievements-group-title">Dog staker</span>
+              <span className="o1-achievements-group-count">
+                {DOG_STAKER_ACHIEVEMENTS.filter(a => a.unlocked).length}/{DOG_STAKER_ACHIEVEMENTS.length}
+              </span>
+            </div>
+            <div className="o1-achievements-grid o1-achievements-grid-5">
+              {DOG_STAKER_ACHIEVEMENTS.map(renderAchievementCard)}
             </div>
           </div>
         </div>
