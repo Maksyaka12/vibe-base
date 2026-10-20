@@ -480,23 +480,42 @@ export default function NftClubPage({ isEmbeddedInBaseApp = false } = {}) {
               <X size={16} />
             </button>
 
-            <StatusPill status="active" label="Mint successful" style={{ alignSelf: 'center' }} />
-
-            <div>
-              <h3 style={{ fontSize: '18px', fontWeight: 700, margin: '0 0 4px 0', color: 'var(--text)' }}>
-                Vibe Club #{modalNftId}
-              </h3>
-              <p style={{ fontSize: '13px', color: 'var(--text-3)', margin: 0 }}>
-                {modalCleanName}
-              </p>
+            <div className="o1-nft-modal-eyebrow">
+              <span>Vibe Club · Genesis</span>
+              <span className="o1-nft-modal-minted">
+                <CheckCircle2 size={12} /> Minted on Base
+              </span>
             </div>
 
-            <div className="o1-nft-modal-preview">
-              <img
-                src={`/nft/images/${modalNftId}.png`}
-                onError={(e) => handleImageError(e, modalNftId)}
-                alt={`Vibe Club #${modalNftId}`}
-              />
+            <div className="o1-nft-modal-frame">
+              <div className="o1-nft-modal-preview">
+                <img
+                  src={`/nft/images/${modalNftId}.png`}
+                  onError={(e) => handleImageError(e, modalNftId)}
+                  alt={`Vibe Club #${modalNftId}`}
+                />
+                <span className="o1-nft-modal-token">#{modalNftId}</span>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="o1-nft-modal-title">Vibe Club #{modalNftId}</h3>
+              <p className="o1-nft-modal-name">{modalCleanName}</p>
+            </div>
+
+            <div className="o1-nft-modal-perks">
+              <div>
+                <span>Royalties</span>
+                <strong>Every 10 days</strong>
+              </div>
+              <div>
+                <span>Network</span>
+                <strong>Base</strong>
+              </div>
+              <div>
+                <span>Collection</span>
+                <strong>Genesis</strong>
+              </div>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>

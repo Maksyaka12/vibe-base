@@ -217,18 +217,29 @@
 }
 
 .o1-nft-modal-content {
-  background: var(--surface-1);
-  border: 1px solid var(--border);
+  /* explicit colours: --surface-1 / --border-hover / --shadow-lg are not defined in this theme */
+  background:
+    radial-gradient(120% 60% at 50% 0%, rgba(102, 190, 255, 0.16), transparent 60%),
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px) 0 0 / 22px 22px,
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px) 0 0 / 22px 22px,
+    var(--surface);
+  border: 1px solid var(--accent-border);
   border-radius: var(--r-xl);
-  padding: 24px;
-  max-width: 420px;
+  padding: 22px 22px 20px;
+  max-width: 400px;
   width: 100%;
   position: relative;
   display: flex;
   flex-direction: column;
   gap: 16px;
   text-align: center;
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4), 0 30px 80px rgba(0, 0, 0, 0.65), 0 0 60px rgba(102, 190, 255, 0.10);
+  animation: o1-mint-card-in 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes o1-mint-card-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.97); }
+  to { opacity: 1; transform: none; }
 }
 
 .o1-nft-modal-close {
@@ -245,23 +256,60 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  z-index: 1;
   transition: color 0.15s, border-color 0.15s;
 }
 
 .o1-nft-modal-close:hover {
   color: var(--text);
-  border-color: var(--border-hover);
+  border-color: var(--border-strong);
+}
+
+.o1-nft-modal-eyebrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.o1-nft-modal-minted {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: var(--r-full);
+  background: var(--green-bg);
+  border: 1px solid var(--green-bd);
+  color: var(--green);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* gradient ring + glow around the NFT */
+.o1-nft-modal-frame {
+  width: 100%;
+  max-width: 280px;
+  margin: 0 auto;
+  padding: 3px;
+  border-radius: calc(var(--r-lg) + 3px);
+  background: linear-gradient(140deg, var(--accent), rgba(102, 190, 255, 0.15) 45%, var(--base-blue));
+  box-shadow: 0 12px 40px rgba(0, 82, 255, 0.28), 0 0 32px rgba(102, 190, 255, 0.18);
 }
 
 .o1-nft-modal-preview {
   position: relative;
   width: 100%;
-  max-width: 260px;
   aspect-ratio: 1 / 1;
-  margin: 0 auto;
-  border-radius: var(--r-md);
+  border-radius: var(--r-lg);
   overflow: hidden;
-  border: 1px solid var(--border);
   background: var(--surface-2);
 }
 
@@ -270,6 +318,70 @@
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+.o1-nft-modal-token {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  padding: 4px 9px;
+  border-radius: var(--r-sm);
+  background: rgba(9, 10, 12, 0.72);
+  backdrop-filter: blur(6px);
+  border: 1px solid var(--border-strong);
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.o1-nft-modal-title {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin: 0 0 4px;
+  color: var(--text);
+}
+
+.o1-nft-modal-name {
+  font-size: 13px;
+  color: var(--text-2);
+  margin: 0;
+}
+
+.o1-nft-modal-perks {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.o1-nft-modal-perks > div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 9px 6px;
+  border-radius: var(--r-md);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+}
+
+.o1-nft-modal-perks span {
+  font-size: 11px;
+  color: var(--text-3);
+}
+
+.o1-nft-modal-perks strong {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+@media (max-width: 420px) {
+  .o1-nft-modal-perks strong { font-size: 12px; white-space: nowrap; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .o1-nft-modal-content { animation: none; }
 }
 
 /* ── Lockscreen ── */

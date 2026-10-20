@@ -541,13 +541,21 @@ export default function BaseAppRewardsView({
                   </div>
                   <div>
                     <div className="o1-hub-featured-name">{featuredStaking.epoch}</div>
-                    <div className="o1-hub-featured-sub">{formatStakingDates(featuredStaking)}</div>
+                    <div className="o1-hub-featured-sub">Verified vault on o1 Exchange</div>
                   </div>
                 </div>
-                <StatusPill
-                  status={featuredStakingStatus === 'active' ? 'Live' : featuredStakingStatus === 'ended' ? 'Ended' : 'Upcoming'}
-                  tone={featuredStakingStatus === 'active' ? 'success' : featuredStakingStatus === 'ended' ? 'neutral' : 'warn'}
-                />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <StatusPill
+                    status={featuredStakingStatus === 'active' ? 'Live' : featuredStakingStatus === 'ended' ? 'Ended' : 'Upcoming'}
+                    tone={featuredStakingStatus === 'active' ? 'success' : featuredStakingStatus === 'ended' ? 'neutral' : 'warn'}
+                  />
+                  {featuredStakingStatus === 'active' && featuredStaking.endDateObj && (
+                    <Badge tone="success" pill>
+                      <Clock size={12} style={{ marginRight: 4 }} />
+                      <ActiveClaimCountdown targetDate={featuredStaking.endDateObj} />
+                    </Badge>
+                  )}
+                </div>
               </div>
 
               <div className="o1-hub-tiles-3">
@@ -564,7 +572,7 @@ export default function BaseAppRewardsView({
                 <Tile
                   label="Platform"
                   value="o1 Exchange"
-                  sub="Decentralized staking vaults on Base"
+                  sub="Verified staking vaults"
                 />
               </div>
 

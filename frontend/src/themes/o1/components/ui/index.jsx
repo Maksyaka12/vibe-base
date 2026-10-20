@@ -109,7 +109,8 @@ export function Badge({
   );
 }
 
-export function StatusPill({ status, tone, children, ...props }) {
+// status picks the tone; the text is children, then label, then status itself.
+export function StatusPill({ status, tone, label, children, ...props }) {
   // auto-derive tone from status if not provided
   let derivedTone = tone;
   if (!derivedTone && status) {
@@ -122,7 +123,7 @@ export function StatusPill({ status, tone, children, ...props }) {
   }
   return (
     <Badge pill tone={derivedTone || 'neutral'} {...props}>
-      {children || status}
+      {children || label || status}
     </Badge>
   );
 }
