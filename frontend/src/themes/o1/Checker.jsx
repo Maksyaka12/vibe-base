@@ -390,6 +390,9 @@ async function loadUserClaimTransactions(userAddress, customClient = null) {
   }
 }
 
+// User pressed reject / cancel in the wallet (EIP-1193 code 4001, or the wallet's own wording).
+const isWalletRejection = (e) => e?.code === 4001 || e?.cause?.code === 4001 || /reject|denied|cancel/i.test(e?.message || '');
+
 const MIN_HOLDER_BALANCE = 5000000; // 5M $VIBE
 
 const DISTRIBUTOR_ABI = parseAbi([
@@ -1488,150 +1491,115 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
     }
   };
 
+  // Sends the claim. Returns the tx hash when the wallet reports one, null when it does not say.
+  // A rejection in the wallet throws, and only an unsupported wallet_sendCalls falls back to eth_sendTransaction,
+  // so a rejected claim never asks a second time.
+  const sendClaimTx = async (provider, to, calldata) => {
+    let callsRes;
+    try {
+      callsRes = await provider.request({
+        method: 'wallet_sendCalls',
+        params: [{
+          version: '1.0',
+          chainId: '0x2105',
+          from: address,
+          calls: [{ to, value: '0x0', data: calldata }],
+          capabilities: {
+            dataSuffix: {
+              value: DATA_SUFFIX,
+              optional: true
+            }
+          }
+        }]
+      });
+    } catch (e) {
+      if (isWalletRejection(e)) throw e;
+      return provider.request({
+        method: 'eth_sendTransaction',
+        params: [{ from: address, to, data: calldata, value: '0x0' }]
+      });
+    }
+    const callId = typeof callsRes === 'object' ? (callsRes.id || callsRes) : callsRes;
+    for (let i = 0; i < 30; i++) {
+      await new Promise(r => setTimeout(r, 1000));
+      let status;
+      try {
+        status = await provider.request({ method: 'wallet_getCallsStatus', params: [callId] });
+      } catch (e) {
+        continue;
+      }
+      const receipt = status?.receipts?.[0];
+      if (receipt?.transactionHash) {
+        if (receipt.status === '0x0' || receipt.status === 0) throw new Error('Claim transaction reverted');
+        return receipt.transactionHash;
+      }
+      // EIP-5792: 400+ means the batch was rejected or failed
+      if (typeof status?.status === 'number' && status.status >= 400) throw new Error('Claim was rejected or failed');
+    }
+    return null;
+  };
+
+  // The contract decides whether a claim happened: hasClaimed() must turn true.
+  const confirmClaimOnchain = async (distributor, roundId, txHash) => {
+    const client = getPublicClient();
+    if (txHash) {
+      try {
+        const receipt = await client.waitForTransactionReceipt({ hash: txHash, timeout: 60000 });
+        if (receipt.status !== 'success') return false;
+      } catch (e) {}
+    }
+    for (let i = 0; i < (txHash ? 10 : 20); i++) {
+      try {
+        const done = await client.readContract({ address: distributor, abi: DISTRIBUTOR_ABI, functionName: 'hasClaimed', args: [BigInt(roundId), address] });
+        if (done) return true;
+      } catch (e) {}
+      await new Promise(r => setTimeout(r, 3000));
+    }
+    return false;
+  };
+
   const handleClaim = async (type, roundId, amountNum) => {
     const claimKey = `${type}-${roundId}`;
     setClaimStatus(prev => ({ ...prev, [claimKey]: 'claiming' }));
-    
+
     try {
-      let txHashResult = null;
-      const currentHolderData = roundProofs('holder', roundId);
-      const currentHolderProof = (address && currentHolderData && currentHolderData.claims) ? currentHolderData.claims[address.toLowerCase()] : userProofData;
-      if (type === 'holder' && currentHolderProof && wallets && wallets.length > 0) {
-        const activeWallet = wallets.find(w => w.address.toLowerCase() === address?.toLowerCase()) || wallets[0];
-        const provider = await activeWallet.getEthereumProvider();
-        const amountWei = parseUnits(currentHolderProof.amount.toString(), 18);
-        const calldataRaw = encodeFunctionData({
-          abi: DISTRIBUTOR_ABI,
-          functionName: 'claim',
-          args: [BigInt(roundId), amountWei, currentHolderProof.proof]
-        });
-        // Append Official ERC-8021 Data Suffix for Base Builder Code
-        const calldata = appendBuilderSuffix(calldataRaw);
+      const isHolder = type === 'holder';
+      const proof = roundProofs(isHolder ? 'holder' : 'royalty', roundId)?.claims?.[address?.toLowerCase()] || (isHolder ? userProofData : userRoyaltyProofData);
+      if (!proof || !wallets || wallets.length === 0) throw new Error('No allocation or wallet for this claim');
+      const distributor = isHolder ? DISTRIBUTOR_CA : (adminCustomRoyaltyCa || ROYALTY_DISTRIBUTOR_CA);
 
+      const activeWallet = wallets.find(w => w.address.toLowerCase() === address?.toLowerCase()) || wallets[0];
+      const provider = await activeWallet.getEthereumProvider();
+      const amountWei = parseUnits(proof.amount.toString(), 18);
+      const calldataRaw = encodeFunctionData({
+        abi: DISTRIBUTOR_ABI,
+        functionName: 'claim',
+        args: [BigInt(roundId), amountWei, proof.proof]
+      });
+      // Append Official ERC-8021 Data Suffix for Base Builder Code
+      const calldata = appendBuilderSuffix(calldataRaw);
+
+      let txHashResult = await sendClaimTx(provider, distributor, calldata);
+      if (typeof txHashResult !== 'string' || txHashResult.length !== 66) txHashResult = null;
+
+      if (!(await confirmClaimOnchain(distributor, roundId, txHashResult))) {
+        throw new Error('Claim was not confirmed onchain');
+      }
+
+      // Smart wallets do not always report the hash: take the transfer of exactly this allocation.
+      if (!txHashResult) {
         try {
-          const callsRes = await provider.request({
-            method: 'wallet_sendCalls',
-            params: [{
-              version: '1.0',
-              chainId: '0x2105',
-              from: address,
-              calls: [{ to: DISTRIBUTOR_CA, value: '0x0', data: calldata }],
-              capabilities: {
-                dataSuffix: {
-                  value: DATA_SUFFIX,
-                  optional: true
-                }
-              }
-            }]
+          const client = getPublicClient();
+          const currentBlock = await client.getBlockNumber();
+          const logs = await client.getLogs({
+            address: CA,
+            event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'),
+            args: { from: distributor, to: address },
+            fromBlock: currentBlock > 2000n ? currentBlock - 2000n : 0n,
+            toBlock: currentBlock
           });
-          if (callsRes) {
-            const callId = typeof callsRes === 'object' ? (callsRes.id || callsRes) : callsRes;
-            for (let i = 0; i < 20; i++) {
-              await new Promise(r => setTimeout(r, 1000));
-              try {
-                const status = await provider.request({
-                  method: 'wallet_getCallsStatus',
-                  params: [callId]
-                });
-                if (status?.receipts?.[0]?.transactionHash) {
-                  txHashResult = status.receipts[0].transactionHash;
-                  break;
-                }
-              } catch (e) {}
-            }
-          }
-        } catch (e) {
-          txHashResult = await provider.request({
-            method: 'eth_sendTransaction',
-            params: [{ from: address, to: DISTRIBUTOR_CA, data: calldata, value: '0x0' }]
-          });
-        }
-
-        // Auto-fetch real transaction hash from onchain event log if needed
-        if (!txHashResult || txHashResult.length !== 66) {
-          try {
-            const client = createPublicClient({ chain: base, transport: http('https://mainnet.base.org') });
-            const currentBlock = await client.getBlockNumber();
-            const logs = await client.getLogs({
-              address: CA,
-              event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'),
-              args: { from: DISTRIBUTOR_CA, to: address },
-              fromBlock: currentBlock > 10000n ? (currentBlock - 9000n) : 0n,
-              toBlock: currentBlock
-            });
-            if (logs && logs.length > 0) {
-              txHashResult = logs[logs.length - 1].transactionHash;
-            }
-          } catch (e) {}
-        }
-      } else if (type === 'vibeclub' && (roundProofs('royalty', roundId)?.claims?.[address?.toLowerCase()] || userRoyaltyProofData) && wallets && wallets.length > 0) {
-        const royaltyProof = roundProofs('royalty', roundId)?.claims?.[address?.toLowerCase()] || userRoyaltyProofData;
-        const activeWallet = wallets.find(w => w.address.toLowerCase() === address?.toLowerCase()) || wallets[0];
-        const provider = await activeWallet.getEthereumProvider();
-        const amountWei = parseUnits(royaltyProof.amount.toString(), 18);
-        const targetRoyaltyCa = adminCustomRoyaltyCa || ROYALTY_DISTRIBUTOR_CA;
-        const calldataRaw = encodeFunctionData({
-          abi: DISTRIBUTOR_ABI,
-          functionName: 'claim',
-          args: [BigInt(roundId), amountWei, royaltyProof.proof]
-        });
-        const calldata = appendBuilderSuffix(calldataRaw);
-
-        try {
-          const callsRes = await provider.request({
-            method: 'wallet_sendCalls',
-            params: [{
-              version: '1.0',
-              chainId: '0x2105',
-              from: address,
-              calls: [{ to: targetRoyaltyCa, value: '0x0', data: calldata }],
-              capabilities: {
-                dataSuffix: {
-                  value: DATA_SUFFIX,
-                  optional: true
-                }
-              }
-            }]
-          });
-          if (callsRes) {
-            const callId = typeof callsRes === 'object' ? (callsRes.id || callsRes) : callsRes;
-            for (let i = 0; i < 20; i++) {
-              await new Promise(r => setTimeout(r, 1000));
-              try {
-                const status = await provider.request({
-                  method: 'wallet_getCallsStatus',
-                  params: [callId]
-                });
-                if (status?.receipts?.[0]?.transactionHash) {
-                  txHashResult = status.receipts[0].transactionHash;
-                  break;
-                }
-              } catch (e) {}
-            }
-          }
-        } catch (e) {
-          txHashResult = await provider.request({
-            method: 'eth_sendTransaction',
-            params: [{ from: address, to: targetRoyaltyCa, data: calldata, value: '0x0' }]
-          });
-        }
-
-        if (!txHashResult || txHashResult.length !== 66) {
-          try {
-            const client = createPublicClient({ chain: base, transport: http('https://mainnet.base.org') });
-            const currentBlock = await client.getBlockNumber();
-            const logs = await client.getLogs({
-              address: CA,
-              event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'),
-              args: { from: targetRoyaltyCa, to: address },
-              fromBlock: currentBlock > 10000n ? (currentBlock - 9000n) : 0n,
-              toBlock: currentBlock
-            });
-            if (logs && logs.length > 0) {
-              txHashResult = logs[logs.length - 1].transactionHash;
-            }
-          } catch (e) {}
-        }
+          txHashResult = logs.filter(l => l.args.value === amountWei).pop()?.transactionHash || null;
+        } catch (e) {}
       }
 
       // Add to claimed history
@@ -1639,9 +1607,9 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
         id: claimKey,
         type,
         roundId,
-        title: type === 'holder' ? `Holder Rewards · Unlock ${roundId}` : `Vibe Club · Royalty ${roundId}`,
+        title: isHolder ? `Holder Rewards · Unlock ${roundId}` : `Vibe Club · Royalty ${roundId}`,
         amount: amountNum,
-        txHash: txHashResult || ('0x' + Array.from({length: 64}, () => Math.floor(Math.random()*16).toString(16)).join('')),
+        txHash: txHashResult,
         timestamp: new Date().toISOString()
       };
 
@@ -1655,7 +1623,7 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
       claimedThisSession.current.add(claimKey);
       invalidateClaimTransactions(address);
       setClaimStatus(prev => ({ ...prev, [claimKey]: 'claimed' }));
-      if (type === 'vibeclub') {
+      if (!isHolder) {
         setRoyaltyModalData({
           epochId: roundId,
           roundName: `Royalty ${roundId}`,
