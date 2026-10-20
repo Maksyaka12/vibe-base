@@ -308,21 +308,11 @@ export default function TokenomicsPage({ isBaseAppMode = false }) {
                 Distribution breakdown
               </h3>
               <p style={{ fontSize: '13px', color: 'var(--text-3)', margin: 0 }}>
-                Automated 10-day rolling epoch distribution
+                Reward distribution across all pools happens every 10 days.
               </p>
             </div>
 
             <div className="o1-tokenomics-list-stack">
-              <div className="o1-tokenomics-item-row">
-                <div className="o1-tokenomics-item-icon">
-                  <Clock size={16} />
-                </div>
-                <div className="o1-tokenomics-item-content">
-                  <span className="o1-tokenomics-item-title">10-day rolling epochs</span>
-                  <span className="o1-tokenomics-item-desc">Reward distribution across all pools happens every 10 days.</span>
-                </div>
-              </div>
-
               <div className="o1-tokenomics-item-row">
                 <div className="o1-tokenomics-item-icon">
                   <Coins size={16} />
@@ -345,10 +335,20 @@ export default function TokenomicsPage({ isBaseAppMode = false }) {
 
               <div className="o1-tokenomics-item-row">
                 <div className="o1-tokenomics-item-icon">
+                  <Users size={16} />
+                </div>
+                <div className="o1-tokenomics-item-content">
+                  <span className="o1-tokenomics-item-title">Team (10%)</span>
+                  <span className="o1-tokenomics-item-desc">Team rewards for building and growing the $VIBE ecosystem.</span>
+                </div>
+              </div>
+
+              <div className="o1-tokenomics-item-row">
+                <div className="o1-tokenomics-item-icon">
                   <ShieldCheck size={16} />
                 </div>
                 <div className="o1-tokenomics-item-content">
-                  <span className="o1-tokenomics-item-title">Reserve buffer (70%)</span>
+                  <span className="o1-tokenomics-item-title">Reserve buffer (60%)</span>
                   <span className="o1-tokenomics-item-desc">Protocol treasury buffer for long-term reward stability.</span>
                 </div>
               </div>
@@ -364,22 +364,28 @@ export default function TokenomicsPage({ isBaseAppMode = false }) {
             <div className="o1-tokenomics-donut-wrap">
               <svg viewBox="0 0 200 200" style={{ width: '100%', height: 'auto', display: 'block' }}>
                 <circle cx="100" cy="100" r="70" fill="none" stroke="var(--surface-3)" strokeWidth="16" />
-                {/* 70% Reserve */}
+                {/* 60% Reserve */}
                 <circle
-                  cx="100" cy="100" r="70" fill="none" stroke="var(--success)" strokeWidth="16"
-                  strokeLinecap="round" pathLength="100" strokeDasharray="68 100" strokeDashoffset="-1"
+                  cx="100" cy="100" r="70" fill="none" stroke="var(--green)" strokeWidth="16"
+                  strokeLinecap="round" pathLength="100" strokeDasharray="58 100" strokeDashoffset="-1"
+                  transform="rotate(-90 100 100)"
+                />
+                {/* 10% Team */}
+                <circle
+                  cx="100" cy="100" r="70" fill="none" stroke="var(--text-2)" strokeWidth="16"
+                  strokeLinecap="round" pathLength="100" strokeDasharray="8 100" strokeDashoffset="-61"
                   transform="rotate(-90 100 100)"
                 />
                 {/* 15% Staking */}
                 <circle
                   cx="100" cy="100" r="70" fill="none" stroke="var(--accent)" strokeWidth="16"
-                  strokeLinecap="round" pathLength="100" strokeDasharray="14 100" strokeDashoffset="-70"
+                  strokeLinecap="round" pathLength="100" strokeDasharray="13 100" strokeDashoffset="-71"
                   transform="rotate(-90 100 100)"
                 />
                 {/* 15% NFT Club */}
                 <circle
-                  cx="100" cy="100" r="70" fill="none" stroke="var(--warning)" strokeWidth="16"
-                  strokeLinecap="round" pathLength="100" strokeDasharray="14 100" strokeDashoffset="-85"
+                  cx="100" cy="100" r="70" fill="none" stroke="var(--amber)" strokeWidth="16"
+                  strokeLinecap="round" pathLength="100" strokeDasharray="13 100" strokeDashoffset="-86"
                   transform="rotate(-90 100 100)"
                 />
                 <text x="100" y="96" fill="var(--text)" fontSize="18" fontWeight="700" textAnchor="middle" fontFamily="var(--mono)">70%</text>
@@ -387,9 +393,10 @@ export default function TokenomicsPage({ isBaseAppMode = false }) {
               </svg>
             </div>
             <div className="o1-tokenomics-donut-legend">
-              <Badge variant="success">Reserve 70%</Badge>
-              <Badge variant="info">Staking 15%</Badge>
-              <Badge variant="warning">NFT Club 15%</Badge>
+              <Badge tone="success">Reserve 60%</Badge>
+              <Badge tone="neutral">Team 10%</Badge>
+              <Badge tone="info">Staking 15%</Badge>
+              <Badge tone="warning">NFT Club 15%</Badge>
             </div>
           </Card>
         </div>
