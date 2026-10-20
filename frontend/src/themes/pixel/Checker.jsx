@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { usePrivy, useWallets } from '@privy-io/react-auth';
 import { formatUnits, parseAbi, encodeFunctionData, parseUnits, parseAbiItem } from 'viem';
 import { getPublicClient } from '../../config/rpc';
@@ -42,8 +42,27 @@ export const isBadTxHash = (hash) => {
   return ADMIN_WITHDRAWAL_TXS.has(hash.toLowerCase());
 };
 
+// Claim history is read from RPC logs and Blockscout, which rate-limits. Several callers ask for it
+// at once (page load, the 12s poll, staking sync), so they share one request per wallet for a minute.
+const CLAIM_TX_TTL_MS = 60000;
+const claimTxCache = new Map();
+
+export function invalidateClaimTransactions(userAddress) {
+  if (userAddress) claimTxCache.delete(userAddress.toLowerCase());
+}
+
+export function fetchUserClaimTransactions(userAddress, customClient = null) {
+  if (!userAddress) return Promise.resolve({});
+  const key = userAddress.toLowerCase();
+  const hit = claimTxCache.get(key);
+  if (hit && Date.now() - hit.at < CLAIM_TX_TTL_MS) return hit.promise;
+  const promise = loadUserClaimTransactions(userAddress, customClient);
+  claimTxCache.set(key, { at: Date.now(), promise });
+  return promise;
+}
+
 // Helper to fetch exact historical claim transactions from on-chain RPC logs + Base block explorer
-export async function fetchUserClaimTransactions(userAddress, customClient = null) {
+async function loadUserClaimTransactions(userAddress, customClient = null) {
   if (!userAddress) return {};
   try {
     const map = {};
@@ -89,7 +108,8 @@ export async function fetchUserClaimTransactions(userAddress, customClient = nul
       if (stakingLogs && stakingLogs.length > 0) {
         for (const log of stakingLogs) {
           const vaultId = log.args.vaultId?.toLowerCase();
-          const matchedVault = STAKING_VAULTS_INFO.find(v => v.id.toLowerCase() === vaultId) || STAKING_VAULTS_INFO[0];
+          const matchedVault = STAKING_VAULTS_INFO.find(v => v.id.toLowerCase() === vaultId);
+          if (!matchedVault) continue; // vault not in the schedule yet
           const amountNum = Math.round(Number(formatUnits(log.args.amount || 0n, 18)));
           const key = `staking-${matchedVault.roundId}`;
           map[key] = {
@@ -314,9 +334,9 @@ export async function fetchUserClaimTransactions(userAddress, customClient = nul
             try {
               const r = await rpcClient.getTransactionReceipt({ hash: txHash });
               const claimLog = r.logs.find(l => l.topics[0] === CLAIM_TOPIC);
-              if (claimLog) {
-                const vaultId = claimLog.topics[1]?.toLowerCase();
-                const matchedVault = STAKING_VAULTS_INFO.find(v => v.id.toLowerCase() === vaultId) || STAKING_VAULTS_INFO[0];
+              const claimVault = claimLog && STAKING_VAULTS_INFO.find(v => v.id.toLowerCase() === claimLog.topics[1]?.toLowerCase());
+              if (claimVault) {
+                const matchedVault = claimVault;
                 const amountNum = Math.round(Number(formatUnits(BigInt(claimLog.data), 18)));
                 const key = `staking-${matchedVault.roundId}`;
                 if (!map[key]) {
@@ -830,6 +850,15 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
     }
   };
 
+  // Status from the background poll. Never overrides a claim in progress, and a round claimed in this
+  // session stays claimed even if a poll that started before the claim answers late.
+  const claimedThisSession = useRef(new Set());
+  const setPolledStatus = (key, value) => setClaimStatus(prev => {
+    if (prev[key] === 'claiming' || prev[key] === value) return prev;
+    if (value === 'unclaimed' && claimedThisSession.current.has(key)) return prev;
+    return { ...prev, [key]: value };
+  });
+
   // Unified High-Speed On-Chain RPC Sync (<350ms)
   const fetchBalances = async (isManual = false) => {
     if (!address) return;
@@ -951,11 +980,7 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
       extraRounds.forEach((r, i) => {
         if (results[10 + i]?.status === 'success') earlyStatus[`${r.type}-${r.id}`] = results[10 + i].result === true ? 'claimed' : 'unclaimed';
       });
-      setClaimStatus(prev => {
-        const next = { ...prev };
-        for (const [k, v] of Object.entries(earlyStatus)) if (prev[k] !== 'claiming') next[k] = v;
-        return next;
-      });
+      for (const [k, v] of Object.entries(earlyStatus)) setPolledStatus(k, v);
 
       const hasAnyClaim = results[3]?.result === true || results[4]?.result === true || results[5]?.result === true || results[6]?.result === true || results[7]?.result === true || results[8]?.result === true || results[9]?.result === true || results.slice(10).some(r => r?.result === true);
       let txMap = {};
@@ -968,10 +993,10 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
       // Holder Round 1
       if (results[3]?.status === 'success') {
         if (results[3].result === true) {
-          setClaimStatus(prev => ({ ...prev, 'holder-1': 'claimed' }));
+          setPolledStatus('holder-1', 'claimed');
           syncClaimHistory(client, address, 1, txMap);
         } else {
-          setClaimStatus(prev => ({ ...prev, 'holder-1': 'unclaimed' }));
+          setPolledStatus('holder-1', 'unclaimed');
           setClaimedHistory(prev => {
             const prevList = Array.isArray(prev) ? prev : [];
             const filtered = prevList.filter(h => h && h.id !== 'holder-1');
@@ -986,10 +1011,10 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
       // Holder Round 2
       if (results[4]?.status === 'success') {
         if (results[4].result === true) {
-          setClaimStatus(prev => ({ ...prev, 'holder-2': 'claimed' }));
+          setPolledStatus('holder-2', 'claimed');
           syncClaimHistory(client, address, 2, txMap);
         } else {
-          setClaimStatus(prev => ({ ...prev, 'holder-2': 'unclaimed' }));
+          setPolledStatus('holder-2', 'unclaimed');
           setClaimedHistory(prev => {
             const prevList = Array.isArray(prev) ? prev : [];
             const filtered = prevList.filter(h => h && h.id !== 'holder-2');
@@ -1004,10 +1029,10 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
       // Royalty Round 1
       if (results[5]?.status === 'success') {
         if (results[5].result === true) {
-          setClaimStatus(prev => ({ ...prev, 'vibeclub-1': 'claimed' }));
+          setPolledStatus('vibeclub-1', 'claimed');
           syncRoyaltyClaimHistory(client, address, targetRoyaltyCa, 1, txMap);
         } else {
-          setClaimStatus(prev => ({ ...prev, 'vibeclub-1': 'unclaimed' }));
+          setPolledStatus('vibeclub-1', 'unclaimed');
           setClaimedHistory(prev => {
             const prevList = Array.isArray(prev) ? prev : [];
             const filtered = prevList.filter(h => h && h.id !== 'vibeclub-1');
@@ -1022,10 +1047,10 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
       // Royalty Round 2
       if (results[6]?.status === 'success') {
         if (results[6].result === true) {
-          setClaimStatus(prev => ({ ...prev, 'vibeclub-2': 'claimed' }));
+          setPolledStatus('vibeclub-2', 'claimed');
           syncRoyaltyClaimHistory(client, address, targetRoyaltyCa, 2, txMap);
         } else {
-          setClaimStatus(prev => ({ ...prev, 'vibeclub-2': 'unclaimed' }));
+          setPolledStatus('vibeclub-2', 'unclaimed');
           setClaimedHistory(prev => {
             const prevList = Array.isArray(prev) ? prev : [];
             const filtered = prevList.filter(h => h && h.id !== 'vibeclub-2');
@@ -1040,10 +1065,10 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
       // Royalty Round 3
       if (results[7]?.status === 'success') {
         if (results[7].result === true) {
-          setClaimStatus(prev => ({ ...prev, 'vibeclub-3': 'claimed' }));
+          setPolledStatus('vibeclub-3', 'claimed');
           syncRoyaltyClaimHistory(client, address, targetRoyaltyCa, 3, txMap);
         } else {
-          setClaimStatus(prev => ({ ...prev, 'vibeclub-3': 'unclaimed' }));
+          setPolledStatus('vibeclub-3', 'unclaimed');
           setClaimedHistory(prev => {
             const prevList = Array.isArray(prev) ? prev : [];
             const filtered = prevList.filter(h => h && h.id !== 'vibeclub-3');
@@ -1058,10 +1083,10 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
       // Royalty Round 4
       if (results[8]?.status === 'success') {
         if (results[8].result === true) {
-          setClaimStatus(prev => ({ ...prev, 'vibeclub-4': 'claimed' }));
+          setPolledStatus('vibeclub-4', 'claimed');
           syncRoyaltyClaimHistory(client, address, targetRoyaltyCa, 4, txMap);
         } else {
-          setClaimStatus(prev => ({ ...prev, 'vibeclub-4': 'unclaimed' }));
+          setPolledStatus('vibeclub-4', 'unclaimed');
           setClaimedHistory(prev => {
             const prevList = Array.isArray(prev) ? prev : [];
             const filtered = prevList.filter(h => h && h.id !== 'vibeclub-4');
@@ -1076,10 +1101,10 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
       // Royalty Round 5
       if (results[9]?.status === 'success') {
         if (results[9].result === true) {
-          setClaimStatus(prev => ({ ...prev, 'vibeclub-5': 'claimed' }));
+          setPolledStatus('vibeclub-5', 'claimed');
           syncRoyaltyClaimHistory(client, address, targetRoyaltyCa, 5, txMap);
         } else {
-          setClaimStatus(prev => ({ ...prev, 'vibeclub-5': 'unclaimed' }));
+          setPolledStatus('vibeclub-5', 'unclaimed');
           setClaimedHistory(prev => {
             const prevList = Array.isArray(prev) ? prev : [];
             const filtered = prevList.filter(h => h && h.id !== 'vibeclub-5');
@@ -1097,11 +1122,11 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
         if (res?.status !== 'success') return;
         const key = `${r.type}-${r.id}`;
         if (res.result === true) {
-          setClaimStatus(prev => ({ ...prev, [key]: 'claimed' }));
+          setPolledStatus(key, 'claimed');
           if (r.type === 'holder') syncClaimHistory(client, address, r.id, txMap);
           else syncRoyaltyClaimHistory(client, address, targetRoyaltyCa, r.id, txMap);
         } else {
-          setClaimStatus(prev => ({ ...prev, [key]: 'unclaimed' }));
+          setPolledStatus(key, 'unclaimed');
           setClaimedHistory(prev => {
             const prevList = Array.isArray(prev) ? prev : [];
             const filtered = prevList.filter(h => h && h.id !== key);
@@ -1618,6 +1643,8 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
         localStorage.setItem(`vibe_claim_history_${address.toLowerCase()}`, JSON.stringify(updatedHistory));
       }
 
+      claimedThisSession.current.add(claimKey);
+      invalidateClaimTransactions(address);
       setClaimStatus(prev => ({ ...prev, [claimKey]: 'claimed' }));
       if (type === 'vibeclub') {
         setRoyaltyModalData({

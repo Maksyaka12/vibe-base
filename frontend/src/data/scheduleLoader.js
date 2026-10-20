@@ -1,6 +1,5 @@
 // Loads the schedule published from the admin panel and applies it over the built-in defaults.
-// A cached copy is applied first; the network copy wins if it arrives within the timeout,
-// otherwise it is cached for the next visit.
+// A cached copy is applied first; the network copy replaces it whenever it arrives.
 import { applySchedule, DEFAULT_SCHEDULE } from './rewardsSchedule';
 import { validateSchedule } from './scheduleSchema';
 
@@ -49,7 +48,8 @@ export async function loadPublishedSchedule() {
     }
   };
 
-  if (result === 'timeout') remote.then((record) => record && writeCache(record.schedule ?? null));
+  // A late answer is applied too: pages read the schedule on every render, so it shows up on the next one.
+  if (result === 'timeout') remote.then(handle);
   else handle(result);
 }
 

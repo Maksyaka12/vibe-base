@@ -34,10 +34,11 @@ export function publishedRounds() {
   return Object.entries(published).flatMap(([type, rounds]) => Object.entries(rounds).map(([round, data]) => ({ type, round: Number(round), data })));
 }
 
+// Fetches snapshots that are new or were republished since the last call; the rest stay as loaded.
 export async function loadPublishedRounds() {
   try {
     const index = await fetch('/api/snapshots').then((r) => (r.ok ? r.json() : null));
-    const wanted = (index?.snapshots || []).filter((s) => !isBuiltInRound(s.type, s.round));
+    const wanted = (index?.snapshots || []).filter((s) => !isBuiltInRound(s.type, s.round) && published[kind(s.type)][s.round]?.publishedAt !== s.publishedAt);
     await Promise.all(
       wanted.map(async (s) => {
         const snap = await fetch(`/api/snapshots?type=${s.type}&round=${s.round}`).then((r) => (r.ok ? r.json() : null));
@@ -47,4 +48,9 @@ export async function loadPublishedRounds() {
   } catch (e) {
     console.warn('Could not load published reward snapshots:', e);
   }
+}
+
+// Keeps open pages up to date when a snapshot is published while they are open.
+export function watchPublishedRounds(intervalMs = 60000) {
+  setInterval(loadPublishedRounds, intervalMs);
 }

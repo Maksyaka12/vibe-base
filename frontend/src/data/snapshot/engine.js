@@ -230,9 +230,19 @@ function proportionalWithCap(eligible, pool, cap) {
       } else next.push(h);
     }
     if (capped === 0) {
+      // Whole tokens, rounded down; the few tokens left go one each to the largest holders, so the
+      // allocations add up to exactly the pool (rounding to nearest could exceed it).
       const finalSum = remaining.reduce((a, h) => a + h.balance, 0);
+      let left = remainingPool;
       for (const h of remaining) {
-        rewards.set(h.address, { amount: Math.min(cap, Math.round((h.balance / finalSum) * remainingPool)), isCapped: false });
+        const amount = Math.min(cap, Math.floor((h.balance / finalSum) * remainingPool));
+        rewards.set(h.address, { amount, isCapped: false });
+        left -= amount;
+      }
+      for (const h of remaining) {
+        if (left <= 0) break;
+        const r = rewards.get(h.address);
+        if (r.amount < cap) { r.amount += 1; left -= 1; }
       }
       break;
     }

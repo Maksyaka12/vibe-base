@@ -210,7 +210,12 @@ function Rewards({ isBaseAppMode = false } = {}) {
   const [vibeClubFilter, setVibeClubFilter] = useState('all');
   const [nftHoldersCount, setNftHoldersCount] = useState(103);
   const [openFaq, setOpenFaq] = useState(null);
-  const now = new Date();
+  // Ticks every second so cards move between upcoming, live and previous when their time comes.
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const timer = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     let mounted = true;

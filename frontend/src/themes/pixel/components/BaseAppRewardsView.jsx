@@ -2,13 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { usePrivy } from '@privy-io/react-auth';
 import { Lock, ArrowUpRight, ArrowRight, ChevronDown, Info, CheckCircle2, XCircle, Clock, Check, Lightbulb } from 'lucide-react';
-import round1Data from '../../../data/round_1_proofs.json';
-import round2Data from '../../../data/round_2_proofs.json';
-import royalty1Data from '../../../data/royalty_1_proofs.json';
-import royalty2Data from '../../../data/royalty_2_proofs.json';
-import royalty3Data from '../../../data/royalty_3_proofs.json';
-import royalty4Data from '../../../data/royalty_4_proofs.json';
-import royalty5Data from '../../../data/royalty_5_proofs.json';
+import { roundProofs } from '../../../data/claimRounds';
 
 function formatClaimCountdown(targetDate) {
   if (!targetDate) return '';
@@ -246,20 +240,14 @@ export default function BaseAppRewardsView({
   const otherEndedHolders = endedHolders.filter(u => u.unlock !== featuredHolder.unlock);
 
   // Dynamic eligibility calculation for featured/active Holder Reward
-  // (Checks Merkle proof snapshot for Unlock 1/2, or 5M+ holding balance for active/subsequent unlocks)
+  // (Snapshot proofs when the round has a snapshot, otherwise the current 5M+ balance)
   const isHolderActiveEligible = (() => {
     if (!authenticated || !userAddress) return false;
     const unlockNum = parseInt(featuredHolder?.unlock?.replace(/\D/g, '') || '1', 10);
-    if (unlockNum === 1) {
-      return Boolean(round1Data?.claims?.[userAddress]);
-    }
-    if (unlockNum === 2) {
-      return Boolean(round2Data?.claims?.[userAddress]);
-    }
-    if (userBalance >= 5000000) {
-      return true;
-    }
-    return false;
+    // Once the round has a snapshot, eligibility is whatever the snapshot says.
+    const snapshot = roundProofs('holder', unlockNum);
+    if (snapshot) return Boolean(snapshot.claims?.[userAddress]);
+    return userBalance >= 5000000;
   })();
 
   // Vibe Club calculations
@@ -275,29 +263,14 @@ export default function BaseAppRewardsView({
   const otherEndedVibeClubs = endedVibeClubs.filter(u => u.epoch !== featuredVibeClub.epoch);
 
   // Dynamic eligibility calculation for featured/active Vibe Club Royalty
-  // (Checks Merkle proof snapshot for Royalty 1/2, or Vibe Club NFT ownership)
+  // (Snapshot proofs when the round has a snapshot, otherwise current Vibe Club NFT ownership)
   const isVibeClubActiveEligible = (() => {
     if (!authenticated || !userAddress) return false;
     const epochNum = parseInt(featuredVibeClub?.epoch?.replace(/\D/g, '') || '1', 10);
-    if (epochNum === 1 && royalty1Data?.claims?.[userAddress]) {
-      return true;
-    }
-    if (epochNum === 2 && royalty2Data?.claims?.[userAddress]) {
-      return true;
-    }
-    if (epochNum === 3 && royalty3Data?.claims?.[userAddress]) {
-      return true;
-    }
-    if (epochNum === 4 && royalty4Data?.claims?.[userAddress]) {
-      return true;
-    }
-    if (epochNum === 5 && royalty5Data?.claims?.[userAddress]) {
-      return true;
-    }
-    if (userNftCount > 0) {
-      return true;
-    }
-    return false;
+    // Once the round has a snapshot, eligibility is whatever the snapshot says.
+    const snapshot = roundProofs('royalty', epochNum);
+    if (snapshot) return Boolean(snapshot.claims?.[userAddress]);
+    return userNftCount > 0;
   })();
 
   // Dynamic Staking calculations based on timestamps
