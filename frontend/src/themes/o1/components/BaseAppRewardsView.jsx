@@ -257,12 +257,12 @@ export default function BaseAppRewardsView({
                 <Tile
                   label="Rewards pool"
                   value={`${featuredHolder.poolAmount} $VIBE`}
-                  sub="Distributed proportionally to eligible holders"
+                  sub="Proportionally to holders"
                 />
                 <Tile
                   label="Requirement"
                   value="5M+ $VIBE"
-                  sub="Balance held at snapshot block"
+                  sub="Held in wallet at snapshot time"
                 />
                 <Tile
                   label="Your status"
@@ -410,12 +410,12 @@ export default function BaseAppRewardsView({
                 <Tile
                   label="Rewards pool"
                   value={`${featuredVibeClub.poolAmount} $VIBE`}
-                  sub="Distributed equally among all NFT holders"
+                  sub="Equally among all NFT holders"
                 />
                 <Tile
                   label="Requirement"
                   value="1+ Vibe Club NFT"
-                  sub="Must be held in wallet during snapshot"
+                  sub="Held in wallet at snapshot time"
                 />
                 <Tile
                   label="Your status"
@@ -432,7 +432,7 @@ export default function BaseAppRewardsView({
                     !authenticated
                       ? 'Connect wallet to verify'
                       : isVibeClubActiveEligible
-                      ? 'NFT holder requirement satisfied'
+                      ? 'Snapshot requirement satisfied'
                       : 'Must hold at least 1 Vibe Club NFT'
                   }
                 />
