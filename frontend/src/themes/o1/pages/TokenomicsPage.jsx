@@ -364,28 +364,10 @@ export default function TokenomicsPage({ isBaseAppMode = false }) {
             <div className="o1-tokenomics-donut-wrap">
               <svg viewBox="0 0 200 200" style={{ width: '100%', height: 'auto', display: 'block' }}>
                 <circle cx="100" cy="100" r="70" fill="none" stroke="var(--surface-3)" strokeWidth="16" />
-                {/* 60% Reserve */}
-                <circle
-                  cx="100" cy="100" r="70" fill="none" stroke="var(--green)" strokeWidth="16"
-                  strokeLinecap="round" pathLength="100" strokeDasharray="58 100" strokeDashoffset="-1"
-                  transform="rotate(-90 100 100)"
-                />
-                {/* 10% Team */}
-                <circle
-                  cx="100" cy="100" r="70" fill="none" stroke="var(--text-2)" strokeWidth="16"
-                  strokeLinecap="round" pathLength="100" strokeDasharray="8 100" strokeDashoffset="-61"
-                  transform="rotate(-90 100 100)"
-                />
-                {/* 15% Staking */}
+                {/* Monochrome like the other donuts: grey track, only the staking share in accent. */}
                 <circle
                   cx="100" cy="100" r="70" fill="none" stroke="var(--accent)" strokeWidth="16"
-                  strokeLinecap="round" pathLength="100" strokeDasharray="13 100" strokeDashoffset="-71"
-                  transform="rotate(-90 100 100)"
-                />
-                {/* 15% NFT Club */}
-                <circle
-                  cx="100" cy="100" r="70" fill="none" stroke="var(--amber)" strokeWidth="16"
-                  strokeLinecap="round" pathLength="100" strokeDasharray="13 100" strokeDashoffset="-86"
+                  strokeLinecap="round" pathLength="100" strokeDasharray="14 100" strokeDashoffset="-70"
                   transform="rotate(-90 100 100)"
                 />
                 <text x="100" y="96" fill="var(--text)" fontSize="18" fontWeight="700" textAnchor="middle" fontFamily="var(--mono)">70%</text>
@@ -393,10 +375,10 @@ export default function TokenomicsPage({ isBaseAppMode = false }) {
               </svg>
             </div>
             <div className="o1-tokenomics-donut-legend">
-              <Badge tone="success">Reserve 60%</Badge>
-              <Badge tone="neutral">Team 10%</Badge>
-              <Badge tone="info">Staking 15%</Badge>
-              <Badge tone="warning">NFT Club 15%</Badge>
+              <Badge>Reserve 60%</Badge>
+              <Badge>Team 10%</Badge>
+              <Badge>Staking 15%</Badge>
+              <Badge>NFT Club 15%</Badge>
             </div>
           </Card>
         </div>
