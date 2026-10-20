@@ -6,7 +6,7 @@ import { useUserBalances } from '../../../hooks/useUserBalances';
 import { useVibeNftContract, NFT_CONTRACT_ADDRESS, OPENSEA_COLLECTION_URL } from '../../../hooks/useVibeNftContract';
 import nftNames from '../../../data/nftNames.json';
 import { publicClient } from '../../../config/rpc';
-import { findMintedVibeClubNft, findOwnedVibeClubNfts, rememberMintedVibeClubNft } from '../../../data/vibeClubNft';
+import { findMintedVibeClubNft, findOwnedVibeClubNfts, rememberMintedVibeClubNft, fetchVibePerEth, fetchNftBurned } from '../../../data/vibeClubNft';
 
 // Pixel SVG Wallet Icon
 const WalletSvgIcon = ({ size = 14 }) => (
@@ -67,7 +67,7 @@ export default function NftClubPage({ isEmbeddedInBaseApp = false } = {}) {
   } = useVibeNftContract();
 
   const [deckIndex, setDeckIndex] = useState(0);
-  const [vibePerEthRatio, setVibePerEthRatio] = useState(50000000); // 1 ETH = ~50M VIBE fallback
+  const [vibePerEthRatio, setVibePerEthRatio] = useState(null); // $VIBE per 1 ETH, null until the pool price loads
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [adminEthInput, setAdminEthInput] = useState('0.005');
   const [adminGiveawayRecipient, setAdminGiveawayRecipient] = useState('');
@@ -81,29 +81,31 @@ export default function NftClubPage({ isEmbeddedInBaseApp = false } = {}) {
     }
   }, [mintSuccess]);
 
-  // Fetch live $VIBE pool price from DEX Screener on Base
+  // Live $VIBE per ETH from the VIBE/ETH pool; the $VIBE mint stays disabled until it is known.
   useEffect(() => {
     let isMounted = true;
-    async function fetchLiveVibePrice() {
-      try {
-        const res = await fetch('https://api.dexscreener.com/latest/dex/tokens/0xb200000000000000000000df24ecb8bf51100a01');
-        const data = await res.json();
-        if (data?.pairs && data.pairs.length > 0) {
-          const mainPair = data.pairs[0];
-          const ethPriceInUsd = parseFloat(mainPair.priceNative) ? (parseFloat(mainPair.priceUsd) / parseFloat(mainPair.priceNative)) : 2700;
-          const vibePriceInUsd = parseFloat(mainPair.priceUsd) || 0.00005;
-          if (vibePriceInUsd > 0 && isMounted) {
-            const calculatedRatio = Math.round(ethPriceInUsd / vibePriceInUsd);
-            setVibePerEthRatio(calculatedRatio);
-          }
-        }
-      } catch (e) {
-        console.error('Error fetching VIBE live price:', e);
-      }
-    }
+    const load = async () => {
+      const ratio = await fetchVibePerEth();
+      if (isMounted && ratio) setVibePerEthRatio(ratio);
+    };
+    load();
+    const interval = setInterval(load, 15000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, []);
 
-    fetchLiveVibePrice();
-    const interval = setInterval(fetchLiveVibePrice, 15000);
+  // $VIBE the contract actually burned (onchain transfers to the burn address, via /api/nft-burned).
+  const [burnedOnchain, setBurnedOnchain] = useState(null);
+  useEffect(() => {
+    let isMounted = true;
+    const load = async () => {
+      const burned = await fetchNftBurned();
+      if (isMounted && burned !== null) setBurnedOnchain(burned);
+    };
+    load();
+    const interval = setInterval(load, 60000);
     return () => {
       isMounted = false;
       clearInterval(interval);
@@ -120,7 +122,7 @@ export default function NftClubPage({ isEmbeddedInBaseApp = false } = {}) {
 
   // Current dynamic $VIBE price based on active phase
   const ethPriceNum = parseFloat(ethPriceFormatted) || 0.005;
-  const currentDynamicVibeAmount = Math.floor(ethPriceNum * vibePerEthRatio);
+  const currentDynamicVibeAmount = vibePerEthRatio ? Math.floor(ethPriceNum * vibePerEthRatio) : null;
 
   // Fixed baseline at 110 mints (Phase 1 + Phase 2 real burns) + exact 4x new 20% VIBE accumulated in contract
   const HISTORICAL_BURNED_VIBE = 16407500;
@@ -128,7 +130,8 @@ export default function NftClubPage({ isEmbeddedInBaseApp = false } = {}) {
 
   const currentContractVibe = parseFloat(contractVibeBalance || 0);
   const newVibeAccumulated = Math.max(0, currentContractVibe - BASELINE_CONTRACT_VIBE);
-  const totalVibeBurnedByContract = Math.floor(HISTORICAL_BURNED_VIBE + (newVibeAccumulated * 4));
+  // Onchain total when /api/nft-burned answers, otherwise the old estimate
+  const totalVibeBurnedByContract = burnedOnchain !== null ? Math.floor(burnedOnchain) : Math.floor(HISTORICAL_BURNED_VIBE + (newVibeAccumulated * 4));
 
   const currentNftId = NFT_DECK[deckIndex];
 
@@ -237,6 +240,7 @@ export default function NftClubPage({ isEmbeddedInBaseApp = false } = {}) {
   const countdownSecs = String(totalRemainingSec % 60).padStart(2, '0');
 
   const handleMintWithVibeClick = () => {
+    if (!currentDynamicVibeAmount) return;
     const vibeWei = parseEther(currentDynamicVibeAmount.toString());
     mintWithVIBE(vibeWei);
   };
@@ -878,7 +882,7 @@ export default function NftClubPage({ isEmbeddedInBaseApp = false } = {}) {
                 <div className="vv-nft-ctrl-row" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px', whiteSpace: 'nowrap' }}>
                   <span className="vv-nft-ctrl-label" style={{ fontSize: '8px', color: '#aaa' }}>$VIBE PRICE</span>
                   <span className="vv-nft-ctrl-val" style={{ fontFamily: 'var(--vv-pixel)', fontSize: '9px', color: '#ffd700' }}>
-                    {formatVibeComma(currentDynamicVibeAmount)}
+                    {currentDynamicVibeAmount ? formatVibeComma(currentDynamicVibeAmount) : 'Loading...'}
                   </span>
                 </div>
                 <div className="vv-nft-ctrl-row" style={{ display: 'flex', justifyContent: 'space-between', whiteSpace: 'nowrap' }}>
@@ -1101,7 +1105,7 @@ export default function NftClubPage({ isEmbeddedInBaseApp = false } = {}) {
                     {/* 2. MINT FOR $VIBE BUTTON */}
                     <button
                       onClick={handleMintWithVibeClick}
-                      disabled={isMintingEth || isMintingVibe || isApprovingVibe}
+                      disabled={isMintingEth || isMintingVibe || isApprovingVibe || !currentDynamicVibeAmount}
                       style={{
                         width: '100%',
                         height: '44px',
@@ -1124,7 +1128,7 @@ export default function NftClubPage({ isEmbeddedInBaseApp = false } = {}) {
                         ? 'APPROVING $VIBE...'
                         : isMintingVibe
                         ? 'MINTING WITH $VIBE...'
-                        : `MINT FOR ${formatVibeComma(currentDynamicVibeAmount)}`}
+                        : currentDynamicVibeAmount ? `MINT FOR ${formatVibeComma(currentDynamicVibeAmount)}` : 'LOADING $VIBE PRICE...'}
                     </button>
                   </>
                 )}
