@@ -290,7 +290,8 @@
 }
 
 .o1-faq-content {
-  padding: 0 16px 14px 16px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
   font-size: 12px;
   color: var(--text-3);
   line-height: 1.6;

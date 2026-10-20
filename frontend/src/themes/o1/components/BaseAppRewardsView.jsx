@@ -742,7 +742,7 @@ export default function BaseAppRewardsView({
 
       {/* ── 6. FAQ Accordion ── */}
       <div>
-        <SectionTitle title="Frequently asked questions" />
+        <SectionTitle title="FAQ & Info" />
         <div className="o1-faq-card">
           {[
             {
