@@ -87,6 +87,7 @@ const DEV_API = {
   '/api/snapshots': ['/api/_lib/snapshots.js', 'handleSnapshots'],
   '/api/transfers': ['/api/_lib/transfers.js', 'handleTransfers'],
   '/api/banner': ['/api/_lib/banner.js', 'handleBanner'],
+  '/api/minted-nft': ['/api/_lib/mintedNft.js', 'handleMintedNft'],
 }
 
 function scheduleApiDev() {

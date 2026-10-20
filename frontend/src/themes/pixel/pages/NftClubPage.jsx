@@ -5,6 +5,8 @@ import { parseEther } from 'viem';
 import { useUserBalances } from '../../../hooks/useUserBalances';
 import { useVibeNftContract, NFT_CONTRACT_ADDRESS, OPENSEA_COLLECTION_URL } from '../../../hooks/useVibeNftContract';
 import nftNames from '../../../data/nftNames.json';
+import { publicClient } from '../../../config/rpc';
+import { findMintedVibeClubNft, findOwnedVibeClubNfts, rememberMintedVibeClubNft } from '../../../data/vibeClubNft';
 
 // Pixel SVG Wallet Icon
 const WalletSvgIcon = ({ size = 14 }) => (
@@ -137,7 +139,27 @@ export default function NftClubPage({ isEmbeddedInBaseApp = false } = {}) {
   const [testMintedId, setTestMintedId] = useState(null);
 
   // Details for Minted NFT Modal
-  const modalNftId = testMintedId || lastMintedId || 3;
+  // The NFT on the mint card: the one minted in this session, else the one this wallet minted earlier
+  // (saved on this device or looked up via /api/minted-nft), else the one it holds now.
+  const [knownMintedId, setKnownMintedId] = useState(null);
+  useEffect(() => {
+    setKnownMintedId(null);
+    if (!walletAddress || !hasMinted) return;
+    let cancelled = false;
+    (async () => {
+      let id = await findMintedVibeClubNft(walletAddress);
+      if (!id) id = (await findOwnedVibeClubNfts(publicClient, walletAddress).catch(() => null))?.[0] || null;
+      if (!cancelled) setKnownMintedId(id);
+    })();
+    return () => { cancelled = true; };
+  }, [walletAddress, hasMinted]);
+
+  // Remember a fresh mint on this device (only the user's own mint, not admin mints for others).
+  useEffect(() => {
+    if (mintSuccess && lastMintedId) rememberMintedVibeClubNft(walletAddress, lastMintedId);
+  }, [mintSuccess, lastMintedId, walletAddress]);
+
+  const modalNftId = testMintedId || lastMintedId || knownMintedId;
   const modalRawName = nftNames[modalNftId] || 'Maltipoo';
   const modalCleanName = modalRawName.replace(/^#\d+\s*/, '').replace(/#\d+/, '').trim() || 'VIBE';
 
@@ -1009,7 +1031,7 @@ export default function NftClubPage({ isEmbeddedInBaseApp = false } = {}) {
                     ✓ YOU HAVE MINTED (1/1 MAX)
                     <div style={{ marginTop: '8px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
                       <button
-                        onClick={() => setShowSuccessModal(true)}
+                        disabled={!modalNftId} onClick={() => setShowSuccessModal(true)}
                         style={{
                           fontFamily: 'var(--vv-pixel)',
                           background: 'rgba(0, 245, 255, 0.15)',
@@ -1320,7 +1342,7 @@ export default function NftClubPage({ isEmbeddedInBaseApp = false } = {}) {
       </div>
 
       {/* ── SUCCESS MINT MODAL POPUP ── */}
-      {showSuccessModal && (
+      {showSuccessModal && modalNftId && (
         <div style={{
           position: 'fixed',
           top: 0,

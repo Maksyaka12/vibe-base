@@ -5,6 +5,8 @@ import { Wallet, ExternalLink, Gem, Flame, ShieldCheck, CheckCircle2, Download, 
 import { useUserBalances } from '../../../hooks/useUserBalances';
 import { useVibeNftContract, NFT_CONTRACT_ADDRESS, OPENSEA_COLLECTION_URL } from '../../../hooks/useVibeNftContract';
 import nftNames from '../../../data/nftNames.json';
+import { publicClient } from '../../../config/rpc';
+import { findMintedVibeClubNft, findOwnedVibeClubNfts, rememberMintedVibeClubNft } from '../../../data/vibeClubNft';
 import { Button, Card, StatusPill, ProgressBar, SectionTitle, Alert } from '../components/ui';
 
 // NFT Deck strictly from #5 to #35 (31 NFTs)
@@ -129,7 +131,27 @@ export default function NftClubPage({ isEmbeddedInBaseApp = false } = {}) {
   const [testMintedId, setTestMintedId] = useState(null);
 
   // Details for Minted NFT Modal
-  const modalNftId = testMintedId || lastMintedId || 3;
+  // The NFT on the mint card: the one minted in this session, else the one this wallet minted earlier
+  // (saved on this device or looked up via /api/minted-nft), else the one it holds now.
+  const [knownMintedId, setKnownMintedId] = useState(null);
+  useEffect(() => {
+    setKnownMintedId(null);
+    if (!walletAddress || !hasMinted) return;
+    let cancelled = false;
+    (async () => {
+      let id = await findMintedVibeClubNft(walletAddress);
+      if (!id) id = (await findOwnedVibeClubNfts(publicClient, walletAddress).catch(() => null))?.[0] || null;
+      if (!cancelled) setKnownMintedId(id);
+    })();
+    return () => { cancelled = true; };
+  }, [walletAddress, hasMinted]);
+
+  // Remember a fresh mint on this device (only the user's own mint, not admin mints for others).
+  useEffect(() => {
+    if (mintSuccess && lastMintedId) rememberMintedVibeClubNft(walletAddress, lastMintedId);
+  }, [mintSuccess, lastMintedId, walletAddress]);
+
+  const modalNftId = testMintedId || lastMintedId || knownMintedId;
   const modalRawName = nftNames[modalNftId] || 'Maltipoo';
   const modalCleanName = modalRawName.replace(/^#\d+\s*/, '').replace(/#\d+/, '').trim() || 'VIBE';
 
@@ -387,7 +409,7 @@ export default function NftClubPage({ isEmbeddedInBaseApp = false } = {}) {
                   <CheckCircle2 size={16} /> You have minted (1/1 max)
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '10px', flexWrap: 'wrap' }}>
-                  <Button variant="secondary" size="sm" onClick={() => setShowSuccessModal(true)}>
+                  <Button variant="secondary" size="sm" disabled={!modalNftId} onClick={() => setShowSuccessModal(true)}>
                     <Share2 size={14} /> View mint card & share
                   </Button>
                   <Button variant="ghost" size="sm" as="a" href={OPENSEA_COLLECTION_URL} target="_blank" rel="noopener noreferrer">
@@ -476,7 +498,7 @@ export default function NftClubPage({ isEmbeddedInBaseApp = false } = {}) {
       </div>
 
       {/* ── Success Mint Modal Popup ── */}
-      {showSuccessModal && (
+      {showSuccessModal && modalNftId && (
         <div className="o1-nft-modal-overlay" onClick={() => setShowSuccessModal(false)}>
           <div className="o1-nft-modal-content" onClick={(e) => e.stopPropagation()}>
             <button className="o1-nft-modal-close" onClick={() => setShowSuccessModal(false)}>

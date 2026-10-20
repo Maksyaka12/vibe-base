@@ -25,6 +25,7 @@ const VIBECLUB_MINT_URL = 'https://vibeverse.dog/vibeclub';
 import { DATA_SUFFIX, appendBuilderSuffix } from '../../config/builderCode';
 import { STAKING_VAULTS_INFO, ADMIN_WITHDRAWAL_TXS, HOLDER_ROUNDS, VIBECLUB_ROUNDS, royaltyBannerFor } from '../../data/rewardsSchedule';
 import { roundProofs, publishedRounds } from '../../data/claimRounds';
+import { findOwnedVibeClubNfts, findMintedVibeClubNft } from '../../data/vibeClubNft';
 export { STAKING_VAULTS_INFO, ADMIN_WITHDRAWAL_TXS };
 
 export function getRoyaltyBannerUrl(epochId) {
@@ -393,6 +394,10 @@ async function loadUserClaimTransactions(userAddress, customClient = null) {
 // User pressed reject / cancel in the wallet (EIP-1193 code 4001, or the wallet's own wording).
 const isWalletRejection = (e) => e?.code === 4001 || e?.cause?.code === 4001 || /reject|denied|cancel/i.test(e?.message || '');
 
+// When each wallet's NFT was last looked up (see fetchUserNft).
+const NFT_RESCAN_MS = 5 * 60 * 1000;
+const nftScannedAt = new Map();
+
 const MIN_HOLDER_BALANCE = 5000000; // 5M $VIBE
 
 const DISTRIBUTOR_ABI = parseAbi([
@@ -699,39 +704,27 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
         return;
       }
 
-      const client = getPublicClient();
-      const checkLimit = 115;
-      const calls = [];
-      for (let i = 1; i <= checkLimit; i++) {
-        calls.push({
-          address: NFT_CA,
-          abi: parseAbi(['function ownerOf(uint256) view returns (address)']),
-          functionName: 'ownerOf',
-          args: [BigInt(i)]
-        });
+      // Every token id (they are spread over 1..333). Prefer the NFT this wallet minted while it still
+      // holds it, otherwise its lowest id. The poll calls this every 12s, so rescan at most every 5 minutes.
+      const key = userAddress.toLowerCase();
+      if (cached && Date.now() - (nftScannedAt.get(key) || 0) < NFT_RESCAN_MS) return;
+      const owned = await findOwnedVibeClubNfts(getPublicClient(), userAddress);
+      if (owned === null) return; // chain not readable: keep the cached one
+      nftScannedAt.set(key, Date.now());
+      if (owned.length === 0) {
+        setUserNft(null);
+        localStorage.removeItem(`vibe_user_nft_${key}`);
+        return;
       }
-      const results = await client.multicall({ contracts: calls, allowFailure: true });
-      for (let i = 0; i < results.length; i++) {
-        if (results[i]?.status === 'success' && results[i]?.result && results[i].result.toLowerCase() === userAddress.toLowerCase()) {
-          const tokenId = i + 1;
-          const name = nftNames[String(tokenId)] || `Vibe Club #${tokenId}`;
-          const nftObj = {
-            id: tokenId,
-            name,
-            image: `/nft/images/${tokenId}.png`
-          };
-          setUserNft(nftObj);
-          localStorage.setItem(`vibe_user_nft_${userAddress.toLowerCase()}`, JSON.stringify(nftObj));
-          return;
-        }
-      }
-      const fallbackObj = {
-        id: 1,
-        name: 'Vibe Club Member',
-        image: '/nft/images/1.png'
+      const minted = await findMintedVibeClubNft(userAddress);
+      const tokenId = owned.includes(minted) ? minted : owned[0];
+      const nftObj = {
+        id: tokenId,
+        name: nftNames[String(tokenId)] || `Vibe Club #${tokenId}`,
+        image: `/nft/images/${tokenId}.png`
       };
-      setUserNft(fallbackObj);
-      localStorage.setItem(`vibe_user_nft_${userAddress.toLowerCase()}`, JSON.stringify(fallbackObj));
+      setUserNft(nftObj);
+      localStorage.setItem(`vibe_user_nft_${key}`, JSON.stringify(nftObj));
     } catch (err) {
       console.warn("Error finding user NFT:", err);
     }
