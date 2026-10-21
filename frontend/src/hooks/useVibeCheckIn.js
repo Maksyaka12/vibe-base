@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useWallets } from '@privy-io/react-auth';
 import { parseAbi, encodeFunctionData } from 'viem';
 import { publicClient } from '../config/rpc';
-import { appendBuilderSuffix, DATA_SUFFIX } from '../config/builderCode';
+import { sendWalletTx, waitUntil } from '../config/walletTx';
 
 export const VIBE_CHECKIN_CONTRACT_ADDRESS =
   import.meta.env?.VITE_CHECKIN_CONTRACT_ADDRESS ||
@@ -204,92 +204,25 @@ export function useVibeCheckIn(address) {
 
     try {
       if (isContractActive) {
-        // Find connected wallet
-        const activeWallet = wallets.find(
-          (w) => w.address?.toLowerCase() === address.toLowerCase()
-        ) || wallets[0];
-
-        if (!activeWallet) {
-          throw new Error('Wallet not connected');
-        }
-
-        const provider = await activeWallet.getEthereumProvider();
-
-        // Encode calldata for checkIn()
-        const rawCalldata = encodeFunctionData({
-          abi: CHECKIN_ABI,
-          functionName: 'checkIn',
-          args: []
+        // Success only once the contract shows today as checked in; a rejection stops without a second prompt.
+        const hash = await sendWalletTx({
+          wallets,
+          address,
+          to: VIBE_CHECKIN_CONTRACT_ADDRESS,
+          data: encodeFunctionData({ abi: CHECKIN_ABI, functionName: 'checkIn', args: [] })
         });
-
-        // Attach Base ERC-8021 Builder Code suffix
-        const calldataWithSuffix = appendBuilderSuffix(rawCalldata);
-
-        let txHashResult = null;
-
-        // Standard direct transaction first (MetaMask, Rabby, Phantom, Injected EOA, etc.)
-        // Direct eth_sendTransaction ensures the tx is sent directly to the contract (appearing under Transactions tab on BaseScan)
-        // and preserves the exact unpadded ERC-8021 builder code suffix at the end of calldata.
-        try {
-          txHashResult = await provider.request({
-            method: 'eth_sendTransaction',
-            params: [
-              {
-                from: address,
-                to: VIBE_CHECKIN_CONTRACT_ADDRESS,
-                data: calldataWithSuffix,
-                value: '0x0'
-              }
-            ]
-          });
-        } catch (sendTxErr) {
-          console.warn('eth_sendTransaction fallback to wallet_sendCalls if supported:', sendTxErr);
-          try {
-            const callsRes = await provider.request({
-              method: 'wallet_sendCalls',
-              params: [{
-                version: '1.0',
-                chainId: '0x2105',
-                from: address,
-                calls: [{ to: VIBE_CHECKIN_CONTRACT_ADDRESS, value: '0x0', data: calldataWithSuffix }],
-                capabilities: DATA_SUFFIX ? {
-                  dataSuffix: {
-                    value: DATA_SUFFIX,
-                    optional: true
-                  }
-                } : undefined
-              }]
-            });
-
-            if (callsRes) {
-              const callId = typeof callsRes === 'object' ? (callsRes.id || callsRes) : callsRes;
-              for (let i = 0; i < 20; i++) {
-                await new Promise(r => setTimeout(r, 1000));
-                try {
-                  const status = await provider.request({
-                    method: 'wallet_getCallsStatus',
-                    params: [callId]
-                  });
-                  if (status?.receipts?.[0]?.transactionHash) {
-                    txHashResult = status.receipts[0].transactionHash;
-                    break;
-                  }
-                } catch (e) {}
-              }
-            }
-          } catch (callsErr) {
-            throw sendTxErr || callsErr;
-          }
+        if (hash) {
+          setTxHash(hash);
+          const receipt = await publicClient.waitForTransactionReceipt({ hash });
+          if (receipt.status !== 'success') throw new Error('Check-in reverted');
         }
-
-        if (txHashResult) {
-          setTxHash(txHashResult);
-          try {
-            await publicClient.waitForTransactionReceipt({ hash: txHashResult });
-          } catch (e) {
-            console.warn('Waiting for receipt warning:', e);
-          }
-        }
+        const done = await waitUntil(async () => !(await publicClient.readContract({
+          address: VIBE_CHECKIN_CONTRACT_ADDRESS,
+          abi: CHECKIN_ABI,
+          functionName: 'canCheckIn',
+          args: [address]
+        })), hash ? 10 : 30);
+        if (!done) throw new Error('The check-in was not confirmed onchain');
 
         // Refresh onchain state
         await fetchOnChainState();

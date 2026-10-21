@@ -1,24 +1,21 @@
 import { parseAbi } from 'viem';
 
+// VibeAchievementsV2 (contracts/src): soulbound, every condition checked by the contract itself.
+// The first achievements contract (0x10667fF580e6fc2edfFC35991fACb05C2681E757) is no longer used.
 export const VIBE_ACHIEVEMENTS_CONTRACT_ADDRESS =
   import.meta.env?.VITE_ACHIEVEMENTS_CONTRACT_ADDRESS ||
-  '0x10667fF580e6fc2edfFC35991fACb05C2681E757';
+  '0x1336E381768c98c8A6e79d99Ec065684c41925A5';
 
 export const ACHIEVEMENTS_ABI = parseAbi([
-  'function claimAchievement(uint256 achievementId) external',
-  'function claimAchievements(uint256[] calldata achievementIds) external',
-  'function hasUserClaimed(address user, uint256 achievementId) view returns (bool)',
-  'function getUserAchievements(address user, uint256[] calldata ids) view returns (bool[])',
-  'function getAchievement(uint256 achievementId) view returns ((uint256 id, string name, string category, string uri, bool isActive, uint256 totalClaimed))',
-  'function totalAchievements() view returns (uint256)',
-  'function totalGlobalClaims() view returns (uint256)',
+  'function claim(uint256 id)',
+  'function claimFor(address account, uint256 id)',
+  'function claimAllFor(address account) returns (uint256)',
+  'function hasClaimed(address account, uint256 id) view returns (bool)',
+  'function isClaimable(address account, uint256 id) view returns (bool)',
+  'function statusOf(address account) view returns (uint256[] ids, bool[] claimed, bool[] claimable)',
+  'function progressOf(address account) view returns (uint256 longestStreak, uint256 vaultsJoined, uint256 largestStake)',
   'function balanceOf(address account, uint256 id) view returns (uint256)',
-  'function owner() view returns (address)',
-  'function transferOwnership(address newOwner) external',
-  'function paused() view returns (bool)',
-  'event AchievementClaimed(address indexed user, uint256 indexed achievementId, uint256 timestamp)',
-  'event TransferSingle(address indexed operator, address indexed from, address indexed to, uint256 id, uint256 value)',
-  'event TransferBatch(address indexed operator, address indexed from, address indexed to, uint256[] ids, uint256[] values)'
+  'event AchievementClaimed(address indexed account, uint256 indexed id, address indexed caller, bool granted)'
 ]);
 
 // Mapping string achievement ID to onchain uint256 ID

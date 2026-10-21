@@ -201,14 +201,13 @@ export function BaseAppProfileView(props) {
     ...storedVaults,
     ...claimRoundIds,
     ...liveRoundIds,
-    ...(isAdmin ? [1, 2, 3, 4, 5, 6] : [])
   ]);
 
   if (address && allParticipatedRoundIds.size > 0) {
     saveParticipatedVaults(address, Array.from(allParticipatedRoundIds));
   }
 
-  const totalStakingEpochs = STAKING_VAULTS_INFO.filter(v => allParticipatedRoundIds.has(v.roundId)).length || (isAdmin ? 6 : allParticipatedRoundIds.size);
+  const totalStakingEpochs = STAKING_VAULTS_INFO.filter(v => allParticipatedRoundIds.has(v.roundId)).length || allParticipatedRoundIds.size;
 
   // Maximum deposit amount into any single vault (in whole VIBE tokens) - permanently latched
   const liveMaxDeposit = (stakingStats?.participationByVault || []).reduce((max, p) => {
@@ -217,7 +216,7 @@ export function BaseAppProfileView(props) {
   }, 0);
 
   const storedMaxDeposit = getStoredHistoricalDeposit(address);
-  const maxSingleVaultDeposit = Math.max(liveMaxDeposit, storedMaxDeposit, (isAdmin ? 10000000 : 0));
+  const maxSingleVaultDeposit = Math.max(liveMaxDeposit, storedMaxDeposit);
 
   if (address && maxSingleVaultDeposit > 0) {
     updateStoredHistoricalDeposit(address, maxSingleVaultDeposit);
@@ -236,9 +235,13 @@ export function BaseAppProfileView(props) {
   // On-Chain Claimed state management for Active Dog & Dog Staker achievements (SBT)
   const {
     claimedMap,
+    claimableMap,
+    progress: achievementProgress,
     claimingId,
     claimAchievement: handleClaimAchievement
   } = useVibeAchievements(address);
+  // Staking epochs joined: deposits seen by the achievements contract (kept after withdrawal) or staking claims
+  const stakingEpochsShown = Math.max(totalStakingEpochs, achievementProgress.vaultsJoined || 0);
   const [activeAchievementTooltip, setActiveAchievementTooltip] = useState(null);
 
   useEffect(() => {
@@ -254,46 +257,22 @@ export function BaseAppProfileView(props) {
   const isNftHolderUnlocked = Boolean(hasNft && nftCount > 0);
 
   // 2. ACTIVE DOG (Streak check-in rules: 7, 14, 30 days) - permanently latched once met
-  const isStarterDogMet = Boolean(
-    address && (effectiveMaxStreak >= 7 || getMilestoneLatched(address, 'starter-dog'))
-  );
-  if (isStarterDogMet && address) latchMilestone(address, 'starter-dog');
+  const isStarterDogMet = Boolean(address && (claimedMap['starter-dog'] || claimableMap['starter-dog'])); // checked by the contract
 
-  const isLoyalDogMet = Boolean(
-    address && (effectiveMaxStreak >= 14 || getMilestoneLatched(address, 'loyal-dog'))
-  );
-  if (isLoyalDogMet && address) latchMilestone(address, 'loyal-dog');
+  const isLoyalDogMet = Boolean(address && (claimedMap['loyal-dog'] || claimableMap['loyal-dog'])); // checked by the contract
 
-  const isUltraActiveDogMet = Boolean(
-    address && (effectiveMaxStreak >= 30 || getMilestoneLatched(address, 'ultra-active-dog'))
-  );
-  if (isUltraActiveDogMet && address) latchMilestone(address, 'ultra-active-dog');
+  const isUltraActiveDogMet = Boolean(address && (claimedMap['ultra-active-dog'] || claimableMap['ultra-active-dog'])); // checked by the contract
 
   // 3. DOG STAKER (1, 3, 5 vaults, or single deposit 5M+ / 10M+ VIBE) - permanently latched once met
-  const isNoviceStakerMet = Boolean(
-    address && (totalStakingEpochs >= 1 || getMilestoneLatched(address, 'novice-staker'))
-  );
-  if (isNoviceStakerMet && address) latchMilestone(address, 'novice-staker');
+  const isNoviceStakerMet = Boolean(address && (claimedMap['novice-staker'] || claimableMap['novice-staker'])); // checked by the contract
 
-  const isConfidentBankerMet = Boolean(
-    address && (totalStakingEpochs >= 3 || getMilestoneLatched(address, 'confident-banker'))
-  );
-  if (isConfidentBankerMet && address) latchMilestone(address, 'confident-banker');
+  const isConfidentBankerMet = Boolean(address && (claimedMap['confident-banker'] || claimableMap['confident-banker'])); // checked by the contract
 
-  const isWolfOfWallStreetMet = Boolean(
-    address && (totalStakingEpochs >= 5 || getMilestoneLatched(address, 'wolf-of-wall-street'))
-  );
-  if (isWolfOfWallStreetMet && address) latchMilestone(address, 'wolf-of-wall-street');
+  const isWolfOfWallStreetMet = Boolean(address && (claimedMap['wolf-of-wall-street'] || claimableMap['wolf-of-wall-street'])); // checked by the contract
 
-  const isRichDogMet = Boolean(
-    address && (maxSingleVaultDeposit >= 5000000 || getMilestoneLatched(address, 'rich-dog'))
-  );
-  if (isRichDogMet && address) latchMilestone(address, 'rich-dog');
+  const isRichDogMet = Boolean(address && (claimedMap['rich-dog'] || claimableMap['rich-dog'])); // checked by the contract
 
-  const isBankFounderMet = Boolean(
-    address && (maxSingleVaultDeposit >= 10000000 || getMilestoneLatched(address, 'bank-founder'))
-  );
-  if (isBankFounderMet && address) latchMilestone(address, 'bank-founder');
+  const isBankFounderMet = Boolean(address && (claimedMap['bank-founder'] || claimableMap['bank-founder'])); // checked by the contract
 
   const REWARDS_ELIGIBILITY_ACHIEVEMENTS = [
     {
@@ -377,7 +356,7 @@ export function BaseAppProfileView(props) {
     {
       id: 'rich-dog',
       name: 'RICH DOG',
-      description: 'Deposit at least 5,000,000 $VIBE into any staking vault.',
+      description: 'Have at least 5,000,000 $VIBE staked in one staking vault when you claim.',
       image: '/achievements/RICH DOG.jfif',
       conditionMet: isRichDogMet,
       unlocked: Boolean(claimedMap['rich-dog']),
@@ -386,7 +365,7 @@ export function BaseAppProfileView(props) {
     {
       id: 'bank-founder',
       name: 'BANK FOUNDER',
-      description: 'Deposit at least 10,000,000 $VIBE into any staking vault.',
+      description: 'Have at least 10,000,000 $VIBE staked in one staking vault when you claim.',
       image: '/achievements/BANK FOUNDER.jfif',
       conditionMet: isBankFounderMet,
       unlocked: Boolean(claimedMap['bank-founder']),
@@ -632,7 +611,7 @@ export function BaseAppProfileView(props) {
                       +{totalStakingEarned > 0 ? Math.round(totalStakingEarned).toLocaleString('en-US') : '0'} $VIBE
                     </div>
                     <div className="profile-stat-sub" style={{ color: totalStakingEpochs > 0 ? '#d8b4fe' : '#88aacc', fontFamily: "'Press Start 2P', monospace" }}>
-                      {totalStakingEpochs} {totalStakingEpochs === 1 ? 'EPOCH' : 'EPOCHS'} PARTICIPATED
+                      {stakingEpochsShown} {stakingEpochsShown === 1 ? 'EPOCH' : 'EPOCHS'} PARTICIPATED
                     </div>
                   </div>
                 </div>
@@ -827,7 +806,7 @@ export function BaseAppProfileView(props) {
                 +{totalStakingEarned > 0 ? Math.round(totalStakingEarned).toLocaleString('en-US') : '0'} $VIBE
               </div>
               <div className="profile-stat-sub" style={{ fontSize: '5.5px', color: totalStakingEpochs > 0 ? '#d8b4fe' : '#88aacc', fontFamily: "'Press Start 2P', monospace" }}>
-                {totalStakingEpochs} {totalStakingEpochs === 1 ? 'EPOCH' : 'EPOCHS'} PARTICIPATED
+                {stakingEpochsShown} {stakingEpochsShown === 1 ? 'EPOCH' : 'EPOCHS'} PARTICIPATED
               </div>
             </div>
           </div>

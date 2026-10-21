@@ -42,6 +42,8 @@ Merkle reward rounds, deployed twice on Base (owner 0x4c91D3BEd372C11795b9Ce9a90
 
 ### VibeAchievementsV2
 
+Deployed on Base at 0x1336E381768c98c8A6e79d99Ec065684c41925A5 (owner 0x4c91...050a, verified on Sourcify).
+
 Soulbound achievements (ERC-1155 ids 1-8, one per wallet, transfers and approvals revert). The contract
 checks each condition from onchain data:
 
