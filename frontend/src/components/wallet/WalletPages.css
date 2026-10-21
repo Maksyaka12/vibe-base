@@ -1,0 +1,568 @@
+/* Wallet and Account pages. One layout, two palettes: .vwp-o1 maps onto the o1 tokens, .vwp-pixel onto the pixel theme. */
+.vwp-o1 {
+  --vwp-surface: var(--surface);
+  --vwp-surface-2: var(--surface-2);
+  --vwp-border: var(--border);
+  --vwp-text: var(--text);
+  --vwp-text-2: var(--text-2);
+  --vwp-text-3: var(--text-3);
+  --vwp-accent: var(--accent);
+  --vwp-accent-soft: var(--accent-soft);
+  --vwp-on-accent: #0b0d10;
+  --vwp-green: var(--green);
+  --vwp-red: var(--red);
+  --vwp-radius: 16px;
+  --vwp-radius-sm: 10px;
+  --vwp-font: var(--font-sans);
+  --vwp-mono: var(--font-mono);
+  --vwp-title-font: var(--font-sans);
+  --vwp-title-size: 16px;
+  --vwp-shadow: none;
+}
+
+.vwp-pixel {
+  --vwp-surface: linear-gradient(180deg, rgba(6, 26, 60, 0.95) 0%, rgba(2, 11, 26, 0.98) 100%);
+  --vwp-surface-2: rgba(0, 245, 255, 0.06);
+  --vwp-border: rgba(0, 245, 255, 0.35);
+  --vwp-text: #ffffff;
+  --vwp-text-2: #cbd5e1;
+  --vwp-text-3: #88aacc;
+  --vwp-accent: #00f5ff;
+  --vwp-accent-soft: rgba(0, 245, 255, 0.12);
+  --vwp-on-accent: #020b1a;
+  --vwp-green: #00ff88;
+  --vwp-red: #ff4d6d;
+  --vwp-radius: 18px;
+  --vwp-radius-sm: 12px;
+  --vwp-font: 'Inter', sans-serif;
+  --vwp-mono: ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  --vwp-title-font: 'Press Start 2P', monospace;
+  --vwp-title-size: 10px;
+  --vwp-shadow: 0 8px 32px rgba(0, 0, 0, 0.8), 0 0 16px rgba(0, 245, 255, 0.15);
+}
+
+.vwp {
+  max-width: 560px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  font-family: var(--vwp-font);
+  color: var(--vwp-text);
+  box-sizing: border-box;
+}
+
+.vwp *,
+.vwp *::before,
+.vwp *::after {
+  box-sizing: border-box;
+}
+
+.vwp-card {
+  background: var(--vwp-surface);
+  border: 1px solid var(--vwp-border);
+  border-radius: var(--vwp-radius);
+  box-shadow: var(--vwp-shadow);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.vwp-pixel .vwp-card {
+  border-width: 1.5px;
+}
+
+.vwp-empty {
+  text-align: center;
+  color: var(--vwp-text-2);
+  padding: 32px 20px;
+}
+
+.vwp-muted {
+  color: var(--vwp-text-3);
+  font-size: 12px;
+}
+
+.vwp-sub {
+  margin-top: -6px;
+  line-height: 1.45;
+}
+
+.vwp-mono {
+  font-family: var(--vwp-mono);
+  font-size: 12px;
+}
+
+.vwp-total {
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  margin-top: -6px;
+}
+
+.vwp-pixel .vwp-total {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 22px;
+  letter-spacing: 0;
+  margin-top: 0;
+}
+
+.vwp-section-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--vwp-text-2);
+  margin-top: 4px;
+}
+
+.vwp-card-title {
+  font-family: var(--vwp-title-font);
+  font-size: var(--vwp-title-size);
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.vwp-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.vwp-address-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.vwp-address-line a {
+  text-decoration: none;
+}
+
+.vwp-address-line a:hover {
+  color: var(--vwp-text);
+}
+
+.vwp-hint {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--vwp-text-3);
+}
+
+.vwp-wallets {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.vwp-wallet-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: var(--vwp-radius-sm);
+  border: 1px solid var(--vwp-border);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.vwp-wallet-row:disabled,
+.vwp-wallet-row.static {
+  cursor: default;
+}
+
+.vwp-wallet-row:not(:disabled):not(.static):hover {
+  background: var(--vwp-surface-2);
+}
+
+.vwp-wallet-row.on {
+  border-color: var(--vwp-accent);
+  background: var(--vwp-accent-soft);
+}
+
+.vwp-wallet-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--vwp-accent-soft);
+  color: var(--vwp-accent);
+}
+
+.vwp-wallet-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.vwp-wallet-text .vwp-muted {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vwp-wallet-name {
+  font-size: 14px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.vwp-wallet-value {
+  font-size: 14px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.vwp-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 99px;
+  color: var(--vwp-accent);
+  background: var(--vwp-accent-soft);
+  border: 1px solid var(--vwp-accent);
+}
+
+.vwp-tokens {
+  display: flex;
+  flex-direction: column;
+}
+
+.vwp-token-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px solid var(--vwp-border);
+}
+
+.vwp-token-row:first-child {
+  border-top: 0;
+}
+
+.vwp-token-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.vwp-token-text,
+.vwp-token-amount {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.vwp-token-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.vwp-token-name {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.vwp-token-amount {
+  text-align: right;
+  font-size: 14px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.vwp-actions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.vwp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 14px;
+  border-radius: var(--vwp-radius-sm);
+  border: 1px solid var(--vwp-border);
+  background: var(--vwp-surface-2);
+  color: var(--vwp-text);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+
+.vwp-pixel .vwp-btn {
+  background: rgba(0, 245, 255, 0.06);
+}
+
+.vwp-btn:hover:not(:disabled) {
+  border-color: var(--vwp-accent);
+}
+
+.vwp-btn.on {
+  border-color: var(--vwp-accent);
+  background: var(--vwp-accent-soft);
+}
+
+.vwp-btn-primary,
+.vwp-pixel .vwp-btn-primary {
+  background: var(--vwp-accent);
+  border-color: var(--vwp-accent);
+  color: var(--vwp-on-accent);
+}
+
+.vwp-btn-primary:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+.vwp-btn-primary.on {
+  background: var(--vwp-accent);
+  box-shadow: 0 0 0 3px var(--vwp-accent-soft);
+}
+
+.vwp-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.vwp-btn-sm {
+  height: 32px;
+  padding: 0 10px;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.vwp-btn-full {
+  width: 100%;
+}
+
+.vwp-icon-btn {
+  background: none;
+  border: 0;
+  padding: 2px;
+  color: var(--vwp-text-3);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+}
+
+.vwp-icon-btn:hover {
+  color: var(--vwp-text);
+}
+
+.vwp-link {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--vwp-accent);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.vwp-address-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: var(--vwp-radius-sm);
+  border: 1px solid var(--vwp-border);
+  background: var(--vwp-surface-2);
+  word-break: break-all;
+}
+
+.vwp-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.vwp-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.vwp-field > span {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--vwp-text-2);
+}
+
+.vwp-field input,
+.vwp-field select {
+  height: 44px;
+  padding: 0 12px;
+  border-radius: var(--vwp-radius-sm);
+  border: 1px solid var(--vwp-border);
+  background: var(--vwp-surface-2);
+  color: var(--vwp-text);
+  font: inherit;
+  font-size: 14px;
+  min-width: 0;
+  outline: none;
+}
+
+.vwp-field input:focus,
+.vwp-field select:focus {
+  border-color: var(--vwp-accent);
+}
+
+.vwp-field select option {
+  color: #111;
+}
+
+.vwp-amount {
+  display: flex;
+  gap: 8px;
+}
+
+.vwp-amount input {
+  flex: 1;
+}
+
+.vwp-amount select {
+  width: 96px;
+}
+
+.vwp-notice {
+  font-size: 12px;
+}
+
+.vwp-notice.ok {
+  color: var(--vwp-green);
+}
+
+.vwp-notice.err {
+  color: var(--vwp-red);
+}
+
+.vwp-identity {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+}
+
+.vwp-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--vwp-border);
+}
+
+.vwp-handle {
+  font-family: var(--vwp-title-font);
+  font-size: calc(var(--vwp-title-size) + 2px);
+  font-weight: 700;
+}
+
+@media (max-width: 480px) {
+  .vwp-card {
+    padding: 16px;
+  }
+
+  .vwp-actions {
+    gap: 8px;
+  }
+
+  .vwp-btn {
+    padding: 0 8px;
+    font-size: 13px;
+  }
+}
+
+/* Sidebar wallet menu */
+.vwp-menu-wrap {
+  position: relative;
+}
+
+.vwp-menu {
+  position: absolute;
+  z-index: 1000;
+  min-width: 190px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border-radius: 12px;
+  border: 1px solid var(--vwp-border);
+  background: var(--vwp-menu-bg, #16191e);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+  font-family: var(--vwp-font);
+}
+
+.vwp-pixel .vwp-menu {
+  --vwp-menu-bg: #041430;
+  border-width: 1.5px;
+}
+
+.vwp-menu-up {
+  left: 0;
+  right: 0;
+  bottom: calc(100% + 8px);
+}
+
+.vwp-menu-right {
+  left: calc(100% + 10px);
+  bottom: 0;
+}
+
+.vwp-menu button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  height: 38px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--vwp-text);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+}
+
+.vwp-menu button:hover {
+  background: var(--vwp-accent-soft);
+}
+
+.vwp-menu button.danger {
+  color: var(--vwp-red);
+}
+
+.vwp-menu-sep {
+  height: 1px;
+  margin: 4px 6px;
+  background: var(--vwp-border);
+}

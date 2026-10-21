@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { X, Gift, Coins, Crown, LogOut, Wallet, Check, Copy, User, ArrowLeftRight, TrendingUp, FileCode2, ChevronDown, ArrowUpRight, ShieldCheck } from 'lucide-react';
+import { X, Gift, Coins, Crown, LogOut, Wallet, Check, Copy, User, ArrowLeftRight, TrendingUp, FileCode2, ChevronDown, ArrowUpRight, ShieldCheck, ChevronUp } from 'lucide-react';
 import { usePrivy, useWallets } from '@privy-io/react-auth';
 import { useAccount, useDisconnect } from 'wagmi';
 import { useVibeWallets } from '../../../hooks/useVibeWallets';
+import WalletMenu from '../../../components/wallet/WalletMenu';
 
 const ADMIN_WALLET = '0x4c91d3bed372c11795b9ce9a9017dfe447bf050a';
 
@@ -92,10 +93,16 @@ export function BaseAppSidebar({
   const [isDexOpen, setIsDexOpen] = useState(true);
   const [isSocialsOpen, setIsSocialsOpen] = useState(true);
 
-  const { activeAddress: vibeActiveAddress } = useVibeWallets();
+  const { activeAddress: vibeActiveAddress, mainAddress, hasAgentWallet, active } = useVibeWallets();
   const activeAddress = vibeActiveAddress || wallets?.[0]?.address || wagmiAddress;
   const hasWallet = (authenticated && !!activeAddress) || (isWagmiConnected && !!wagmiAddress);
-  const isAdmin = hasWallet && !!activeAddress && activeAddress.toLowerCase() === ADMIN_WALLET.toLowerCase();
+  const adminAddress = mainAddress || activeAddress;
+  const isAdmin = hasWallet && !!adminAddress && adminAddress.toLowerCase() === ADMIN_WALLET.toLowerCase();
+
+  const selectFromMenu = (tab) => {
+    onSelectTab(tab);
+    if (!isDesktop) onClose();
+  };
 
   const handleCopy = () => {
     if (!activeAddress) return;
@@ -118,6 +125,11 @@ export function BaseAppSidebar({
       id: 'profile',
       name: 'Profile',
       icon: <User size={isDesktop ? 15 : 13} strokeWidth={2.5} />
+    },
+    {
+      id: 'wallet',
+      name: 'Wallet',
+      icon: <Wallet size={isDesktop ? 15 : 13} strokeWidth={2.5} />
     },
     {
       id: 'buy',
@@ -805,9 +817,10 @@ export function BaseAppSidebar({
           {hasWallet ? (
             isCollapsed ? (
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                <WalletMenu theme="pixel" side="right" onSelect={selectFromMenu} onLogout={handleDisconnect} trigger={(toggle) => (
                 <button
-                  onClick={handleCopy}
-                  title={`Active Wallet: ${activeAddress} (Click to Copy)`}
+                  onClick={toggle}
+                  title={`Wallet: ${activeAddress}`}
                   style={{
                     width: '38px',
                     height: '38px',
@@ -822,8 +835,9 @@ export function BaseAppSidebar({
                     boxShadow: '0 0 10px rgba(0, 255, 136, 0.2)'
                   }}
                 >
-                  {copied ? <Check size={15} color="#00ff88" /> : <Wallet size={15} color="#00ff88" />}
+                  <Wallet size={15} color="#00ff88" />
                 </button>
+                )} />
                 <button
                   onClick={handleDisconnect}
                   title="Disconnect Wallet"
@@ -845,6 +859,7 @@ export function BaseAppSidebar({
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <WalletMenu theme="pixel" side="up" onSelect={selectFromMenu} onLogout={handleDisconnect} trigger={(toggle, menuOpen) => (
                 <div
                   style={{
                     background: 'rgba(4, 14, 36, 0.9)',
@@ -856,7 +871,13 @@ export function BaseAppSidebar({
                     justifyContent: 'space-between'
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <button
+                    type="button"
+                    onClick={toggle}
+                    title="Account and wallet"
+                    aria-expanded={menuOpen}
+                    style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: 0, background: 'transparent', border: 'none', padding: 0, cursor: 'pointer' }}
+                  >
                     <img
                       src="/new-logo-vibe.png"
                       alt="avatar"
@@ -865,7 +886,11 @@ export function BaseAppSidebar({
                     <span style={{ fontSize: isDesktop ? '8.5px' : '7px', fontWeight: 900, color: '#00ff88' }}>
                       {shortAddress(activeAddress)}
                     </span>
-                  </div>
+                    {hasAgentWallet && active === 'agent' && (
+                      <span style={{ fontSize: '6.5px', fontWeight: 900, color: '#00f5ff', border: '1px solid rgba(0, 245, 255, 0.45)', borderRadius: '4px', padding: '2px 4px', fontFamily: "'Press Start 2P', monospace" }}>AGENT</span>
+                    )}
+                    <ChevronUp size={13} color="#00f5ff" style={{ marginLeft: 'auto', transform: menuOpen ? 'none' : 'rotate(180deg)', transition: 'transform 0.15s ease' }} />
+                  </button>
 
                   <button
                     onClick={handleCopy}
@@ -883,6 +908,7 @@ export function BaseAppSidebar({
                     {copied ? <Check size={14} /> : <Copy size={14} />}
                   </button>
                 </div>
+                )} />
 
                 <button
                   onClick={handleDisconnect}

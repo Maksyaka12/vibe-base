@@ -6,7 +6,6 @@ import { getPublicClient } from '../../../config/rpc';
 import { STAKING_CONTRACT, STAKING_VAULTS_INFO } from '../Checker';
 import { useVibeCheckIn } from '../../../hooks/useVibeCheckIn';
 import { useVibeAchievements } from '../../../hooks/useVibeAchievements';
-import AgentWalletPanel from '../../../components/AgentWalletPanel';
 import { Button, Card, Badge, PageHeader, SectionTitle } from './ui';
 
 const ADMIN_WALLET = '0x4c91d3bed372c11795b9ce9a9017dfe447bf050a';
@@ -474,11 +473,6 @@ export function BaseAppProfileView(props) {
               )}
             </div>
           </Card>
-          {address && (
-            <Card className="o1-agent-wallet-card" style={{ marginTop: 16, padding: 16 }}>
-              <AgentWalletPanel />
-            </Card>
-          )}
         </div>
 
         {/* ── Right Column: Stacked Sections ── */}

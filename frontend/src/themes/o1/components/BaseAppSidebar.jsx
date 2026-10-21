@@ -15,11 +15,13 @@ import {
   ChevronDown,
   ArrowUpRight,
   Shield,
-  Send
+  Send,
+  ChevronUp
 } from 'lucide-react';
 import { usePrivy, useWallets } from '@privy-io/react-auth';
 import { useAccount, useDisconnect } from 'wagmi';
 import { useVibeWallets } from '../../../hooks/useVibeWallets';
+import WalletMenu from '../../../components/wallet/WalletMenu';
 
 const ADMIN_WALLET = '0x4c91d3bed372c11795b9ce9a9017dfe447bf050a';
 
@@ -94,10 +96,16 @@ export function BaseAppSidebar({
   const [isDexOpen, setIsDexOpen] = useState(true);
   const [isSocialsOpen, setIsSocialsOpen] = useState(true);
 
-  const { activeAddress: vibeActiveAddress } = useVibeWallets();
+  const { activeAddress: vibeActiveAddress, mainAddress, hasAgentWallet, active } = useVibeWallets();
   const activeAddress = vibeActiveAddress || wallets?.[0]?.address || wagmiAddress;
   const hasWallet = (authenticated && !!activeAddress) || (isWagmiConnected && !!wagmiAddress);
-  const isAdmin = hasWallet && !!activeAddress && activeAddress.toLowerCase() === ADMIN_WALLET.toLowerCase();
+  const adminAddress = mainAddress || activeAddress;
+  const isAdmin = hasWallet && !!adminAddress && adminAddress.toLowerCase() === ADMIN_WALLET.toLowerCase();
+
+  const selectFromMenu = (tab) => {
+    onSelectTab(tab);
+    if (!isDesktop) onClose();
+  };
 
   const handleCopy = () => {
     if (!activeAddress) return;
@@ -116,6 +124,7 @@ export function BaseAppSidebar({
 
   const appMenuItems = [
     { id: 'profile', name: 'Profile', icon: <User size={18} strokeWidth={1.75} /> },
+    { id: 'wallet', name: 'Wallet', icon: <Wallet size={18} strokeWidth={1.75} /> },
     { id: 'buy', name: 'Swap', icon: <ArrowLeftRight size={18} strokeWidth={1.75} /> },
     { id: 'vibeclub', name: 'Vibe Club NFT', icon: <Crown size={18} strokeWidth={1.75} /> },
     { id: 'hub', name: 'Rewards Hub', icon: <Gift size={18} strokeWidth={1.75} /> },
@@ -721,8 +730,9 @@ export function BaseAppSidebar({
 
           {hasWallet ? (
             isCollapsed ? (
+              <WalletMenu theme="o1" side="right" onSelect={selectFromMenu} onLogout={handleDisconnect} trigger={(toggle) => (
               <button
-                onClick={handleCopy}
+                onClick={toggle}
                 title={`Wallet: ${activeAddress}`}
                 style={{
                   width: '40px',
@@ -738,9 +748,11 @@ export function BaseAppSidebar({
                   margin: '0 auto'
                 }}
               >
-                {copied ? <Check size={16} color="var(--green)" /> : <Wallet size={16} />}
+                <Wallet size={16} />
               </button>
+              )} />
             ) : (
+              <WalletMenu theme="o1" side="up" onSelect={selectFromMenu} onLogout={handleDisconnect} trigger={(toggle, menuOpen) => (
               <div
                 style={{
                   height: '40px',
@@ -754,7 +766,13 @@ export function BaseAppSidebar({
                   gap: '8px'
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
+                <button
+                  type="button"
+                  onClick={toggle}
+                  title="Account and wallet"
+                  aria-expanded={menuOpen}
+                  style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0, flex: 1, height: '100%', background: 'transparent', border: 'none', padding: 0, cursor: 'pointer' }}
+                >
                   <div
                     style={{
                       width: '8px',
@@ -774,7 +792,11 @@ export function BaseAppSidebar({
                   >
                     {shortAddress(activeAddress)}
                   </span>
-                </div>
+                  {hasAgentWallet && active === 'agent' && (
+                    <span style={{ fontSize: '10px', fontWeight: 600, color: 'var(--accent)', background: 'var(--accent-soft)', borderRadius: '99px', padding: '1px 6px' }}>Agent</span>
+                  )}
+                  <ChevronUp size={14} color="var(--text-3)" style={{ marginLeft: 'auto', transform: menuOpen ? 'none' : 'rotate(180deg)', transition: 'transform 0.15s ease' }} />
+                </button>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                   <button
                     onClick={handleCopy}
@@ -816,6 +838,7 @@ export function BaseAppSidebar({
                   </button>
                 </div>
               </div>
+              )} />
             )
           ) : (
             <button

@@ -7,6 +7,8 @@ import Checker from '../Checker';
 import NftClubPage from '../pages/NftClubPage';
 import DeFiVibePanel from './DeFiVibePanel';
 import TokenomicsPage from '../pages/TokenomicsPage';
+import WalletPage from '../../../components/wallet/WalletPage';
+import AccountPage from '../../../components/wallet/AccountPage';
 import ContractsPage from '../pages/ContractsPage';
 import BaseAppAdminView from './BaseAppAdminView';
 import { PageHeader } from './ui';
@@ -110,6 +112,8 @@ export function BaseAppView({ RewardsComponent }) {
     if (path.includes('claim') || path.includes('checker') || path.includes('portal')) return 'claim';
     if (path.includes('vibeclub') || path.includes('vibe-club') || path.includes('mint') || path.includes('nft') || path.includes('nft-club')) return 'vibeclub';
     if (path.includes('profile') || path.includes('dashboard')) return 'profile';
+    if (path.includes('wallet')) return 'wallet';
+    if (path.includes('account')) return 'account';
     if (path.includes('tokenomics')) return 'tokenomics';
     if (path.includes('contracts') || path.includes('adresses') || path.includes('addresses') || path.includes('docs')) return 'contracts';
     if (path.includes('hub') || path.includes('rewards') || path.includes('events')) return 'hub';
@@ -140,6 +144,8 @@ export function BaseAppView({ RewardsComponent }) {
       navigate(prefix ? '/app/claim' : '/claim', { replace: false });
     } else if (tabId === 'vibeclub') {
       navigate(prefix ? '/app/vibeclub' : '/vibeclub', { replace: false });
+    } else if (tabId === 'wallet' || tabId === 'account') {
+      navigate(`${prefix}/${tabId}`, { replace: false });
     } else if (tabId === 'profile') {
       navigate(prefix ? '/app/profile' : '/profile', { replace: false });
     } else if (tabId === 'tokenomics') {
@@ -246,6 +252,26 @@ export function BaseAppView({ RewardsComponent }) {
                     description="Verified smart contracts and operational protocol addresses on Base"
                   />
                   <ContractsPage isBaseAppMode={true} />
+                </div>
+              </section>
+            ) : activeTab === 'wallet' ? (
+              <section style={{ padding: '24px 0 60px 0' }}>
+                <div style={{ maxWidth: '560px', margin: '0 auto', padding: '0 14px' }}>
+                  <PageHeader
+                    title="Wallet"
+                    description="Balances, deposits and transfers for your Vibe Hub wallets"
+                  />
+                  <WalletPage theme="o1" onSwap={() => handleSelectTab('buy')} />
+                </div>
+              </section>
+            ) : activeTab === 'account' ? (
+              <section style={{ padding: '24px 0 60px 0' }}>
+                <div style={{ maxWidth: '560px', margin: '0 auto', padding: '0 14px' }}>
+                  <PageHeader
+                    title="Account"
+                    description="Your identity, wallets and linked logins"
+                  />
+                  <AccountPage theme="o1" onOpenWallet={() => handleSelectTab('wallet')} />
                 </div>
               </section>
             ) : activeTab === 'admin' ? (

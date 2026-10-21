@@ -7,6 +7,8 @@ import Checker from '../Checker';
 import NftClubPage from '../pages/NftClubPage';
 import DeFiVibePanel from './DeFiVibePanel';
 import TokenomicsPage from '../pages/TokenomicsPage';
+import WalletPage from '../../../components/wallet/WalletPage';
+import AccountPage from '../../../components/wallet/AccountPage';
 import ContractsPage from '../pages/ContractsPage';
 import BaseAppAdminView from './BaseAppAdminView';
 import './BaseAppTheme.css';
@@ -109,6 +111,8 @@ export function BaseAppView({ RewardsComponent }) {
     if (path.includes('claim') || path.includes('checker') || path.includes('portal')) return 'claim';
     if (path.includes('vibeclub') || path.includes('vibe-club') || path.includes('mint') || path.includes('nft') || path.includes('nft-club')) return 'vibeclub';
     if (path.includes('profile') || path.includes('dashboard')) return 'profile';
+    if (path.includes('wallet')) return 'wallet';
+    if (path.includes('account')) return 'account';
     if (path.includes('tokenomics')) return 'tokenomics';
     if (path.includes('contracts') || path.includes('adresses') || path.includes('addresses') || path.includes('docs')) return 'contracts';
     if (path.includes('hub') || path.includes('rewards') || path.includes('events')) return 'hub';
@@ -139,6 +143,8 @@ export function BaseAppView({ RewardsComponent }) {
       navigate(prefix ? '/app/claim' : '/claim', { replace: false });
     } else if (tabId === 'vibeclub') {
       navigate(prefix ? '/app/vibeclub' : '/vibeclub', { replace: false });
+    } else if (tabId === 'wallet' || tabId === 'account') {
+      navigate(`${prefix}/${tabId}`, { replace: false });
     } else if (tabId === 'profile') {
       navigate(prefix ? '/app/profile' : '/profile', { replace: false });
     } else if (tabId === 'tokenomics') {
@@ -334,6 +340,26 @@ export function BaseAppView({ RewardsComponent }) {
               <TokenomicsPage isBaseAppMode={true} />
             ) : activeTab === 'contracts' ? (
               <ContractsPage isBaseAppMode={true} />
+            ) : activeTab === 'wallet' ? (
+              <section style={{ padding: '24px 0 60px 0' }}>
+                <div style={{ maxWidth: '560px', margin: '0 auto', padding: '0 14px' }}>
+                  <div className="rewards-hero-header" style={{ textAlign: 'center', marginBottom: '20px', padding: '12px 8px 8px 8px' }}>
+                    <h2 className="rewards-hero-title" style={{ fontSize: '18px', margin: '0 0 10px 0', color: '#ffffff', fontFamily: "'Press Start 2P', monospace", lineHeight: 1.3 }}>WALLET</h2>
+                    <p style={{ margin: 0, fontSize: '12px', color: '#88aacc' }}>Balances, deposits and transfers for your Vibe Hub wallets</p>
+                  </div>
+                  <WalletPage theme="pixel" onSwap={() => handleSelectTab('buy')} />
+                </div>
+              </section>
+            ) : activeTab === 'account' ? (
+              <section style={{ padding: '24px 0 60px 0' }}>
+                <div style={{ maxWidth: '560px', margin: '0 auto', padding: '0 14px' }}>
+                  <div className="rewards-hero-header" style={{ textAlign: 'center', marginBottom: '20px', padding: '12px 8px 8px 8px' }}>
+                    <h2 className="rewards-hero-title" style={{ fontSize: '18px', margin: '0 0 10px 0', color: '#ffffff', fontFamily: "'Press Start 2P', monospace", lineHeight: 1.3 }}>ACCOUNT</h2>
+                    <p style={{ margin: 0, fontSize: '12px', color: '#88aacc' }}>Your identity, wallets and linked logins</p>
+                  </div>
+                  <AccountPage theme="pixel" onOpenWallet={() => handleSelectTab('wallet')} />
+                </div>
+              </section>
             ) : activeTab === 'admin' ? (
               <BaseAppAdminView />
             ) : (
