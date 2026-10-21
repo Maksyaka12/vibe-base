@@ -16,7 +16,8 @@ import royalty5Data from '../../../data/royalty_5_proofs.json';
 import { Card, Tile, Button, Alert } from './ui';
 import { AdminScheduleEditor } from './AdminScheduleEditor';
 import { AdminSnapshotTool } from './AdminSnapshotTool';
-import { HOLDER_ROUNDS, VIBECLUB_ROUNDS } from '../../../data/rewardsSchedule';
+import { HOLDER_ROUNDS, VIBECLUB_ROUNDS, SCHEDULE } from '../../../data/rewardsSchedule';
+import { VIBE_ACHIEVEMENTS_CONTRACT_ADDRESS } from '../../../config/achievements';
 import { roundProofs } from '../../../data/claimRounds';
 import { distributorFor, rootCall, rootFromResult, withdrawCalldata, V2_ABI } from '../../../config/distributors';
 
@@ -87,6 +88,78 @@ function RoundStatus({ metrics, label }) {
     <Alert tone={tone} icon={tone === 'success' ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}>
       {text}{windowText}
     </Alert>
+  );
+}
+
+// Staking vaults the achievements contract counts (participation and stake). Every new staking epoch's vault
+// has to be added once, otherwise deposits into it do not count for the staking achievements.
+const ACHIEVEMENT_VAULTS_ABI = parseAbi([
+  'function isVault(bytes32) view returns (bool)',
+  'function addVault(bytes32 vaultId)'
+]);
+
+function AchievementVaultsCard({ sendAdminTx }) {
+  const [rows, setRows] = useState([]);
+  const [busy, setBusy] = useState('');
+  const [message, setMessage] = useState('');
+
+  const load = useCallback(async () => {
+    const epochs = SCHEDULE.staking.filter((e) => /^0x[0-9a-fA-F]{64}$/.test(e.vaultId || ''));
+    const results = await publicClient.multicall({
+      contracts: epochs.map((e) => ({ address: VIBE_ACHIEVEMENTS_CONTRACT_ADDRESS, abi: ACHIEVEMENT_VAULTS_ABI, functionName: 'isVault', args: [e.vaultId] })),
+      allowFailure: true
+    });
+    setRows(epochs.map((e, i) => ({ epoch: e.epoch, vaultId: e.vaultId, counted: results[i]?.status === 'success' ? results[i].result : null })));
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  const add = async (row) => {
+    setBusy(row.vaultId);
+    setMessage('');
+    try {
+      await sendAdminTx(VIBE_ACHIEVEMENTS_CONTRACT_ADDRESS, encodeFunctionData({ abi: ACHIEVEMENT_VAULTS_ABI, functionName: 'addVault', args: [row.vaultId] }));
+      setMessage(`Epoch ${row.epoch} vault added to the achievements contract`);
+      setTimeout(load, 3000);
+    } catch (e) {
+      setMessage(e?.shortMessage || e?.message || 'Transaction failed');
+    } finally {
+      setBusy('');
+    }
+  };
+
+  const missing = rows.filter((r) => r.counted === false);
+  const withoutVault = SCHEDULE.staking.filter((e) => !e.vaultId && new Date(e.start) <= new Date());
+  return (
+    <Card style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text)' }}>Staking vaults in achievements</span>
+      <span style={{ fontSize: '12px', color: 'var(--text-3)' }}>
+        Staking achievements only count the vaults registered in the achievements contract. Add each new epoch's vault once (vault ID from the schedule above).
+      </span>
+      {withoutVault.length > 0 && (
+        <Alert tone="warn" icon={<AlertCircle size={16} />}>
+          {withoutVault.map((e) => `Epoch ${e.epoch}`).join(', ')} started but has no vault ID in the schedule yet. Add the o1 vault ID in the schedule first.
+        </Alert>
+      )}
+      {rows.map((r) => (
+        <div key={r.vaultId} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', fontSize: '12px' }}>
+          <span style={{ color: 'var(--text-2)' }}>
+            Epoch {r.epoch} · <span style={{ fontFamily: 'var(--mono)' }}>{r.vaultId.slice(0, 10)}…{r.vaultId.slice(-6)}</span>
+          </span>
+          {r.counted ? (
+            <span style={{ color: 'var(--green)' }}>Counted</span>
+          ) : r.counted === false ? (
+            <Button variant="primary" size="sm" disabled={Boolean(busy)} onClick={() => add(r)}>
+              {busy === r.vaultId ? 'Adding…' : 'Add to achievements'}
+            </Button>
+          ) : (
+            <span style={{ color: 'var(--text-3)' }}>…</span>
+          )}
+        </div>
+      ))}
+      {missing.length === 0 && rows.length > 0 && <span style={{ fontSize: '12px', color: 'var(--green)' }}>All scheduled vaults are counted.</span>}
+      {message && <span style={{ fontSize: '12px', color: 'var(--text-2)' }}>{message}</span>}
+    </Card>
   );
 }
 
@@ -825,7 +898,12 @@ export function BaseAppAdminView() {
         </button>
       </div>
 
-      {activeTab === 'schedule' && <AdminScheduleEditor activeAddress={activeAddress} wallets={wallets} />}
+      {activeTab === 'schedule' && (
+        <>
+          <AdminScheduleEditor activeAddress={activeAddress} wallets={wallets} />
+          <AchievementVaultsCard sendAdminTx={sendAdminTx} />
+        </>
+      )}
       {activeTab === 'snapshots' && (
         <AdminSnapshotTool
           activeAddress={activeAddress}
