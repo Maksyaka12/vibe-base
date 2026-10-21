@@ -185,6 +185,245 @@ export async function handleClaims({ method, query = {} }) {
   }
 }
 
+// ─────────────────────────────── /api/agent ───────────────────────────────
+
+/** Entry point for agents: what they can do, where, and how transactions are returned. */
+export async function handleAgentIndex({ method }) {
+  if (method !== 'GET') return json(405, { error: 'Method not allowed' }, { Allow: 'GET' });
+  return json(200, {
+    name: 'Vibe Hub agent API',
+    chain: { name: 'Base', chainId: 8453 },
+    howItWorks: 'Read-only, no login. Endpoints return state plus ready transactions { to, data, value, sender } that the agent signs and sends from its own wallet on Base. sender "any" means any wallet may send it (the result still goes to the address in the request).',
+    endpoints: {
+      'GET /api/status?address=': 'Wallet overview: $VIBE balance, Vibe Club NFTs, daily check-in (with checkIn tx), achievements with progress (with claimAllFor tx), current staking epoch.',
+      'GET /api/claims?address=': 'Holder rewards and Vibe Club royalties: every round with an allocation, its claim window, status and claim tx.',
+      'GET /api/staking?address=[&deposit=amount]': 'o1 staking vaults: stake, lots, claimable rewards (claim tx), unlocked lots (withdraw tx), and approve + deposit txs into the open vault.',
+      'GET /api/swap?address=&side=buy|sell&amount=[&slippage=1]': 'Swap ETH <-> $VIBE through KyberSwap: quote and ready txs (approve first when selling).',
+    },
+    rules: {
+      rewards: 'Snapshot at 00:00 UTC on the round day, claim opens at 14:00 UTC, closes at 00:00 UTC on the next snapshot day. Expired rounds cannot be claimed.',
+      achievements: 'Soulbound; the contract checks streak (check-in), staking vaults joined and current stake itself.',
+      checkIn: 'Once per UTC day; the streak continues when the previous check-in was the day before.',
+    },
+    contracts: {
+      vibeToken: VIBE_TOKEN,
+      vibeClubNft: VIBE_CLUB_NFT,
+      dailyCheckIn: CHECK_IN,
+      achievements: ACHIEVEMENTS,
+      staking: '0x6f25a9e1e677616c1bF7ab54b470b0c82839Adb4',
+      holderRewards: { v1: distributorFor('holder', 1)?.address, v2: distributorFor('holder', 99)?.address },
+      royalties: { v1: distributorFor('royalty', 1)?.address, v2: distributorFor('royalty', 99)?.address },
+    },
+  }, { 'Cache-Control': 'public, max-age=300' });
+}
+
+// ─────────────────────────────── /api/staking ───────────────────────────────
+
+const STAKING = '0x6f25a9e1e677616c1bF7ab54b470b0c82839Adb4';
+const STAKING_ABI = parseAbi([
+  'function getVault(bytes32 vaultId) view returns (((address stakingToken, address rewardCurrency, uint64 startTime, uint64 epochDuration, uint64 epochCount, uint192 rewardPerEpoch, uint8 earlyExitMode, uint16 penaltyBps) config, address creator, uint64 endTime, uint192 totalStaked, uint256 rewardRemaining) vault, uint64 depositOpenTime)',
+  'function getUserState(bytes32 vaultId, address user) view returns (uint64 nextLotId, uint192 totalStaked, uint16 penaltyRemainder)',
+  'function getUserLots(bytes32 vaultId, address user, uint64 cursor, uint64 limit) view returns ((uint192 remainingAmount, uint64 eligibleAt, uint64 unlockAt)[] lots, uint64 nextCursor, uint64 totalLots)',
+  'function isClaimed(bytes32 vaultId, address user, uint64 epoch) view returns (bool)',
+  'function previewClaim(bytes32 vaultId, address user, uint64[] epochs) view returns (uint256)',
+  'function deposit(bytes32 vaultId, uint256 amount)',
+  'function claim(bytes32 vaultId, uint64[] epochs, address to)',
+  'function withdrawLots(bytes32 vaultId, uint64[] lotIds, uint256[] amounts, address to)',
+]);
+const ERC20_RW = parseAbi([
+  'function balanceOf(address) view returns (uint256)',
+  'function allowance(address owner, address spender) view returns (uint256)',
+  'function approve(address spender, uint256 amount) returns (bool)',
+]);
+
+const parseAmount = (raw) => {
+  const s = String(raw ?? '').trim();
+  if (!/^\d+(\.\d{1,18})?$/.test(s) || Number(s) <= 0) return null;
+  const [int, frac = ''] = s.split('.');
+  return BigInt(int) * 10n ** 18n + BigInt((frac + '0'.repeat(18)).slice(0, 18));
+};
+
+export async function handleStaking({ method, query = {} }) {
+  if (method !== 'GET') return json(405, { error: 'Method not allowed' }, { Allow: 'GET' });
+  const account = readAddress(query);
+  if (!account) return json(400, { error: 'Pass a wallet: /api/staking?address=0x...[&deposit=amount]' });
+  const depositWei = query.deposit !== undefined ? parseAmount(query.deposit) : null;
+  if (query.deposit !== undefined && !depositWei) return json(400, { error: 'deposit must be a positive $VIBE amount, e.g. deposit=1000000' });
+
+  try {
+    const db = await store();
+    await loadSchedule(db);
+    const epochs = schedule.SCHEDULE.staking.filter((e) => /^0x[0-9a-fA-F]{64}$/.test(e.vaultId || ''));
+    const reads = await publicClient.multicall({
+      allowFailure: true,
+      contracts: epochs.flatMap((e) => [
+        { address: STAKING, abi: STAKING_ABI, functionName: 'getVault', args: [e.vaultId] },
+        { address: STAKING, abi: STAKING_ABI, functionName: 'getUserState', args: [e.vaultId, account] },
+        { address: STAKING, abi: STAKING_ABI, functionName: 'getUserLots', args: [e.vaultId, account, 0n, 50n] },
+      ]),
+    });
+
+    const nowSec = BigInt(Math.floor(Date.now() / 1000));
+    const vaults = [];
+    for (let i = 0; i < epochs.length; i++) {
+      const e = epochs[i];
+      const v = reads[i * 3]?.status === 'success' ? reads[i * 3].result : null;
+      if (!v) continue;
+      const [vault, depositOpenTime] = v;
+      const stateRes = reads[i * 3 + 1]?.status === 'success' ? reads[i * 3 + 1].result : null; // [nextLotId, totalStaked, penaltyRemainder]
+      const state = stateRes && { nextLotId: stateRes[0], totalStaked: stateRes[1] };
+      const lotsRes = reads[i * 3 + 2]?.status === 'success' ? reads[i * 3 + 2].result : null;
+      const lots = (lotsRes?.[0] || []).map((l, lotId) => ({
+        lotId,
+        amount: Number(formatEther(l.remainingAmount)),
+        unlockAt: new Date(Number(l.unlockAt) * 1000).toISOString(),
+        withdrawable: l.remainingAmount > 0n && BigInt(l.unlockAt) <= nowSec,
+      }));
+
+      // finished vault epochs (index 0..epochCount-1) the wallet has not claimed yet
+      const epochCount = Number(vault.config.epochCount);
+      const ended = [];
+      for (let k = 0; k < epochCount; k++) {
+        if (BigInt(vault.config.startTime) + BigInt(vault.config.epochDuration) * BigInt(k + 1) <= nowSec) ended.push(BigInt(k));
+      }
+      let claimableEpochs = [];
+      let reward = 0n;
+      if (ended.length && state && state.nextLotId > 0n) {
+        const claimed = await publicClient.multicall({ allowFailure: true, contracts: ended.map((k) => ({ address: STAKING, abi: STAKING_ABI, functionName: 'isClaimed', args: [e.vaultId, account, k] })) });
+        claimableEpochs = ended.filter((_, j) => claimed[j]?.status === 'success' && claimed[j].result === false);
+        if (claimableEpochs.length) {
+          reward = await publicClient.readContract({ address: STAKING, abi: STAKING_ABI, functionName: 'previewClaim', args: [e.vaultId, account, claimableEpochs] }).catch(() => 0n);
+        }
+      }
+
+      const start = BigInt(vault.config.startTime);
+      const end = BigInt(vault.endTime);
+      const phase = nowSec < BigInt(depositOpenTime) ? 'upcoming' : nowSec < start ? 'deposits_open' : nowSec < end ? 'active' : 'ended';
+      const withdrawable = lots.filter((l) => l.withdrawable);
+
+      vaults.push({
+        epoch: e.epoch,
+        vaultId: e.vaultId,
+        link: schedule.STAKING_EPOCHS.find((s) => s.epoch === `Epoch ${e.epoch}`)?.link || null,
+        phase,
+        depositOpen: new Date(Number(depositOpenTime) * 1000).toISOString(),
+        start: new Date(Number(start) * 1000).toISOString(),
+        end: new Date(Number(end) * 1000).toISOString(),
+        rewardPool: Number(formatEther(vault.config.rewardPerEpoch * BigInt(epochCount))),
+        totalStaked: Number(formatEther(vault.totalStaked)),
+        yourStake: state ? Number(formatEther(state.totalStaked)) : null,
+        everDeposited: state ? state.nextLotId > 0n : null,
+        lots,
+        claimableReward: Number(formatEther(reward)),
+        txs: {
+          claimReward: reward > 0n
+            ? { to: STAKING, data: encodeFunctionData({ abi: STAKING_ABI, functionName: 'claim', args: [e.vaultId, claimableEpochs, account] }), value: '0', sender: account }
+            : null,
+          withdrawUnlocked: withdrawable.length
+            ? { to: STAKING, data: encodeFunctionData({ abi: STAKING_ABI, functionName: 'withdrawLots', args: [e.vaultId, withdrawable.map((l) => BigInt(l.lotId)), withdrawable.map((l) => lotsRes[0][l.lotId].remainingAmount), account] }), value: '0', sender: account }
+            : null,
+        },
+      });
+    }
+
+    // deposit into the vault that currently accepts deposits (approve first when the allowance is short)
+    let deposit = null;
+    if (depositWei) {
+      const target = vaults.find((v) => v.phase === 'deposits_open') || vaults.find((v) => v.phase === 'active');
+      if (!target) {
+        deposit = { error: 'No vault accepts deposits right now' };
+      } else {
+        const [balance, allowance] = await Promise.all([
+          publicClient.readContract({ address: VIBE_TOKEN, abi: ERC20_RW, functionName: 'balanceOf', args: [account] }),
+          publicClient.readContract({ address: VIBE_TOKEN, abi: ERC20_RW, functionName: 'allowance', args: [account, STAKING] }),
+        ]);
+        deposit = {
+          epoch: target.epoch,
+          vaultId: target.vaultId,
+          amount: Number(formatEther(depositWei)),
+          enoughBalance: balance >= depositWei,
+          txs: [
+            ...(allowance < depositWei ? [{ to: VIBE_TOKEN, data: encodeFunctionData({ abi: ERC20_RW, functionName: 'approve', args: [STAKING, depositWei] }), value: '0', sender: account }] : []),
+            { to: STAKING, data: encodeFunctionData({ abi: STAKING_ABI, functionName: 'deposit', args: [target.vaultId, depositWei] }), value: '0', sender: account },
+          ],
+        };
+      }
+    }
+
+    return json(200, {
+      address: account,
+      stakingContract: STAKING,
+      vaults,
+      deposit,
+      notes: 'Staking runs on o1 Exchange. Send the txs in order from this wallet on Base (8453). A deposit counts from the next epoch; lots unlock at unlockAt.',
+    }, { 'Cache-Control': 'public, max-age=0, s-maxage=15, stale-while-revalidate=60' });
+  } catch (e) {
+    return json(500, { error: e.message || 'Server error' });
+  }
+}
+
+// ─────────────────────────────── /api/swap ───────────────────────────────
+
+const KYBER = 'https://aggregator-api.kyberswap.com/base/api/v1';
+const KYBER_ETH = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
+
+export async function handleSwap({ method, query = {} }) {
+  if (method !== 'GET') return json(405, { error: 'Method not allowed' }, { Allow: 'GET' });
+  const account = readAddress(query);
+  const side = String(query.side || '');
+  const amountWei = parseAmount(query.amount);
+  const slippage = query.slippage !== undefined ? Number(query.slippage) : 1;
+  if (!account || !['buy', 'sell'].includes(side) || !amountWei || !(slippage > 0 && slippage <= 50)) {
+    return json(400, { error: 'Use /api/swap?address=0x...&side=buy|sell&amount=<ETH to spend when buying, $VIBE to sell>[&slippage=1]' });
+  }
+
+  try {
+    const tokenIn = side === 'buy' ? KYBER_ETH : VIBE_TOKEN;
+    const tokenOut = side === 'buy' ? VIBE_TOKEN : KYBER_ETH;
+    const headers = { 'x-client-id': 'vibehub' };
+    const route = await fetch(`${KYBER}/routes?tokenIn=${tokenIn}&tokenOut=${tokenOut}&amountIn=${amountWei}`, { headers }).then((r) => r.json());
+    if (route?.code !== 0 || !route.data?.routeSummary) return json(502, { error: `No swap route: ${route?.message || 'KyberSwap did not answer'}` });
+    const built = await fetch(`${KYBER}/route/build`, {
+      method: 'POST',
+      headers: { ...headers, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        routeSummary: route.data.routeSummary,
+        sender: account,
+        recipient: account,
+        slippageTolerance: Math.round(slippage * 100),
+        deadline: Math.floor(Date.now() / 1000) + 20 * 60,
+      }),
+    }).then((r) => r.json());
+    if (built?.code !== 0 || !built.data?.data) return json(502, { error: `Could not build the swap: ${built?.message || 'KyberSwap did not answer'}` });
+
+    const router = built.data.routerAddress || route.data.routerAddress;
+    const txs = [];
+    if (side === 'sell') {
+      const allowance = await publicClient.readContract({ address: VIBE_TOKEN, abi: ERC20_RW, functionName: 'allowance', args: [account, router] });
+      if (allowance < amountWei) txs.push({ to: VIBE_TOKEN, data: encodeFunctionData({ abi: ERC20_RW, functionName: 'approve', args: [router, amountWei] }), value: '0', sender: account });
+    }
+    txs.push({ to: router, data: built.data.data, value: side === 'buy' ? amountWei.toString() : '0', sender: account });
+
+    const out = BigInt(built.data.amountOut || route.data.routeSummary.amountOut);
+    const minOut = out - (out * BigInt(Math.round(slippage * 100))) / 10000n;
+    return json(200, {
+      address: account,
+      side,
+      amountIn: Number(formatEther(amountWei)),
+      tokenIn: side === 'buy' ? 'ETH' : '$VIBE',
+      expectedOut: Number(formatEther(out)),
+      minimumOut: Number(formatEther(minOut)),
+      tokenOut: side === 'buy' ? '$VIBE' : 'ETH',
+      slippagePercent: slippage,
+      router,
+      txs,
+      notes: 'Send the txs in order from this wallet on Base (8453). The quote is valid for about 20 minutes; request a new one after that.',
+    }, { 'Cache-Control': 'no-store' });
+  } catch (e) {
+    return json(500, { error: e.message || 'Server error' });
+  }
+}
+
 // ─────────────────────────────── /api/status ───────────────────────────────
 
 export async function handleStatus({ method, query = {} }) {

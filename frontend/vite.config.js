@@ -91,6 +91,9 @@ const DEV_API = {
   '/api/nft-burned': ['/api/_lib/nftBurned.js', 'handleNftBurned'],
   '/api/claims': ['/api/_lib/agent.js', 'handleClaims'],
   '/api/status': ['/api/_lib/agent.js', 'handleStatus'],
+  '/api/staking': ['/api/_lib/agent.js', 'handleStaking'],
+  '/api/swap': ['/api/_lib/agent.js', 'handleSwap'],
+  '/api/agent': ['/api/_lib/agent.js', 'handleAgentIndex'],
 }
 
 function scheduleApiDev() {
