@@ -18,6 +18,7 @@ import { AdminScheduleEditor } from './AdminScheduleEditor';
 import { AdminSnapshotTool } from './AdminSnapshotTool';
 import { HOLDER_ROUNDS, VIBECLUB_ROUNDS } from '../../../data/rewardsSchedule';
 import { roundProofs } from '../../../data/claimRounds';
+import { distributorFor, rootCall, rootFromResult, withdrawCalldata, V2_ABI } from '../../../config/distributors';
 
 // The round the Rewards Hub shows as current: the latest one whose snapshot has passed.
 const currentRoundId = (rounds) => String(([...rounds].reverse().find((r) => Date.now() >= new Date(r.snapshotIso).getTime()) || rounds[0])?.id || 1);
@@ -74,12 +75,17 @@ function RoundStatus({ metrics, label }) {
     'not-set': `${label}: snapshot ready (${metrics.totalPool.toLocaleString()} $VIBE pool), Merkle root not set on the contract yet.`,
     match: `${label}: Merkle root on the contract matches the snapshot (${metrics.totalPool.toLocaleString()} $VIBE pool).${funded ? '' : ' The contract balance does not cover the unclaimed amount yet.'}`,
     closed: `${label}: closed. The claim window has ended and the contract no longer accepts claims for this round.`,
+    'no-v2': `${label}: this round lives on the new rewards contract, which is not configured on the site yet (VITE_${label.startsWith('Unlock') ? 'HOLDER' : 'ROYALTY'}_DISTRIBUTOR_V2).`,
     mismatch: `${label}: the Merkle root on the contract differs from the published snapshot. Claims will fail until they match.`,
   }[metrics.rootStatus];
   const tone = metrics.rootStatus === 'closed' ? 'info' : metrics.rootStatus === 'match' && funded ? 'success' : metrics.rootStatus === 'mismatch' ? 'danger' : 'warn';
+  const fmt = (s) => new Date(s * 1000).toUTCString().replace(':00 GMT', ' UTC');
+  const windowText = metrics.version === 2 && metrics.claimStart
+    ? ` New contract, claim window ${fmt(metrics.claimStart)} → ${fmt(metrics.claimEnd)}.`
+    : '';
   return (
     <Alert tone={tone} icon={tone === 'success' ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}>
-      {text}
+      {text}{windowText}
     </Alert>
   );
 }
@@ -272,8 +278,17 @@ export function BaseAppAdminView() {
 
   const fetchDistributorMetrics = useCallback(async (type, overrideEpoch) => {
     const isHolder = type === 'holder';
-    const contractAddress = isHolder ? DISTRIBUTOR_CA : ROYALTY_DISTRIBUTOR_CA;
     const epoch = overrideEpoch || (isHolder ? holderEpochId : royaltyEpochId) || '1';
+    const distributor = distributorFor(type, epoch);
+
+    if (!distributor) {
+      // the round belongs to the v2 contract, whose address is not configured yet
+      const metrics = { contractBalance: 0, claimedTokens: 0, claimedWalletsCount: 0, totalWalletsCount: 0, unclaimedTokens: 0, totalPool: 0, rootStatus: 'no-v2', version: 2, loading: false };
+      if (isHolder) setHolderMetrics(metrics);
+      else setRoyaltyMetrics(metrics);
+      return;
+    }
+    const contractAddress = distributor.address;
 
     if (isHolder) setHolderMetrics(prev => ({ ...prev, loading: true }));
     else setRoyaltyMetrics(prev => ({ ...prev, loading: true }));
@@ -293,12 +308,7 @@ export function BaseAppAdminView() {
           functionName: 'balanceOf',
           args: [contractAddress]
         },
-        {
-          address: contractAddress,
-          abi: parseAbi(['function merkleRoots(uint256 epochId) view returns (bytes32)']),
-          functionName: 'merkleRoots',
-          args: [BigInt(epoch)]
-        },
+        rootCall(type, epoch),
         ...claims.map(c => ({
           address: contractAddress,
           abi: parseAbi(['function hasClaimed(uint256, address) view returns (bool)']),
@@ -312,7 +322,8 @@ export function BaseAppAdminView() {
       const balWei = (results[0]?.status === 'success' && results[0].result !== undefined) ? results[0].result : 0n;
       const contractBalance = Math.round(Number(formatUnits(balWei, 18)));
 
-      const onchainRoot = results[1]?.status === 'success' ? results[1].result : null;
+      const onchainRoot = results[1]?.status === 'success' ? rootFromResult(distributor.version, results[1].result) : null;
+      const onchainRound = distributor.version === 2 && results[1]?.status === 'success' ? results[1].result : null;
 
       let claimedWalletsCount = 0;
       let claimedTokens = 0;
@@ -344,6 +355,14 @@ export function BaseAppAdminView() {
         unclaimedTokens,
         totalPool,
         rootStatus,
+        version: distributor.version,
+        contractAddress,
+        // v2 only: the window and state stored with the round
+        claimStart: onchainRound?.merkleRoot && onchainRound.merkleRoot !== ZERO_ROOT ? Number(onchainRound.claimStart) : null,
+        claimEnd: onchainRound?.merkleRoot && onchainRound.merkleRoot !== ZERO_ROOT ? Number(onchainRound.claimEnd) : null,
+        expiredWithdrawn: Boolean(onchainRound?.expiredWithdrawn),
+        snapshotPoolWei: (source?.claims ? Object.values(source.claims).reduce((s, c) => s + BigInt(c.amountWei || 0), 0n) : 0n),
+        snapshotRoot,
         loading: false
       };
 
@@ -371,13 +390,51 @@ export function BaseAppAdminView() {
 
   const handleSetMerkleRoot = async (type) => {
     const isHolder = type === 'holder';
-    const contractAddress = isHolder ? DISTRIBUTOR_CA : ROYALTY_DISTRIBUTOR_CA;
     const epoch = isHolder ? holderEpochId : royaltyEpochId;
     const root = isHolder ? holderMerkleRoot : royaltyMerkleRoot;
+    const metrics = isHolder ? holderMetrics : royaltyMetrics;
+    const distributor = distributorFor(type, epoch);
 
     if (!root || !root.startsWith('0x') || root.length !== 66) {
       setErrorMessage('Invalid Merkle Root bytes32 format (must be 66 hex characters)');
       return;
+    }
+    if (!distributor) {
+      setErrorMessage(`${isHolder ? 'Unlock' : 'Royalty'} #${epoch} uses the new rewards contract, which is not configured on the site yet`);
+      return;
+    }
+
+    // v2: the round is opened with its pool and claim window from the schedule (claim time → next snapshot)
+    let dataHex;
+    let summary = '';
+    if (distributor.version === 2) {
+      const round = (isHolder ? HOLDER_ROUNDS : VIBECLUB_ROUNDS).find((r) => String(r.id) === String(epoch));
+      if (!round) {
+        setErrorMessage(`${isHolder ? 'Unlock' : 'Royalty'} #${epoch} is not in the schedule`);
+        return;
+      }
+      if (!metrics.snapshotRoot || root.toLowerCase() !== metrics.snapshotRoot.toLowerCase()) {
+        setErrorMessage('For the new contract the root must be the one of the published snapshot (its pool is taken from that snapshot)');
+        return;
+      }
+      const claimStart = BigInt(Math.floor(new Date(round.targetDate).getTime() / 1000));
+      const claimEnd = BigInt(Math.floor(new Date(round.nextSnapshotDate).getTime() / 1000));
+      const pool = metrics.snapshotPoolWei;
+      const isOpened = metrics.rootStatus !== 'not-set';
+      summary = `${isOpened ? 'Update' : 'Open'} ${isHolder ? 'Unlock' : 'Royalty'} #${epoch} on the new contract:\n` +
+        `pool ${formatUnits(pool, 18)} $VIBE\nclaim ${new Date(round.targetDate).toUTCString()}\nuntil ${new Date(round.nextSnapshotDate).toUTCString()}`;
+      if (!window.confirm(summary)) return;
+      dataHex = encodeFunctionData({
+        abi: V2_ABI,
+        functionName: isOpened ? 'updateRound' : 'openRound',
+        args: [BigInt(epoch), root, pool, claimStart, claimEnd]
+      });
+    } else {
+      dataHex = encodeFunctionData({
+        abi: DISTRIBUTOR_ABI,
+        functionName: 'setMerkleRoot',
+        args: [BigInt(epoch), root]
+      });
     }
 
     setLoading(true);
@@ -386,13 +443,7 @@ export function BaseAppAdminView() {
     setTxHash('');
 
     try {
-      const dataHex = encodeFunctionData({
-        abi: DISTRIBUTOR_ABI,
-        functionName: 'setMerkleRoot',
-        args: [BigInt(epoch), root]
-      });
-
-      const hash = await sendAdminTx(contractAddress, dataHex);
+      const hash = await sendAdminTx(distributor.address, dataHex);
       setTxHash(hash);
       setSuccessMessage(`Merkle root for ${isHolder ? 'Holder round' : 'Royalty epoch'} #${epoch} published successfully`);
       setTimeout(() => fetchDistributorMetrics(type, epoch), 3000);
@@ -404,9 +455,49 @@ export function BaseAppAdminView() {
     }
   };
 
+  // New contract: after a round's window, its unclaimed rest goes to the admin wallet (burn or pool by hand).
+  const handleWithdrawExpired = async (type) => {
+    const isHolder = type === 'holder';
+    const epoch = isHolder ? holderEpochId : royaltyEpochId;
+    const distributor = distributorFor(type, epoch);
+    if (!distributor || distributor.version !== 2) return;
+    if (!window.confirm(`Withdraw the unclaimed rest of ${isHolder ? 'Unlock' : 'Royalty'} #${epoch} to ${activeAddress}?`)) return;
+    setLoading(true);
+    setErrorMessage('');
+    setSuccessMessage('');
+    setTxHash('');
+    try {
+      const dataHex = encodeFunctionData({ abi: V2_ABI, functionName: 'withdrawExpired', args: [BigInt(epoch), activeAddress] });
+      const hash = await sendAdminTx(distributor.address, dataHex);
+      setTxHash(hash);
+      setSuccessMessage(`Unclaimed rest of ${isHolder ? 'Unlock' : 'Royalty'} #${epoch} withdrawn to the admin wallet`);
+      setTimeout(() => fetchDistributorMetrics(type, epoch), 3000);
+    } catch (e) {
+      console.error('Withdraw expired error:', e);
+      setErrorMessage(e?.shortMessage || e?.message || 'Transaction failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const expiredAction = (type, metrics, epoch) => {
+    if (metrics.version !== 2 || !metrics.claimEnd || metrics.expiredWithdrawn || Date.now() / 1000 < metrics.claimEnd) return null;
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
+        <span style={{ fontSize: '12px', color: 'var(--text-3)' }}>
+          The claim window of #{epoch} has ended. Its unclaimed rest can be withdrawn to the admin wallet.
+        </span>
+        <Button variant="secondary" size="md" onClick={() => handleWithdrawExpired(type)} disabled={loading}>
+          Withdraw unclaimed #{epoch}
+        </Button>
+      </div>
+    );
+  };
+
   // Old royalty distributor only: once a round's claim window is over, stop direct contract claims for it.
   const handleCloseRoyaltyRound = async () => {
     const epoch = royaltyEpochId;
+    if (distributorFor('royalty', epoch)?.version !== 1) return; // the new contract closes rounds by itself
     const round = VIBECLUB_ROUNDS.find((r) => String(r.id) === String(epoch));
     if (!round || Date.now() < new Date(round.nextSnapshotDate).getTime()) {
       setErrorMessage(`Royalty #${epoch} is still in its claim window, it can be closed after ${round ? new Date(round.nextSnapshotDate).toUTCString() : 'the window ends'}`);
@@ -433,7 +524,8 @@ export function BaseAppAdminView() {
 
   const handleWithdrawDistributorTokens = async (type) => {
     const isHolder = type === 'holder';
-    const contractAddress = isHolder ? DISTRIBUTOR_CA : ROYALTY_DISTRIBUTOR_CA;
+    const distributor = distributorFor(type, isHolder ? holderEpochId : royaltyEpochId);
+    if (!distributor) return setErrorMessage('The new rewards contract is not configured on the site yet');
     const amountStr = isHolder ? holderWithdrawAmount : royaltyWithdrawAmount;
     const metrics = isHolder ? holderMetrics : royaltyMetrics;
 
@@ -450,13 +542,9 @@ export function BaseAppAdminView() {
 
     try {
       const amountWei = parseUnits(amountNum.toString(), 18);
-      const dataHex = encodeFunctionData({
-        abi: DISTRIBUTOR_ABI,
-        functionName: 'emergencyWithdraw',
-        args: [VIBE_TOKEN_CA, amountWei]
-      });
+      const dataHex = withdrawCalldata(distributor.version, amountWei, activeAddress);
 
-      const hash = await sendAdminTx(contractAddress, dataHex);
+      const hash = await sendAdminTx(distributor.address, dataHex);
       setTxHash(hash);
       setSuccessMessage(`Withdrawn ${amountNum.toLocaleString()} $VIBE from ${isHolder ? 'Holders' : 'Royalties'} contract to admin wallet`);
       if (isHolder) setHolderWithdrawAmount('');
@@ -472,7 +560,8 @@ export function BaseAppAdminView() {
 
   const handleBurnDistributorTokens = async (type) => {
     const isHolder = type === 'holder';
-    const contractAddress = isHolder ? DISTRIBUTOR_CA : ROYALTY_DISTRIBUTOR_CA;
+    const distributor = distributorFor(type, isHolder ? holderEpochId : royaltyEpochId);
+    if (!distributor) return setErrorMessage('The new rewards contract is not configured on the site yet');
     const amountStr = isHolder ? holderBurnAmount : royaltyBurnAmount;
     const metrics = isHolder ? holderMetrics : royaltyMetrics;
 
@@ -490,12 +579,7 @@ export function BaseAppAdminView() {
     try {
       const amountWei = parseUnits(amountNum.toString(), 18);
 
-      const withdrawDataHex = encodeFunctionData({
-        abi: DISTRIBUTOR_ABI,
-        functionName: 'emergencyWithdraw',
-        args: [VIBE_TOKEN_CA, amountWei]
-      });
-      await sendAdminTx(contractAddress, withdrawDataHex);
+      await sendAdminTx(distributor.address, withdrawCalldata(distributor.version, amountWei, activeAddress));
 
       const burnDataHex = encodeFunctionData({
         abi: ERC20_ABI,
@@ -525,11 +609,13 @@ export function BaseAppAdminView() {
     let amountNum = 0;
     let contractAddress = '';
 
+    const distributor = isNft ? null : distributorFor(type, isHolder ? holderEpochId : royaltyEpochId);
+    if (!isNft && !distributor) return setErrorMessage('The new rewards contract is not configured on the site yet');
     if (isHolder) {
-      contractAddress = DISTRIBUTOR_CA;
+      contractAddress = distributor.address;
       amountNum = parseFloat(holderCommunityAmount) || holderMetrics.contractBalance;
     } else if (isRoyalty) {
-      contractAddress = ROYALTY_DISTRIBUTOR_CA;
+      contractAddress = distributor.address;
       amountNum = parseFloat(royaltyCommunityAmount) || royaltyMetrics.contractBalance;
     } else if (isNft) {
       contractAddress = NFT_CONTRACT_ADDRESS;
@@ -556,12 +642,7 @@ export function BaseAppAdminView() {
         });
         await sendAdminTx(NFT_CONTRACT_ADDRESS, withdrawDataHex);
       } else {
-        const withdrawDataHex = encodeFunctionData({
-          abi: DISTRIBUTOR_ABI,
-          functionName: 'emergencyWithdraw',
-          args: [VIBE_TOKEN_CA, amountWei]
-        });
-        await sendAdminTx(contractAddress, withdrawDataHex);
+        await sendAdminTx(contractAddress, withdrawCalldata(distributor.version, amountWei, activeAddress));
       }
 
       const transferDataHex = encodeFunctionData({
@@ -834,6 +915,7 @@ export function BaseAppAdminView() {
                 {loading ? 'Saving...' : 'Publish root'}
               </Button>
             </div>
+            {expiredAction('holder', holderMetrics, holderEpochId)}
           </Card>
 
           {/* Action 2: Withdraw to Admin */}
@@ -979,7 +1061,7 @@ export function BaseAppAdminView() {
             {(() => {
               const round = VIBECLUB_ROUNDS.find((r) => String(r.id) === String(royaltyEpochId));
               const windowOver = round && Date.now() >= new Date(round.nextSnapshotDate).getTime();
-              if (!windowOver || royaltyMetrics.rootStatus === 'closed') return null;
+              if (!windowOver || royaltyMetrics.rootStatus === 'closed' || royaltyMetrics.version !== 1) return null;
               return (
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
                   <span style={{ fontSize: '12px', color: 'var(--text-3)' }}>
@@ -991,6 +1073,7 @@ export function BaseAppAdminView() {
                 </div>
               );
             })()}
+            {expiredAction('royalty', royaltyMetrics, royaltyEpochId)}
           </Card>
 
           {/* Action 2: Withdraw to Admin */}

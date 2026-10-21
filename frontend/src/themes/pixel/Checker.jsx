@@ -25,6 +25,7 @@ const VIBECLUB_MINT_URL = 'https://vibeverse.dog/vibeclub';
 import { DATA_SUFFIX, appendBuilderSuffix } from '../../config/builderCode';
 import { STAKING_VAULTS_INFO, ADMIN_WITHDRAWAL_TXS, HOLDER_ROUNDS, VIBECLUB_ROUNDS, royaltyBannerFor } from '../../data/rewardsSchedule';
 import { roundProofs, publishedRounds } from '../../data/claimRounds';
+import { distributorFor, distributorAddresses } from '../../config/distributors';
 import { findOwnedVibeClubNfts, findMintedVibeClubNft } from '../../data/vibeClubNft';
 export { STAKING_VAULTS_INFO, ADMIN_WITHDRAWAL_TXS };
 
@@ -369,9 +370,9 @@ async function loadUserClaimTransactions(userAddress, customClient = null) {
       const key = `${isHolder ? 'holder' : 'vibeclub'}-${round}`;
       const expected = data?.claims?.[lowerUser]?.amount;
       if (!expected || map[key]) continue;
-      const fromCa = isHolder ? DISTRIBUTOR_CA_LOWER : ROYALTY_CA_LOWER;
+      const fromCas = distributorAddresses(isHolder ? 'holder' : 'royalty');
       const used = new Set(Object.values(map).map((v) => v.txHash));
-      const hit = seenTransfers.find((t) => t.from === fromCa && Math.abs(t.value - expected) < 2 && !used.has(t.txHash));
+      const hit = seenTransfers.find((t) => fromCas.includes(t.from) && Math.abs(t.value - expected) < 2 && !used.has(t.txHash));
       if (hit) {
         map[key] = {
           id: key,
@@ -865,9 +866,12 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
       // Rounds after the bundled ones (Unlock 3+, Royalty 6+) whose snapshot has happened.
       const nowTime = new Date();
       const extraRounds = [
-        ...HOLDER_ROUNDS.filter(r => r.id > 2 && nowTime >= new Date(r.snapshotIso)).map(r => ({ type: 'holder', id: r.id, ca: DISTRIBUTOR_CA })),
-        ...VIBECLUB_ROUNDS.filter(r => r.id > 5 && nowTime >= new Date(r.snapshotIso)).map(r => ({ type: 'vibeclub', id: r.id, ca: targetRoyaltyCa })),
-      ];
+        ...HOLDER_ROUNDS.filter(r => r.id > 2 && nowTime >= new Date(r.snapshotIso)).map(r => ({ type: 'holder', id: r.id, ca: distributorFor('holder', r.id)?.address })),
+        ...VIBECLUB_ROUNDS.filter(r => r.id > 5 && nowTime >= new Date(r.snapshotIso)).map(r => {
+          const d = distributorFor('royalty', r.id);
+          return { type: 'vibeclub', id: r.id, ca: d?.version === 1 ? targetRoyaltyCa : d?.address };
+        }),
+      ].filter(r => r.ca); // a round whose new contract is not configured yet is skipped
 
       const results = await client.multicall({
         contracts: [
@@ -1550,7 +1554,9 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
       const isHolder = type === 'holder';
       const proof = roundProofs(isHolder ? 'holder' : 'royalty', roundId)?.claims?.[address?.toLowerCase()] || (isHolder ? userProofData : userRoyaltyProofData);
       if (!proof || !wallets || wallets.length === 0) throw new Error('No allocation or wallet for this claim');
-      const distributor = isHolder ? DISTRIBUTOR_CA : (adminCustomRoyaltyCa || ROYALTY_DISTRIBUTOR_CA);
+      const roundContract = distributorFor(isHolder ? 'holder' : 'royalty', roundId);
+      if (!roundContract) throw new Error('This round is not available yet');
+      const distributor = roundContract.version === 1 && !isHolder ? (adminCustomRoyaltyCa || ROYALTY_DISTRIBUTOR_CA) : roundContract.address;
 
       const activeWallet = wallets.find(w => w.address.toLowerCase() === address?.toLowerCase()) || wallets[0];
       const provider = await activeWallet.getEthereumProvider();
