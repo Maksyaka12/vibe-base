@@ -20,6 +20,7 @@
     }
   ],
   "rewrites": [
+    { "source": "/api/:route(claims|status|staking|swap|rounds|history)", "destination": "/api/agent?route=:route" },
     { "source": "/r", "destination": "/r/index.html" },
     { "source": "/r/", "destination": "/r/index.html" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
