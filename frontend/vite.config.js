@@ -89,6 +89,8 @@ const DEV_API = {
   '/api/banner': ['/api/_lib/banner.js', 'handleBanner'],
   '/api/minted-nft': ['/api/_lib/mintedNft.js', 'handleMintedNft'],
   '/api/nft-burned': ['/api/_lib/nftBurned.js', 'handleNftBurned'],
+  '/api/claims': ['/api/_lib/agent.js', 'handleClaims'],
+  '/api/status': ['/api/_lib/agent.js', 'handleStatus'],
 }
 
 function scheduleApiDev() {
