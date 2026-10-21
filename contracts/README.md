@@ -40,5 +40,20 @@ Merkle reward rounds, deployed twice on Base (owner 0x4c91D3BEd372C11795b9Ce9a90
   `withdrawExpired` (unclaimed rest of a closed round to the admin), `emergencyWithdraw` (any time),
   two-step ownership transfer.
 
+### VibeAchievementsV2
+
+Soulbound achievements (ERC-1155 ids 1-8, one per wallet, transfers and approvals revert). The contract
+checks each condition from onchain data:
+
+| Id | Achievement | Condition |
+|---|---|---|
+| 1-3 | Starter / Loyal / Ultra-active dog | longest check-in streak >= 7 / 14 / 30 (check-in contract) |
+| 4-6 | Novice staker / Confident banker / Wolf of Wall St | deposited into >= 1 / 3 / 5 official vaults (o1 `nextLotId`, kept after withdrawal) |
+| 7-8 | Rich dog / Bank founder | currently staking >= 5M / 10M $VIBE in one official vault |
+
+`claimFor` / `claimAllFor` may be called by anyone (agents): a badge only goes to the wallet that earned it.
+The owner adds vaults as staking epochs start (`addVault`), can add or change achievements, and `grant`s
+special cases (e.g. a past large deposit that was withdrawn).
+
 Round timing (UTC): snapshot at 00:00 on the round day, claim opens at 14:00, closes at 00:00 on the day of
 the next snapshot.
