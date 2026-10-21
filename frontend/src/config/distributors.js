@@ -13,12 +13,12 @@ const env = (name) => (typeof import.meta !== 'undefined' && import.meta.env ? i
 export const DISTRIBUTORS = {
   holder: {
     v1: '0x77e04dd8c45725d2b2b3c8eebac2f3f1708fd089',
-    v2: env('VITE_HOLDER_DISTRIBUTOR_V2'), // set once deployed
+    v2: env('VITE_HOLDER_DISTRIBUTOR_V2') || '0x90B855994D9ba328399d87d0285b7D7f7B8E2c80',
     v2From: 3,
   },
   royalty: {
     v1: '0x3753EE7fa9538087f901aa5E4afc12dBA57B97c1',
-    v2: env('VITE_ROYALTY_DISTRIBUTOR_V2'), // set once deployed
+    v2: env('VITE_ROYALTY_DISTRIBUTOR_V2') || '0xeEb47756fBf417907B2Be94aCcfB851a224add2c',
     v2From: 7,
   },
 };

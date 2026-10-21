@@ -23,7 +23,12 @@ forge test --match-contract Fork --fork-url https://mainnet.base.org   # real $V
 
 ### VibeRewardsDistributor
 
-Merkle reward rounds, deployed twice: holder rewards (from Unlock 3) and Vibe Club royalties (from Royalty 7).
+Merkle reward rounds, deployed twice on Base (owner 0x4c91D3BEd372C11795b9Ce9a9017dFE447Bf050a, verified on Sourcify):
+
+| | Address | Rounds |
+|---|---|---|
+| Holder rewards | 0x90B855994D9ba328399d87d0285b7D7f7B8E2c80 | Unlock 3+ |
+| Vibe Club royalties | 0xeEb47756fBf417907B2Be94aCcfB851a224add2c | Royalty 7+ |
 
 - Each round has its own root, pool and claim window `[claimStart, claimEnd)`, enforced by the contract:
   outside the window nobody can claim, neither through the site nor directly.
