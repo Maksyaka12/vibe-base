@@ -6,6 +6,7 @@ import { getPublicClient } from '../../../config/rpc';
 import { STAKING_CONTRACT, STAKING_VAULTS_INFO } from '../Checker';
 import { useVibeCheckIn } from '../../../hooks/useVibeCheckIn';
 import { useVibeAchievements } from '../../../hooks/useVibeAchievements';
+import AgentWalletPanel from '../../../components/AgentWalletPanel';
 
 function InfoSvgIcon({ size = 14, color = '#00f5ff', className = '' }) {
   return (
@@ -736,6 +737,12 @@ export function BaseAppProfileView(props) {
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {address && (
+        <div className="profile-agent-wallet" style={{ border: '2px solid currentColor', padding: '16px', marginBottom: '24px' }}>
+          <AgentWalletPanel />
         </div>
       )}
 

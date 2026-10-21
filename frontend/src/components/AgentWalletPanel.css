@@ -1,0 +1,155 @@
+/* Shared by both themes: inherits the theme's font and text colour, borders are drawn from currentColor. */
+.vw-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.vw-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.vw-title {
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.vw-note,
+.vw-hint {
+  margin: 0;
+  opacity: 0.7;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.vw-switch {
+  display: inline-flex;
+  border: 1px solid color-mix(in srgb, currentColor 25%, transparent);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.vw-switch button {
+  background: transparent;
+  color: inherit;
+  border: 0;
+  padding: 5px 12px;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  opacity: 0.65;
+}
+
+.vw-switch button.on {
+  background: color-mix(in srgb, currentColor 12%, transparent);
+  opacity: 1;
+  font-weight: 600;
+}
+
+.vw-switch-wide {
+  display: flex;
+}
+
+.vw-switch-wide button {
+  flex: 1;
+}
+
+.vw-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.vw-label {
+  opacity: 0.65;
+}
+
+.vw-value {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.vw-value a {
+  color: inherit;
+}
+
+.vw-link {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  font-size: 12px;
+  text-decoration: underline;
+  cursor: pointer;
+  opacity: 0.75;
+}
+
+.vw-transfer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 1px solid color-mix(in srgb, currentColor 15%, transparent);
+}
+
+.vw-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.vw-input-row input,
+.vw-input-row select {
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  border: 1px solid color-mix(in srgb, currentColor 25%, transparent);
+  border-radius: 8px;
+  padding: 7px 10px;
+  min-width: 0;
+}
+
+.vw-input-row input {
+  flex: 1;
+}
+
+.vw-input-row select option {
+  color: #111;
+}
+
+.vw-send {
+  color: inherit;
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+  border-radius: 8px;
+  padding: 9px 12px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.vw-send:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.vw-notice {
+  font-size: 12px;
+}
+
+.vw-notice.ok {
+  color: #22a55b;
+}
+
+.vw-notice.err {
+  color: #e5484d;
+}

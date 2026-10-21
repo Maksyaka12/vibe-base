@@ -4,13 +4,15 @@ import { useAccount } from 'wagmi';
 import { useVibeBalances } from '../../../hooks/useVibeBalances';
 import { useVibeCheckIn } from '../../../hooks/useVibeCheckIn';
 import { ThemeSwitcher } from './ThemeSwitcher';
+import { useVibeWallets } from '../../../hooks/useVibeWallets';
 
 export function BaseAppHeader({ onOpenSidebar, isDesktop = false }) {
   const { login, authenticated, user } = usePrivy();
   const { wallets } = useWallets();
   const { address: wagmiAddress, isConnected: isWagmiConnected } = useAccount();
 
-  const activeAddress = user?.wallet?.address || wallets?.[0]?.address || wagmiAddress;
+  const { activeAddress: vibeActiveAddress } = useVibeWallets();
+  const activeAddress = vibeActiveAddress || wallets?.[0]?.address || wagmiAddress;
   const hasWallet = (authenticated && !!activeAddress) || (isWagmiConnected && !!wagmiAddress);
 
   const { nftCount, formattedBalance } = useVibeBalances(activeAddress);

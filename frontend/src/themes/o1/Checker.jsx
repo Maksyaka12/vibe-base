@@ -27,6 +27,7 @@ import { STAKING_VAULTS_INFO, ADMIN_WITHDRAWAL_TXS, HOLDER_ROUNDS, VIBECLUB_ROUN
 import { roundProofs, publishedRounds } from '../../data/claimRounds';
 import { distributorFor, distributorAddresses } from '../../config/distributors';
 import { findOwnedVibeClubNfts, findMintedVibeClubNft } from '../../data/vibeClubNft';
+import { useVibeWallets } from '../../hooks/useVibeWallets';
 export { STAKING_VAULTS_INFO, ADMIN_WITHDRAWAL_TXS };
 
 export function getRoyaltyBannerUrl(epochId) {
@@ -454,7 +455,8 @@ function formatCompactBalance(val) {
 export default function Checker({ isBaseAppMode = false, isProfileMode = false } = {}) {
   const { ready, authenticated, user, login, logout } = usePrivy();
   const { wallets } = useWallets();
-  const address = user?.wallet?.address;
+  const { activeAddress: vibeActiveAddress } = useVibeWallets();
+  const address = vibeActiveAddress;
 
   // ⚡ Instant Cache Initialization (0ms initial layout shift)
   const [balance, setBalance] = useState(() => {

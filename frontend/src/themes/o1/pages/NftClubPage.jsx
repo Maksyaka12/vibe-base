@@ -8,13 +8,15 @@ import nftNames from '../../../data/nftNames.json';
 import { publicClient } from '../../../config/rpc';
 import { findMintedVibeClubNft, findOwnedVibeClubNfts, rememberMintedVibeClubNft, fetchVibePerEth, fetchNftBurned } from '../../../data/vibeClubNft';
 import { Button, Card, StatusPill, ProgressBar, SectionTitle, Alert } from '../components/ui';
+import { useVibeWallets } from '../../../hooks/useVibeWallets';
 
 // NFT Deck strictly from #5 to #35 (31 NFTs)
 const NFT_DECK = Array.from({ length: 31 }, (_, i) => i + 5);
 
 export default function NftClubPage({ isEmbeddedInBaseApp = false } = {}) {
   const { login, logout, authenticated, user } = usePrivy();
-  const walletAddress = user?.wallet?.address;
+  const { activeAddress: vibeActiveAddress } = useVibeWallets();
+  const walletAddress = vibeActiveAddress;
   const balances = useUserBalances(walletAddress);
 
   const {

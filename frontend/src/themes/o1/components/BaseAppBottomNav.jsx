@@ -16,6 +16,7 @@ import {
 import { usePrivy, useWallets } from '@privy-io/react-auth';
 import { useAccount } from 'wagmi';
 import { THEMES, getTheme, setTheme } from '../../../theme';
+import { useVibeWallets } from '../../../hooks/useVibeWallets';
 
 const ADMIN_WALLET = '0x4c91d3bed372c11795b9ce9a9017dfe447bf050a';
 
@@ -26,7 +27,8 @@ export function BaseAppBottomNav({ activeTab, onSelectTab }) {
   const { wallets } = useWallets();
   const { address: wagmiAddress } = useAccount();
 
-  const activeAddress = user?.wallet?.address || wallets?.[0]?.address || wagmiAddress;
+  const { activeAddress: vibeActiveAddress } = useVibeWallets();
+  const activeAddress = vibeActiveAddress || wallets?.[0]?.address || wagmiAddress;
   const isAdmin = !!activeAddress && activeAddress.toLowerCase() === ADMIN_WALLET.toLowerCase();
 
   const handleTabClick = (tabId) => {

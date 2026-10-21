@@ -2175,7 +2175,7 @@ export default function App() {
           showWalletLoginFirst: true,
         },
         embeddedWallets: {
-          createOnLogin: 'all-users'
+          ethereum: { createOnLogin: 'all-users' }
         }
       }}
     >

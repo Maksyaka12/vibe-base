@@ -12,6 +12,7 @@ export const OPENSEA_COLLECTION_URL = 'https://opensea.io/collection/vibeclubnft
 export const VIBE_TOKEN_ADDRESS = '0xb200000000000000000000df24ecb8bf51100a01';
 export const ADMIN_ADDRESS = '0x4C91d3beD372c11795b9cE9A9017Dfe447Bf050A';
 import { BUILDER_CODE, DATA_SUFFIX, BUILDER_CODE_HEX, appendBuilderSuffix } from '../config/builderCode';
+import { useVibeWallets } from './useVibeWallets';
 export { BUILDER_CODE, DATA_SUFFIX, BUILDER_CODE_HEX };
 
 const withBuilderCode = appendBuilderSuffix;
@@ -57,7 +58,8 @@ const ERC20_ABI = parseAbi([
 export function useVibeNftContract() {
   const { authenticated, user, login } = usePrivy();
   const { wallets } = useWallets();
-  const walletAddress = user?.wallet?.address;
+  const { activeAddress: vibeActiveAddress } = useVibeWallets();
+  const walletAddress = vibeActiveAddress;
 
   const [totalMinted, setTotalMinted] = useState(0);
   const [remainingTokens, setRemainingTokens] = useState(333);

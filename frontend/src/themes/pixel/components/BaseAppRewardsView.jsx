@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { usePrivy } from '@privy-io/react-auth';
 import { Lock, ArrowUpRight, ArrowRight, ChevronDown, Info, CheckCircle2, XCircle, Clock, Check, Lightbulb } from 'lucide-react';
 import { roundProofs } from '../../../data/claimRounds';
+import { useVibeWallets } from '../../../hooks/useVibeWallets';
 
 function formatClaimCountdown(targetDate) {
   if (!targetDate) return '';
@@ -202,7 +203,8 @@ export default function BaseAppRewardsView({
   now
 }) {
   const { authenticated, user } = usePrivy();
-  const address = user?.wallet?.address;
+  const { activeAddress: vibeActiveAddress } = useVibeWallets();
+  const address = vibeActiveAddress;
   const userAddress = address ? address.toLowerCase() : null;
 
   const [currentTab, setCurrentTab] = useState('holders');

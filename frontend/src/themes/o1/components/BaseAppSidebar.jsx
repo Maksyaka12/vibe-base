@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { usePrivy, useWallets } from '@privy-io/react-auth';
 import { useAccount, useDisconnect } from 'wagmi';
+import { useVibeWallets } from '../../../hooks/useVibeWallets';
 
 const ADMIN_WALLET = '0x4c91d3bed372c11795b9ce9a9017dfe447bf050a';
 
@@ -93,7 +94,8 @@ export function BaseAppSidebar({
   const [isDexOpen, setIsDexOpen] = useState(true);
   const [isSocialsOpen, setIsSocialsOpen] = useState(true);
 
-  const activeAddress = user?.wallet?.address || wallets?.[0]?.address || wagmiAddress;
+  const { activeAddress: vibeActiveAddress } = useVibeWallets();
+  const activeAddress = vibeActiveAddress || wallets?.[0]?.address || wagmiAddress;
   const hasWallet = (authenticated && !!activeAddress) || (isWagmiConnected && !!wagmiAddress);
   const isAdmin = hasWallet && !!activeAddress && activeAddress.toLowerCase() === ADMIN_WALLET.toLowerCase();
 

@@ -5,6 +5,7 @@ import { parseUnits, formatUnits, encodeFunctionData } from 'viem';
 import { publicClient } from '../../../config/rpc';
 import { useUserBalances } from '../../../hooks/useUserBalances';
 import { DATA_SUFFIX, appendBuilderSuffix } from '../../../config/builderCode';
+import { useVibeWallets } from '../../../hooks/useVibeWallets';
 
 const ETH_ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 const KYBER_ETH_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
@@ -30,7 +31,8 @@ const ERC20_ABI = [
 export default function DeFiVibePanel({ player }) {
   const { authenticated, user, sendTransaction, login } = usePrivy();
   const { wallets } = useWallets();
-  const rawAddress = user?.wallet?.address;
+  const { activeAddress: vibeActiveAddress } = useVibeWallets();
+  const rawAddress = vibeActiveAddress;
   const balances = useUserBalances(rawAddress);
 
   const [mode, setMode] = useState('buy'); // 'buy' (ETH -> VIBE) | 'sell' (VIBE -> ETH)

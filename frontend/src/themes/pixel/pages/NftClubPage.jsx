@@ -7,6 +7,7 @@ import { useVibeNftContract, NFT_CONTRACT_ADDRESS, OPENSEA_COLLECTION_URL } from
 import nftNames from '../../../data/nftNames.json';
 import { publicClient } from '../../../config/rpc';
 import { findMintedVibeClubNft, findOwnedVibeClubNfts, rememberMintedVibeClubNft, fetchVibePerEth, fetchNftBurned } from '../../../data/vibeClubNft';
+import { useVibeWallets } from '../../../hooks/useVibeWallets';
 
 // Pixel SVG Wallet Icon
 const WalletSvgIcon = ({ size = 14 }) => (
@@ -22,7 +23,8 @@ const NFT_DECK = Array.from({ length: 31 }, (_, i) => i + 5);
 
 export default function NftClubPage({ isEmbeddedInBaseApp = false } = {}) {
   const { login, logout, authenticated, user } = usePrivy();
-  const walletAddress = user?.wallet?.address;
+  const { activeAddress: vibeActiveAddress } = useVibeWallets();
+  const walletAddress = vibeActiveAddress;
   const balances = useUserBalances(walletAddress);
 
   const {
