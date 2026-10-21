@@ -97,12 +97,21 @@ function nextSnapshots(rounds) {
 
 const byNumber = (key) => (a, b) => a[key] - b[key];
 
+// Unlock 1-2 live on the first holder distributor (0x77e0...d089), whose claim deadlines are fixed in the
+// contract and fall a day before the schedule. The claim window of those rounds ends at the earlier time,
+// so the site never offers a claim the contract would reject. Later rounds use the new distributor.
+const LEGACY_HOLDER_CLAIM_END = {
+  1: '2026-09-24T00:00:00Z',
+  2: '2026-10-24T00:00:00Z',
+};
+const earlierIso = (a, b) => (b && new Date(b) < new Date(a) ? b : a);
+
 function derive(schedule) {
   const staking = [...schedule.staking].sort(byNumber('epoch'));
   const royalties = [...schedule.royalties].sort(byNumber('round'));
   const holders = [...schedule.holderUnlocks].sort(byNumber('round'));
   const royaltyNext = nextSnapshots(royalties);
-  const holderNext = nextSnapshots(holders);
+  const holderNext = nextSnapshots(holders).map((iso, i) => earlierIso(iso, LEGACY_HOLDER_CLAIM_END[holders[i].round]));
 
   return {
     STAKING_EPOCHS: staking.map((e) => ({

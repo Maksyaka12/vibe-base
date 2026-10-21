@@ -62,6 +62,10 @@ const BUILT_IN_ROYALTY_ROUNDS = {
 };
 
 // One line under the distributor metrics: where the round's data comes from and whether the contract has its root.
+// A root no proof can match. Setting it closes a round on the old royalty distributor, which has no claim deadline
+// (it rejects an empty root, so a 'one' root is used instead).
+const CLOSED_ROOT = `0x${'0'.repeat(63)}1`;
+
 function RoundStatus({ metrics, label }) {
   if (metrics.loading || !metrics.rootStatus) return null;
   const funded = metrics.contractBalance >= metrics.unclaimedTokens;
@@ -69,9 +73,10 @@ function RoundStatus({ metrics, label }) {
     'no-snapshot': `${label}: no published snapshot. Run and publish it in the Snapshots tab.`,
     'not-set': `${label}: snapshot ready (${metrics.totalPool.toLocaleString()} $VIBE pool), Merkle root not set on the contract yet.`,
     match: `${label}: Merkle root on the contract matches the snapshot (${metrics.totalPool.toLocaleString()} $VIBE pool).${funded ? '' : ' The contract balance does not cover the unclaimed amount yet.'}`,
+    closed: `${label}: closed. The claim window has ended and the contract no longer accepts claims for this round.`,
     mismatch: `${label}: the Merkle root on the contract differs from the published snapshot. Claims will fail until they match.`,
   }[metrics.rootStatus];
-  const tone = metrics.rootStatus === 'match' && funded ? 'success' : metrics.rootStatus === 'mismatch' ? 'danger' : 'warn';
+  const tone = metrics.rootStatus === 'closed' ? 'info' : metrics.rootStatus === 'match' && funded ? 'success' : metrics.rootStatus === 'mismatch' ? 'danger' : 'warn';
   return (
     <Alert tone={tone} icon={tone === 'success' ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}>
       {text}
@@ -323,7 +328,9 @@ export function BaseAppAdminView() {
       const totalPool = source?.pool || 0;
       const unclaimedTokens = Math.max(0, totalPool - claimedTokens);
       const ZERO_ROOT = `0x${'0'.repeat(64)}`;
-      const rootStatus = !source
+      const rootStatus = onchainRoot?.toLowerCase() === CLOSED_ROOT
+        ? 'closed'
+        : !source
         ? 'no-snapshot'
         : !onchainRoot || onchainRoot === ZERO_ROOT
           ? 'not-set'
@@ -391,6 +398,33 @@ export function BaseAppAdminView() {
       setTimeout(() => fetchDistributorMetrics(type, epoch), 3000);
     } catch (e) {
       console.error('Set Merkle Root error:', e);
+      setErrorMessage(e?.shortMessage || e?.message || 'Transaction failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Old royalty distributor only: once a round's claim window is over, stop direct contract claims for it.
+  const handleCloseRoyaltyRound = async () => {
+    const epoch = royaltyEpochId;
+    const round = VIBECLUB_ROUNDS.find((r) => String(r.id) === String(epoch));
+    if (!round || Date.now() < new Date(round.nextSnapshotDate).getTime()) {
+      setErrorMessage(`Royalty #${epoch} is still in its claim window, it can be closed after ${round ? new Date(round.nextSnapshotDate).toUTCString() : 'the window ends'}`);
+      return;
+    }
+    if (!window.confirm(`Close Royalty #${epoch}? Nobody will be able to claim it anymore, also not through the contract.`)) return;
+    setLoading(true);
+    setErrorMessage('');
+    setSuccessMessage('');
+    setTxHash('');
+    try {
+      const dataHex = encodeFunctionData({ abi: DISTRIBUTOR_ABI, functionName: 'setMerkleRoot', args: [BigInt(epoch), CLOSED_ROOT] });
+      const hash = await sendAdminTx(ROYALTY_DISTRIBUTOR_CA, dataHex);
+      setTxHash(hash);
+      setSuccessMessage(`Royalty #${epoch} closed`);
+      setTimeout(() => fetchDistributorMetrics('royalty', epoch), 3000);
+    } catch (e) {
+      console.error('Close round error:', e);
       setErrorMessage(e?.shortMessage || e?.message || 'Transaction failed');
     } finally {
       setLoading(false);
@@ -942,6 +976,21 @@ export function BaseAppAdminView() {
                 {loading ? 'Saving...' : 'Publish root'}
               </Button>
             </div>
+            {(() => {
+              const round = VIBECLUB_ROUNDS.find((r) => String(r.id) === String(royaltyEpochId));
+              const windowOver = round && Date.now() >= new Date(round.nextSnapshotDate).getTime();
+              if (!windowOver || royaltyMetrics.rootStatus === 'closed') return null;
+              return (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: '12px', color: 'var(--text-3)' }}>
+                    The claim window of Royalty #{royaltyEpochId} has ended, but this contract has no deadline: close the round so nobody can still claim it directly.
+                  </span>
+                  <Button variant="secondary" size="md" onClick={handleCloseRoyaltyRound} disabled={loading}>
+                    Close round #{royaltyEpochId}
+                  </Button>
+                </div>
+              );
+            })()}
           </Card>
 
           {/* Action 2: Withdraw to Admin */}
