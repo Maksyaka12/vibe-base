@@ -9,7 +9,7 @@
 
 import { createRequire } from 'node:module';
 import { encodeFunctionData, formatEther, getAddress, isAddress, parseAbi } from 'viem';
-import { json, store } from './common.js';
+import { json, store, env } from './common.js';
 import { publicClient } from '../../src/config/rpc.js';
 import { DEFAULT_SCHEDULE, applySchedule } from '../../src/data/rewardsSchedule.js';
 import * as schedule from '../../src/data/rewardsSchedule.js';
@@ -33,6 +33,7 @@ const BUILT_IN = {
 
 const CHECK_IN = '0x1938BA215ef556e51eE6AaF909e0970AE0167634';
 const ACHIEVEMENTS = '0x1336E381768c98c8A6e79d99Ec065684c41925A5';
+const STAKING_ADDRESS = '0x6f25a9e1e677616c1bF7ab54b470b0c82839Adb4';
 const CLOSED_ROOT = `0x${'0'.repeat(63)}1`; // what the admin sets to close an old v1 royalty round
 const ZERO_ROOT = `0x${'0'.repeat(64)}`;
 
@@ -185,6 +186,150 @@ export async function handleClaims({ method, query = {} }) {
   }
 }
 
+// Reward rules, shared by /api/agent and /api/rounds (they match the admin snapshot tool).
+const RULES = {
+  rounds: 'Snapshot at 00:00 UTC on the round day; claim opens at 14:00 UTC the same day and closes at 00:00 UTC on the day of the next snapshot. After that the round expires and cannot be claimed (not even through the contract).',
+  holderRewards: {
+    eligibility: 'At least 5,000,000 $VIBE held in the wallet itself at the snapshot block. Tokens staked, in liquidity pools or in contracts do not count.',
+    allocation: 'The round pool is shared proportionally to balances, capped at 500,000 $VIBE per wallet (the excess is redistributed among the others).',
+    excluded: 'Protocol addresses: the token, the Uniswap pool, the vesting vault, staking contracts, the rewards distributor, burn and zero addresses.',
+  },
+  vibeClubRoyalties: {
+    eligibility: 'Holding at least one Vibe Club NFT at the snapshot block.',
+    allocation: 'The round pool is split equally per eligible wallet (not per NFT).',
+  },
+  staking: 'Stake $VIBE in the official o1 Exchange vault of the current epoch; rewards are claimable from the staking contract after the vault epoch ends, with no deadline.',
+  dailyCheckIn: 'One check-in per UTC day; the streak continues when the previous check-in was the day before, otherwise it restarts at 1.',
+  achievements: 'Soulbound, checked by the contract: longest streak 7 / 14 / 30 days; deposited into 1 / 3 / 5 official staking vaults; currently staking 5M / 10M $VIBE in one vault.',
+};
+
+// ─────────────────────────────── /api/rounds ───────────────────────────────
+
+/** The full schedule (as the Rewards Hub shows it) with each round's window and state, plus the rules. */
+export async function handleRounds({ method }) {
+  if (method !== 'GET') return json(405, { error: 'Method not allowed' }, { Allow: 'GET' });
+  try {
+    const db = await store();
+    await loadSchedule(db);
+    const now = Date.now();
+    const roundState = (r) => {
+      const snap = new Date(r.snapshotIso).getTime();
+      const start = new Date(r.targetDate).getTime();
+      const end = new Date(r.nextSnapshotDate).getTime();
+      return now < snap ? 'upcoming' : now < start ? 'snapshot_taken' : now < end ? 'claim_open' : 'ended';
+    };
+    const mapRounds = (type, rounds) => rounds.map((r) => ({
+      round: r.id,
+      name: r.name,
+      pool: r.pool,
+      snapshot: iso(r.snapshotIso),
+      claimStart: iso(r.targetDate),
+      claimEnd: iso(r.nextSnapshotDate),
+      state: roundState(r),
+      contract: distributorFor(type, r.id)?.address || null,
+    }));
+    return json(200, {
+      holderRewards: mapRounds('holder', schedule.HOLDER_ROUNDS),
+      vibeClubRoyalties: mapRounds('royalty', schedule.VIBECLUB_ROUNDS),
+      stakingEpochs: schedule.STAKING_EPOCHS.map((e) => ({
+        epoch: e.epoch,
+        pool: e.poolAmount,
+        start: e.startDateObj.toISOString(),
+        end: e.endDateObj.toISOString(),
+        state: now < e.startDateObj ? 'upcoming' : now < e.endDateObj ? 'active' : 'ended',
+        vault: e.link,
+      })),
+      giveaways: schedule.GIVEAWAYS_DATA,
+      rules: RULES,
+    }, { 'Cache-Control': 'public, max-age=0, s-maxage=60, stale-while-revalidate=300' });
+  } catch (e) {
+    return json(500, { error: e.message || 'Server error' });
+  }
+}
+
+// ─────────────────────────────── /api/history ───────────────────────────────
+
+const EPOCH_REWARD_CLAIMED = '0xb63b787020ee0a48ed6ddf0667249b333cea03eb87043aa21cb0490467df040c';
+
+/** Every $VIBE payout to the wallet from the reward contracts and staking, matched to its round. */
+export async function handleHistory({ method, query = {} }) {
+  if (method !== 'GET') return json(405, { error: 'Method not allowed' }, { Allow: 'GET' });
+  const account = readAddress(query);
+  if (!account) return json(400, { error: 'Pass a wallet: /api/history?address=0x...' });
+  const key = env('ALCHEMY_API_KEY');
+  if (!key) return json(503, { error: 'History is not configured (ALCHEMY_API_KEY)' });
+
+  try {
+    const db = await store();
+    await loadSchedule(db);
+    const lower = account.toLowerCase();
+    const sources = [
+      ...['holder', 'royalty'].flatMap((type) => [1, 99].map((round) => ({ type, contract: distributorFor(type, round) }))).filter((s) => s.contract),
+      { type: 'staking', contract: { address: STAKING_ADDRESS, version: null } },
+    ];
+
+    const transfers = [];
+    for (const s of sources) {
+      let pageKey;
+      do {
+        const res = await fetch(`https://base-mainnet.g.alchemy.com/v2/${key}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'alchemy_getAssetTransfers', params: [{
+            fromBlock: '0x0', toBlock: 'latest', fromAddress: s.contract.address, toAddress: lower,
+            contractAddresses: [VIBE_TOKEN], category: ['erc20'], withMetadata: true, excludeZeroValue: true, maxCount: '0x3e8',
+            ...(pageKey ? { pageKey } : {}),
+          }] }),
+        }).then((r) => r.json());
+        if (res.error) throw new Error(`Alchemy: ${res.error.message}`);
+        for (const t of res.result?.transfers || []) transfers.push({ ...s, t });
+        pageKey = res.result?.pageKey;
+      } while (pageKey);
+    }
+
+    // allocations of this wallet per round, to say which round a payout was
+    const allocations = [];
+    for (const [type, rounds] of [['holder', schedule.HOLDER_ROUNDS], ['royalty', schedule.VIBECLUB_ROUNDS]]) {
+      for (const r of rounds) {
+        const claim = (await proofsFor(db, type, r.id))?.claims?.[lower];
+        if (claim) allocations.push({ type, round: r.id, amountWei: BigInt(claim.amountWei), contract: distributorFor(type, r.id)?.address?.toLowerCase() });
+      }
+    }
+
+    const items = [];
+    for (const { type, contract, t } of transfers) {
+      const valueWei = BigInt(t.rawContract.value);
+      const base = {
+        type,
+        amount: Number(formatEther(valueWei)),
+        date: t.metadata?.blockTimestamp || null,
+        txHash: t.hash,
+        contract: contract.address,
+      };
+      if (type === 'staking') {
+        // payouts from staking are either epoch rewards or a withdrawal of the deposit
+        const receipt = await publicClient.getTransactionReceipt({ hash: t.hash }).catch(() => null);
+        const reward = receipt?.logs.find((l) => l.address.toLowerCase() === STAKING_ADDRESS.toLowerCase() && l.topics[0] === EPOCH_REWARD_CLAIMED);
+        const vaultId = reward?.topics[1];
+        const epoch = schedule.SCHEDULE.staking.find((e) => e.vaultId && e.vaultId.toLowerCase() === vaultId?.toLowerCase())?.epoch;
+        items.push({ ...base, type: reward ? 'staking_reward' : 'staking_withdrawal', name: reward ? `Staking Epoch ${epoch ?? '?'}` : 'Staking withdrawal', round: epoch ?? null });
+        continue;
+      }
+      const match = allocations.find((a) => a.type === type && a.amountWei === valueWei && a.contract === contract.address.toLowerCase());
+      items.push({ ...base, name: match ? `${type === 'holder' ? 'Unlock' : 'Royalty'} ${match.round}` : 'Other transfer', round: match?.round ?? null });
+    }
+    items.sort((a, b) => String(b.date).localeCompare(String(a.date)));
+
+    const totals = items.reduce((acc, i) => {
+      if (i.type !== 'staking_withdrawal' && i.round !== null) acc[i.type] = (acc[i.type] || 0) + i.amount;
+      return acc;
+    }, {});
+    return json(200, { address: account, items, totals }, { 'Cache-Control': 'public, max-age=0, s-maxage=60, stale-while-revalidate=300' });
+  } catch (e) {
+    return json(500, { error: e.message || 'Server error' });
+  }
+}
+
 // ─────────────────────────────── /api/agent ───────────────────────────────
 
 /** Entry point for agents: what they can do, where, and how transactions are returned. */
@@ -199,12 +344,10 @@ export async function handleAgentIndex({ method }) {
       'GET /api/claims?address=': 'Holder rewards and Vibe Club royalties: every round with an allocation, its claim window, status and claim tx.',
       'GET /api/staking?address=[&deposit=amount]': 'o1 staking vaults: stake, lots, claimable rewards (claim tx), unlocked lots (withdraw tx), and approve + deposit txs into the open vault.',
       'GET /api/swap?address=&side=buy|sell&amount=[&slippage=1]': 'Swap ETH <-> $VIBE through KyberSwap: quote and ready txs (approve first when selling).',
+      'GET /api/rounds': 'Full schedule: holder unlocks, royalty rounds and staking epochs with dates, pools, claim windows and state; giveaways; reward rules.',
+      'GET /api/history?address=': 'Every payout received from holder rewards, royalties and staking: round, amount, date and tx hash, with totals.',
     },
-    rules: {
-      rewards: 'Snapshot at 00:00 UTC on the round day, claim opens at 14:00 UTC, closes at 00:00 UTC on the next snapshot day. Expired rounds cannot be claimed.',
-      achievements: 'Soulbound; the contract checks streak (check-in), staking vaults joined and current stake itself.',
-      checkIn: 'Once per UTC day; the streak continues when the previous check-in was the day before.',
-    },
+    rules: RULES,
     contracts: {
       vibeToken: VIBE_TOKEN,
       vibeClubNft: VIBE_CLUB_NFT,
@@ -472,13 +615,39 @@ export async function handleStatus({ method, query = {} }) {
     const progress = ok(8);
     const checkIn = ok(6);
     const owned = await findOwnedVibeClubNfts(publicClient, account).catch(() => null);
+    const ethWei = await publicClient.getBalance({ address: account }).catch(() => null);
+
+    // the next snapshots and whether the wallet would qualify if they were taken now
+    const vibe = ok(0) !== null ? Number(formatEther(ok(0))) : null;
+    const nfts = ok(1) !== null ? Number(ok(1)) : null;
+    const nextHolder = schedule.HOLDER_ROUNDS.find((h) => Date.now() < new Date(h.snapshotIso).getTime());
+    const nextRoyalty = schedule.VIBECLUB_ROUNDS.find((h) => Date.now() < new Date(h.snapshotIso).getTime());
+    const eligibility = {
+      nextHolderRound: nextHolder && {
+        name: nextHolder.name,
+        snapshot: iso(nextHolder.snapshotIso),
+        pool: nextHolder.pool,
+        requirement: '5,000,000 $VIBE held in this wallet at the snapshot',
+        eligibleNow: vibe !== null ? vibe >= 5_000_000 : null,
+        missing: vibe !== null ? Math.max(0, 5_000_000 - vibe) : null,
+      },
+      nextRoyaltyRound: nextRoyalty && {
+        name: nextRoyalty.name,
+        snapshot: iso(nextRoyalty.snapshotIso),
+        pool: nextRoyalty.pool,
+        requirement: 'At least one Vibe Club NFT in this wallet at the snapshot',
+        eligibleNow: nfts !== null ? nfts > 0 : null,
+      },
+    };
 
     const now = Date.now();
     const stakingEpoch = schedule.STAKING_EPOCHS.find((e) => now >= e.startDateObj && now < e.endDateObj) || null;
 
     return json(200, {
       address: account,
-      vibeBalance: ok(0) !== null ? Number(formatEther(ok(0))) : null,
+      vibeBalance: vibe,
+      ethBalance: ethWei !== null ? Number(formatEther(ethWei)) : null,
+      eligibility,
       vibeClub: {
         nftCount: ok(1) !== null ? Number(ok(1)) : null,
         tokenIds: owned,
@@ -524,7 +693,7 @@ export async function handleStatus({ method, query = {} }) {
         },
         note: 'Staking happens on o1 Exchange (vault link above).',
       },
-      rewards: 'See /api/claims?address= for reward rounds with proofs and ready transactions.',
+      more: 'Reward rounds with proofs and txs: /api/claims. Payout history: /api/history. Schedule and rules: /api/rounds. Staking: /api/staking.',
     }, { 'Cache-Control': 'public, max-age=0, s-maxage=15, stale-while-revalidate=60' });
   } catch (e) {
     return json(500, { error: e.message || 'Server error' });

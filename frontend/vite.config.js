@@ -94,6 +94,8 @@ const DEV_API = {
   '/api/staking': ['/api/_lib/agent.js', 'handleStaking'],
   '/api/swap': ['/api/_lib/agent.js', 'handleSwap'],
   '/api/agent': ['/api/_lib/agent.js', 'handleAgentIndex'],
+  '/api/rounds': ['/api/_lib/agent.js', 'handleRounds'],
+  '/api/history': ['/api/_lib/agent.js', 'handleHistory'],
 }
 
 function scheduleApiDev() {
