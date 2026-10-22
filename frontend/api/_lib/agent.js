@@ -180,7 +180,7 @@ export async function handleClaims({ method, query = {} }) {
         statuses: 'open = claim now; not_opened = snapshot done, waiting for the round to be published onchain; upcoming = claim opens at claimStart; claimed; expired = window closed, cannot be claimed.',
         tx: 'Send tx.to / tx.data / tx.value on Base (chain 8453). sender "any" means any wallet may send it (the tokens still go to this address); otherwise only that wallet can.',
       },
-    }, { 'Cache-Control': 'public, max-age=0, s-maxage=15, stale-while-revalidate=60' });
+    }, { 'Cache-Control': 'public, max-age=0, s-maxage=5' });
   } catch (e) {
     return json(500, { error: e.message || 'Server error' });
   }
@@ -509,7 +509,7 @@ export async function handleStaking({ method, query = {} }) {
       vaults,
       deposit,
       notes: 'Staking runs on o1 Exchange. Send the txs in order from this wallet on Base (8453). A deposit counts from the next epoch; lots unlock at unlockAt.',
-    }, { 'Cache-Control': 'public, max-age=0, s-maxage=15, stale-while-revalidate=60' });
+    }, { 'Cache-Control': 'public, max-age=0, s-maxage=5' });
   } catch (e) {
     return json(500, { error: e.message || 'Server error' });
   }
@@ -704,7 +704,7 @@ export async function handleStatus({ method, query = {} }) {
         note: 'Staking happens on o1 Exchange (vault link above).',
       },
       more: 'Reward rounds with proofs and txs: /api/claims. Payout history: /api/history. Schedule and rules: /api/rounds. Staking: /api/staking.',
-    }, { 'Cache-Control': 'public, max-age=0, s-maxage=15, stale-while-revalidate=60' });
+    }, { 'Cache-Control': 'public, max-age=0, s-maxage=5' });
   } catch (e) {
     return json(500, { error: e.message || 'Server error' });
   }
