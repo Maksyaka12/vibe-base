@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "slug": "vibe-hub",
+  "provider": "Vibe Hub",
+  "providerUrl": "https://vibehome.dog",
+  "logo": "logo.png",
+  "demo": {
+    "title": "vibe-hub.sh",
+    "language": "bash",
+    "code": "# Wallet overview with a ready check-in tx\ncurl -s 'https://vibehome.dog/api/status?address=0xYOUR_WALLET'\n\n# Reward rounds with ready claim txs\ncurl -s 'https://vibehome.dog/api/claims?address=0xYOUR_WALLET'\n\n# In Bankr chat\nbankr \"do my vibe hub check-in\"\nbankr \"claim my vibe rewards\""
+  },
+  "setup": [
+    "Install: `install the vibe-hub skill from https://github.com/BankrBot/skills/tree/main/vibe-hub`",
+    "Base mainnet only. API: https://vibehome.dog/api/agent (public, GET, no auth)",
+    "$VIBE token: `0xb200000000000000000000df24ecb8bf51100a01`",
+    "The API returns ready txs {to, data, value, sender}; Bankr submits them on Base (8453)",
+    "Check-in, achievements, reward claims, staking, swaps and transfers; minting is not done by agents",
+    "Requires ETH for gas on Base in the Bankr wallet"
+  ],
+  "install": {
+    "type": "bankr",
+    "repoPath": "vibe-hub",
+    "command": "install the vibe-hub skill from https://github.com/BankrBot/skills/tree/main/vibe-hub"
+  }
+}
