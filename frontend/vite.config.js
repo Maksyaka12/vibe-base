@@ -93,6 +93,9 @@ const DEV_API = {
   '/api/status': ['/api/_lib/agent.js', 'handleStatus'],
   '/api/staking': ['/api/_lib/agent.js', 'handleStaking'],
   '/api/swap': ['/api/_lib/agent.js', 'handleSwap'],
+  // more specific paths first: middlewares match by prefix
+  '/api/agent/act': ['/api/_lib/agentWallet.js', 'handleAgentAct'],
+  '/api/agent/token': ['/api/_lib/agentWallet.js', 'handleAgentToken'],
   '/api/agent': ['/api/_lib/agent.js', 'handleAgentIndex'],
   '/api/rounds': ['/api/_lib/agent.js', 'handleRounds'],
   '/api/history': ['/api/_lib/agent.js', 'handleHistory'],
@@ -106,7 +109,7 @@ function scheduleApiDev() {
       for (const [route, [modulePath, exportName]] of Object.entries(DEV_API)) server.middlewares.use(route, async (req, res) => {
         const handle = (await server.ssrLoadModule(modulePath))[exportName]
         let body
-        if (req.method === 'PUT') {
+        if (req.method === 'PUT' || req.method === 'POST') {
           let raw = ''
           for await (const chunk of req) raw += chunk
           try { body = JSON.parse(raw) } catch { body = null }

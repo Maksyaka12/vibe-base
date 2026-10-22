@@ -93,12 +93,13 @@ const redisStore = {
     for (let i = 0; i < (result || []).length; i += 2) out[result[i]] = JSON.parse(result[i + 1]);
     return out;
   },
-  // ops: [['set', key, value] | ['push', key, value, limit] | ['hset', key, field, value]]
+  // ops: [['set', key, value] | ['push', key, value, limit] | ['hset', key, field, value] | ['del', key]]
   async write(ops) {
     const commands = ops.flatMap(([op, key, a, b]) => {
       if (op === 'set') return [['SET', key, JSON.stringify(a)]];
       if (op === 'push') return [['LPUSH', key, JSON.stringify(a)], ['LTRIM', key, 0, b - 1]];
       if (op === 'hset') return [['HSET', key, a, JSON.stringify(b)]];
+      if (op === 'del') return [['DEL', key]];
       throw new Error(`Unknown op ${op}`);
     });
     const results = await redis('/pipeline', commands);
@@ -127,6 +128,7 @@ async function fileStore() {
         if (op === 'set') await save(key, a);
         else if (op === 'push') await save(key, [a, ...(await read(key, []))].slice(0, b));
         else if (op === 'hset') await save(key, { ...(await read(key, {})), [a]: b });
+        else if (op === 'del') await fs.rm(file(key), { force: true });
       }
     },
   };

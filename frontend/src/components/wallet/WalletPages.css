@@ -566,3 +566,25 @@
   margin: 4px 6px;
   background: var(--vwp-border);
 }
+
+/* Agent access card */
+.vwp-badge.off {
+  color: var(--vwp-text-3);
+  background: transparent;
+  border-color: var(--vwp-border);
+}
+
+.vwp-key {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.vwp-actions-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.vwp-btn-danger:hover:not(:disabled) {
+  border-color: var(--vwp-red);
+  color: var(--vwp-red);
+}

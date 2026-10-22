@@ -2,6 +2,7 @@ import { usePrivy, useExportWallet } from '@privy-io/react-auth';
 import { Bot, Wallet as WalletIcon, KeyRound, ArrowRight } from 'lucide-react';
 import { useVibeWallets } from '../../hooks/useVibeWallets';
 import { CopyButton, shortAddr } from './WalletPage';
+import AgentAccessCard from './AgentAccessCard';
 import './WalletPages.css';
 
 // Account settings shared by both themes: the account's two wallets. Login is wallet-only:
@@ -67,6 +68,7 @@ export default function AccountPage({ theme = 'o1', onOpenWallet }) {
         </button>
       </div>
 
+      <AgentAccessCard agentAddress={hasAgentWallet ? agentAddress : null} />
     </div>
   );
 }

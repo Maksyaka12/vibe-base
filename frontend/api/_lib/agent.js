@@ -347,6 +347,16 @@ export async function handleAgentIndex({ method }) {
       'GET /api/rounds': 'Full schedule: holder unlocks, royalty rounds and staking epochs with dates, pools, claim windows and state; giveaways; reward rules.',
       'GET /api/history?address=': 'Every payout received from holder rewards, royalties and staking: round, amount, date and tx hash, with totals.',
     },
+    agentWallet: {
+      howItWorks: 'Every Vibe Hub account has a Vibe Agent Wallet. After the user enables the agent (Vibe Hub → Account) they get an agent key; with it the agent acts from that wallet with no signatures: the server signs and sends, and answers with the tx hashes once mined.',
+      auth: 'Authorization: Bearer <agent key>',
+      endpoints: {
+        'POST /api/agent/act {"tx":{to,data,value}} or {"txs":[...]}': 'Send txs returned by the read endpoints (built with address=<agent wallet>): check-in, achievements, reward claims, staking deposit/claim/withdraw.',
+        'POST /api/agent/act {"action":"swap","side":"buy|sell","amount":"0.01","slippage":1}': 'Swap ETH <-> $VIBE; the output comes back to the agent wallet.',
+        'POST /api/agent/act {"action":"transfer","token":"ETH|VIBE|USDC","to":"0x...","amount":"1.5"}': 'Transfer from the agent wallet: unlimited to the owner\'s main wallet, capped per day to other addresses.',
+      },
+      notAvailable: 'Minting Vibe Club NFTs, and any contract not listed above.',
+    },
     rules: RULES,
     contracts: {
       vibeToken: VIBE_TOKEN,
