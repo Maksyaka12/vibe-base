@@ -483,6 +483,14 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
   const [currentTime, setCurrentTime] = useState(() => new Date());
   const [claimStatus, setClaimStatus] = useState({});
   const [claimedHistory, setClaimedHistory] = useState([]);
+  // History syncs are async and can finish after the user switched wallets (main <-> agent):
+  // results for a wallet that is no longer shown are dropped.
+  const historyOwner = useRef(null);
+  historyOwner.current = address ? address.toLowerCase() : null;
+  const setHistoryFor = (owner, update) => {
+    if (!owner || historyOwner.current !== owner.toLowerCase()) return;
+    setClaimedHistory(update);
+  };
   const [showRoyaltySuccessModal, setShowRoyaltySuccessModal] = useState(false);
   const [royaltyModalData, setRoyaltyModalData] = useState({
     epochId: 2,
@@ -569,8 +577,9 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
         if (cachedNft) setUserNft(JSON.parse(cachedNft));
       } catch {}
 
+      setClaimedHistory([]);
       try {
-        const stored = localStorage.getItem(`vibe_claim_history_${address.toLowerCase()}`);
+        const stored = localStorage.getItem(`vibe_claim_history_v2_${address.toLowerCase()}`);
         if (stored) {
           const parsed = JSON.parse(stored);
           if (Array.isArray(parsed)) {
@@ -635,7 +644,7 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
       // Fast background fetch of accurate claim transactions
       fetchUserClaimTransactions(address).then(txMap => {
         if (txMap && Object.keys(txMap).length > 0) {
-          setClaimedHistory(prev => {
+          setHistoryFor(address, prev => {
             const prevList = Array.isArray(prev) ? prev : [];
             let updated = [...prevList];
             // 1. Update existing items with verified txHash
@@ -668,7 +677,7 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
                 });
               }
             }
-            localStorage.setItem(`vibe_claim_history_${address.toLowerCase()}`, JSON.stringify(updated));
+            localStorage.setItem(`vibe_claim_history_v2_${address.toLowerCase()}`, JSON.stringify(updated));
             return getSortedClaimedHistory(updated);
           });
         }
@@ -736,7 +745,7 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
   // Lightweight sync of claimed transaction history for Holder Rewards
   const syncClaimHistory = async (client, userAddress, roundId = 1, txMap = {}) => {
     try {
-      const existingHistory = JSON.parse(localStorage.getItem(`vibe_claim_history_${userAddress.toLowerCase()}`) || '[]');
+      const existingHistory = JSON.parse(localStorage.getItem(`vibe_claim_history_v2_${userAddress.toLowerCase()}`) || '[]');
       const existingItem = existingHistory.find(h => h && h.id === `holder-${roundId}`);
       const rData = roundProofs('holder', roundId);
       const defaultAmt = roundId === 2 ? 500000 : (roundId === 1 ? 126127 : 0);
@@ -761,10 +770,10 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
         timestamp
       };
 
-      setClaimedHistory(prev => {
+      setHistoryFor(userAddress, prev => {
         const prevList = Array.isArray(prev) ? prev : [];
         const updated = getSortedClaimedHistory([syncedItem, ...prevList.filter(h => h && h.id !== `holder-${roundId}`)]);
-        localStorage.setItem(`vibe_claim_history_${userAddress.toLowerCase()}`, JSON.stringify(updated));
+        localStorage.setItem(`vibe_claim_history_v2_${userAddress.toLowerCase()}`, JSON.stringify(updated));
         return updated;
       });
     } catch (claimErr) {
@@ -775,7 +784,7 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
   // Lightweight sync of claimed transaction history for Vibe Club Royalties
   const syncRoyaltyClaimHistory = async (client, userAddress, targetCa, roundId = 1, txMap = {}) => {
     try {
-      const existingHistory = JSON.parse(localStorage.getItem(`vibe_claim_history_${userAddress.toLowerCase()}`) || '[]');
+      const existingHistory = JSON.parse(localStorage.getItem(`vibe_claim_history_v2_${userAddress.toLowerCase()}`) || '[]');
       const existingItem = existingHistory.find(h => h && h.id === `vibeclub-${roundId}`);
       const rData = roundProofs('royalty', roundId);
       const defaultAmt = roundId > 5 ? 0 : roundId === 5 ? 7207 : (roundId === 4 ? 9909 : (roundId === 3 ? 18018 : (roundId === 2 ? 17117 : 22935)));
@@ -804,10 +813,10 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
         timestamp
       };
 
-      setClaimedHistory(prev => {
+      setHistoryFor(userAddress, prev => {
         const prevList = Array.isArray(prev) ? prev : [];
         const updated = getSortedClaimedHistory([syncedItem, ...prevList.filter(h => h && h.id !== `vibeclub-${roundId}`)]);
-        localStorage.setItem(`vibe_claim_history_${userAddress.toLowerCase()}`, JSON.stringify(updated));
+        localStorage.setItem(`vibe_claim_history_v2_${userAddress.toLowerCase()}`, JSON.stringify(updated));
         return updated;
       });
     } catch (claimErr) {
@@ -832,7 +841,7 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
         .filter(Boolean);
 
       if (stakingItems.length > 0) {
-        setClaimedHistory(prev => {
+        setHistoryFor(userAddress, prev => {
           const prevList = Array.isArray(prev) ? prev : [];
           const nonStaking = prevList.filter(h => h && !h.id?.startsWith('staking-'));
           // Explorer responses can be partial (rate limits / Cloudflare), so keep staking claims
@@ -840,7 +849,7 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
           const freshIds = new Set(stakingItems.map(i => i.id));
           const keptStaking = prevList.filter(h => h && h.id?.startsWith('staking-') && !freshIds.has(h.id));
           const updated = getSortedClaimedHistory([...stakingItems, ...keptStaking, ...nonStaking]);
-          localStorage.setItem(`vibe_claim_history_${lowerUser}`, JSON.stringify(updated));
+          localStorage.setItem(`vibe_claim_history_v2_${lowerUser}`, JSON.stringify(updated));
           return updated;
         });
       }
@@ -999,11 +1008,11 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
           syncClaimHistory(client, address, 1, txMap);
         } else {
           setPolledStatus('holder-1', 'unclaimed');
-          setClaimedHistory(prev => {
+          setHistoryFor(address, prev => {
             const prevList = Array.isArray(prev) ? prev : [];
             const filtered = prevList.filter(h => h && h.id !== 'holder-1');
             if (filtered.length !== prevList.length) {
-              localStorage.setItem(`vibe_claim_history_${address.toLowerCase()}`, JSON.stringify(filtered));
+              localStorage.setItem(`vibe_claim_history_v2_${address.toLowerCase()}`, JSON.stringify(filtered));
             }
             return filtered;
           });
@@ -1017,11 +1026,11 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
           syncClaimHistory(client, address, 2, txMap);
         } else {
           setPolledStatus('holder-2', 'unclaimed');
-          setClaimedHistory(prev => {
+          setHistoryFor(address, prev => {
             const prevList = Array.isArray(prev) ? prev : [];
             const filtered = prevList.filter(h => h && h.id !== 'holder-2');
             if (filtered.length !== prevList.length) {
-              localStorage.setItem(`vibe_claim_history_${address.toLowerCase()}`, JSON.stringify(filtered));
+              localStorage.setItem(`vibe_claim_history_v2_${address.toLowerCase()}`, JSON.stringify(filtered));
             }
             return filtered;
           });
@@ -1035,11 +1044,11 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
           syncRoyaltyClaimHistory(client, address, targetRoyaltyCa, 1, txMap);
         } else {
           setPolledStatus('vibeclub-1', 'unclaimed');
-          setClaimedHistory(prev => {
+          setHistoryFor(address, prev => {
             const prevList = Array.isArray(prev) ? prev : [];
             const filtered = prevList.filter(h => h && h.id !== 'vibeclub-1');
             if (filtered.length !== prevList.length) {
-              localStorage.setItem(`vibe_claim_history_${address.toLowerCase()}`, JSON.stringify(filtered));
+              localStorage.setItem(`vibe_claim_history_v2_${address.toLowerCase()}`, JSON.stringify(filtered));
             }
             return filtered;
           });
@@ -1053,11 +1062,11 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
           syncRoyaltyClaimHistory(client, address, targetRoyaltyCa, 2, txMap);
         } else {
           setPolledStatus('vibeclub-2', 'unclaimed');
-          setClaimedHistory(prev => {
+          setHistoryFor(address, prev => {
             const prevList = Array.isArray(prev) ? prev : [];
             const filtered = prevList.filter(h => h && h.id !== 'vibeclub-2');
             if (filtered.length !== prevList.length) {
-              localStorage.setItem(`vibe_claim_history_${address.toLowerCase()}`, JSON.stringify(filtered));
+              localStorage.setItem(`vibe_claim_history_v2_${address.toLowerCase()}`, JSON.stringify(filtered));
             }
             return filtered;
           });
@@ -1071,11 +1080,11 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
           syncRoyaltyClaimHistory(client, address, targetRoyaltyCa, 3, txMap);
         } else {
           setPolledStatus('vibeclub-3', 'unclaimed');
-          setClaimedHistory(prev => {
+          setHistoryFor(address, prev => {
             const prevList = Array.isArray(prev) ? prev : [];
             const filtered = prevList.filter(h => h && h.id !== 'vibeclub-3');
             if (filtered.length !== prevList.length) {
-              localStorage.setItem(`vibe_claim_history_${address.toLowerCase()}`, JSON.stringify(filtered));
+              localStorage.setItem(`vibe_claim_history_v2_${address.toLowerCase()}`, JSON.stringify(filtered));
             }
             return filtered;
           });
@@ -1089,11 +1098,11 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
           syncRoyaltyClaimHistory(client, address, targetRoyaltyCa, 4, txMap);
         } else {
           setPolledStatus('vibeclub-4', 'unclaimed');
-          setClaimedHistory(prev => {
+          setHistoryFor(address, prev => {
             const prevList = Array.isArray(prev) ? prev : [];
             const filtered = prevList.filter(h => h && h.id !== 'vibeclub-4');
             if (filtered.length !== prevList.length) {
-              localStorage.setItem(`vibe_claim_history_${address.toLowerCase()}`, JSON.stringify(filtered));
+              localStorage.setItem(`vibe_claim_history_v2_${address.toLowerCase()}`, JSON.stringify(filtered));
             }
             return filtered;
           });
@@ -1107,11 +1116,11 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
           syncRoyaltyClaimHistory(client, address, targetRoyaltyCa, 5, txMap);
         } else {
           setPolledStatus('vibeclub-5', 'unclaimed');
-          setClaimedHistory(prev => {
+          setHistoryFor(address, prev => {
             const prevList = Array.isArray(prev) ? prev : [];
             const filtered = prevList.filter(h => h && h.id !== 'vibeclub-5');
             if (filtered.length !== prevList.length) {
-              localStorage.setItem(`vibe_claim_history_${address.toLowerCase()}`, JSON.stringify(filtered));
+              localStorage.setItem(`vibe_claim_history_v2_${address.toLowerCase()}`, JSON.stringify(filtered));
             }
             return filtered;
           });
@@ -1129,11 +1138,11 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
           else syncRoyaltyClaimHistory(client, address, targetRoyaltyCa, r.id, txMap);
         } else {
           setPolledStatus(key, 'unclaimed');
-          setClaimedHistory(prev => {
+          setHistoryFor(address, prev => {
             const prevList = Array.isArray(prev) ? prev : [];
             const filtered = prevList.filter(h => h && h.id !== key);
             if (filtered.length !== prevList.length) {
-              localStorage.setItem(`vibe_claim_history_${address.toLowerCase()}`, JSON.stringify(filtered));
+              localStorage.setItem(`vibe_claim_history_v2_${address.toLowerCase()}`, JSON.stringify(filtered));
             }
             return filtered;
           });
@@ -1609,7 +1618,7 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
       const updatedHistory = getSortedClaimedHistory([newClaimItem, ...prevHistory.filter(c => c && c.id !== claimKey)]);
       setClaimedHistory(updatedHistory);
       if (address) {
-        localStorage.setItem(`vibe_claim_history_${address.toLowerCase()}`, JSON.stringify(updatedHistory));
+        localStorage.setItem(`vibe_claim_history_v2_${address.toLowerCase()}`, JSON.stringify(updatedHistory));
       }
 
       claimedThisSession.current.add(claimKey);

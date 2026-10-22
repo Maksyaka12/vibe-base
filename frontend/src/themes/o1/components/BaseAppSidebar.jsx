@@ -787,13 +787,17 @@ export function BaseAppSidebar({
                     style={{
                       fontSize: '13px',
                       color: 'var(--text)',
-                      fontFamily: 'var(--font-mono)'
+                      fontFamily: 'var(--font-mono)',
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      minWidth: 0
                     }}
                   >
                     {shortAddress(activeAddress)}
                   </span>
                   {hasAgentWallet && active === 'agent' && (
-                    <span style={{ fontSize: '10px', fontWeight: 600, color: 'var(--accent)', background: 'var(--accent-soft)', borderRadius: '99px', padding: '1px 6px' }}>Agent</span>
+                    <span style={{ fontSize: '10px', fontWeight: 600, color: 'var(--accent)', background: 'var(--accent-soft)', borderRadius: '99px', padding: '1px 6px', flexShrink: 0 }}>Agent</span>
                   )}
                   <ChevronUp size={14} color="var(--text-3)" style={{ marginLeft: 'auto', transform: menuOpen ? 'none' : 'rotate(180deg)', transition: 'transform 0.15s ease' }} />
                 </button>

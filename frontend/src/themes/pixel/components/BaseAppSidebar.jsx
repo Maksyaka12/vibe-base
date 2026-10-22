@@ -883,7 +883,7 @@ export function BaseAppSidebar({
                       alt="avatar"
                       style={{ width: isDesktop ? '20px' : '18px', height: isDesktop ? '20px' : '18px', borderRadius: '4px' }}
                     />
-                    <span style={{ fontSize: isDesktop ? '8.5px' : '7px', fontWeight: 900, color: '#00ff88' }}>
+                    <span style={{ fontSize: isDesktop ? '8.5px' : '7px', fontWeight: 900, color: '#00ff88', whiteSpace: 'nowrap' }}>
                       {shortAddress(activeAddress)}
                     </span>
                     {hasAgentWallet && active === 'agent' && (
