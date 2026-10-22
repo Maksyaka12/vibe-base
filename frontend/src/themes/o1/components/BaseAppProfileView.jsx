@@ -41,7 +41,7 @@ function updateStoredHistoricalDeposit(addr, newAmount) {
 function getStoredParticipatedVaults(addr) {
   if (!addr) return [];
   try {
-    const key = `vibe_participated_vaults_${addr.toLowerCase()}`;
+    const key = `vibe_participated_vaults_v2_${addr.toLowerCase()}`;
     const raw = localStorage.getItem(key);
     if (raw) {
       const parsed = JSON.parse(raw);
@@ -54,7 +54,7 @@ function getStoredParticipatedVaults(addr) {
 function saveParticipatedVaults(addr, roundIds) {
   if (!addr || !roundIds) return;
   try {
-    const key = `vibe_participated_vaults_${addr.toLowerCase()}`;
+    const key = `vibe_participated_vaults_v2_${addr.toLowerCase()}`;
     localStorage.setItem(key, JSON.stringify(Array.from(new Set(roundIds))));
   } catch (e) {}
 }
@@ -150,7 +150,7 @@ export function BaseAppProfileView(props) {
             saveParticipatedVaults(address, [...existing, ...activeRoundIds]);
           }
 
-          setStakingStats({ participationByVault: results, loading: false });
+          setStakingStats({ owner: address.toLowerCase(), participationByVault: results, loading: false });
         }
       } catch (err) {
         console.warn('Profile staking stats fetch error:', err);
@@ -162,6 +162,8 @@ export function BaseAppProfileView(props) {
   }, [address]);
 
   const isAdmin = address && address.toLowerCase() === ADMIN_WALLET.toLowerCase();
+  // After a wallet switch the previous wallet's vault reads are still in state until the new ones arrive.
+  const ownStakingStats = address && stakingStats.owner === address.toLowerCase() ? stakingStats : { participationByVault: [] };
 
   // Staking claims calculation
   const stakingClaims = (claimedHistory || []).filter(c => c && (c.type === 'staking' || c.id?.startsWith('staking-')));
@@ -170,16 +172,12 @@ export function BaseAppProfileView(props) {
   // Epochs participated calculation
   const storedVaults = getStoredParticipatedVaults(address);
   const claimRoundIds = stakingClaims.map(c => c?.roundId).filter(Boolean);
-  const liveRoundIds = (stakingStats?.participationByVault || []).filter(p => p && p.hasDeposit).map(p => p.roundId);
+  const liveRoundIds = (ownStakingStats.participationByVault || []).filter(p => p && p.hasDeposit).map(p => p.roundId);
   const allParticipatedRoundIds = new Set([
     ...storedVaults,
     ...claimRoundIds,
     ...liveRoundIds,
   ]);
-
-  if (address && allParticipatedRoundIds.size > 0) {
-    saveParticipatedVaults(address, Array.from(allParticipatedRoundIds));
-  }
 
   const totalStakingEpochs = STAKING_VAULTS_INFO.filter(v => allParticipatedRoundIds.has(v.roundId)).length || allParticipatedRoundIds.size;
 
@@ -229,7 +227,7 @@ export function BaseAppProfileView(props) {
 
   const isWolfOfWallStreetMet = Boolean(address && (claimedMap['wolf-of-wall-street'] || claimableMap['wolf-of-wall-street'])); // checked by the contract
 
-  const liveMaxDeposit = (stakingStats?.participationByVault || []).reduce((max, p) => {
+  const liveMaxDeposit = (ownStakingStats.participationByVault || []).reduce((max, p) => {
     const dep = Number(p?.depositAmount) || 0;
     return dep > max ? dep : max;
   }, 0);
