@@ -3,8 +3,8 @@ import { usePrivy } from '@privy-io/react-auth';
 
 // One Vibe Hub account = the wallet the user connected (main) + the Privy embedded wallet created at their
 // first login (the agent wallet). Both are separate participants (own balances, streak, rewards); the site
-// shows and acts with the active one. Users who log in with X / email / Telegram have only the embedded
-// wallet, which is then their main wallet too.
+// shows and acts with the active one. Login is wallet-only; accounts created earlier with email or socials
+// have only the embedded wallet, which is then their main wallet too.
 
 const STORAGE_KEY = 'vibe_active_wallet';
 const EVENT = 'vibe_active_wallet_change';

@@ -2188,7 +2188,7 @@ export default function App() {
       appId="cmrugdvds02q60cl7tegmrnx7"
       config={{
         plugins: DATA_SUFFIX ? [dataSuffix(DATA_SUFFIX)] : [],
-        loginMethods: ['wallet', 'email', 'twitter', 'telegram'],
+        loginMethods: ['wallet'],
         defaultChain: base,
         supportedChains: [base],
         appearance: {

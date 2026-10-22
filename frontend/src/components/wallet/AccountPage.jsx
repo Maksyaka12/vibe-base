@@ -1,10 +1,11 @@
 import { usePrivy, useExportWallet } from '@privy-io/react-auth';
-import { Bot, Wallet as WalletIcon, KeyRound, Mail, ArrowRight } from 'lucide-react';
+import { Bot, Wallet as WalletIcon, KeyRound, ArrowRight } from 'lucide-react';
 import { useVibeWallets } from '../../hooks/useVibeWallets';
 import { CopyButton, shortAddr } from './WalletPage';
 import './WalletPages.css';
 
-// Account settings shared by both themes: identity, the account's two wallets and linked logins.
+// Account settings shared by both themes: the account's two wallets. Login is wallet-only:
+// the connected wallet is the main one, the Privy embedded wallet created at login is the agent wallet.
 
 export default function AccountPage({ theme = 'o1', onOpenWallet }) {
   const { user } = usePrivy();
@@ -15,11 +16,8 @@ export default function AccountPage({ theme = 'o1', onOpenWallet }) {
     return <div className={`vwp vwp-${theme}`}><div className="vwp-card vwp-empty">Log in to manage your account.</div></div>;
   }
 
-  const handle = user.twitter?.username ? `@${user.twitter.username}`
-    : user.farcaster?.username ? `@${user.farcaster.username}`
-    : user.telegram?.username ? `@${user.telegram.username}`
-    : user.email?.address || shortAddr(mainAddress);
-  const avatar = user.twitter?.profilePictureUrl || user.farcaster?.pfp || '/new-logo-vibe.png';
+    const handle = shortAddr(mainAddress);
+  const avatar = '/new-logo-vibe.png';
 
   const wallets = hasAgentWallet
     ? [
@@ -27,14 +25,6 @@ export default function AccountPage({ theme = 'o1', onOpenWallet }) {
         { key: 'main', name: 'Main wallet', address: mainAddress, icon: <WalletIcon size={18} />, embedded: false },
       ]
     : [{ key: 'main', name: 'Vibe Wallet', address: mainAddress, icon: <Bot size={18} />, embedded: agentAddress?.toLowerCase() === mainAddress.toLowerCase() }];
-
-  const logins = [
-    user.email?.address && { label: 'Email', value: user.email.address },
-    user.google?.email && { label: 'Google', value: user.google.email },
-    user.twitter?.username && { label: 'X', value: `@${user.twitter.username}` },
-    user.farcaster?.username && { label: 'Farcaster', value: `@${user.farcaster.username}` },
-    user.telegram?.username && { label: 'Telegram', value: `@${user.telegram.username}` },
-  ].filter(Boolean);
 
   return (
     <div className={`vwp vwp-${theme}`}>
@@ -77,22 +67,6 @@ export default function AccountPage({ theme = 'o1', onOpenWallet }) {
         </button>
       </div>
 
-      {logins.length > 0 && (
-        <div className="vwp-card">
-          <div className="vwp-card-title">Linked accounts</div>
-          <div className="vwp-wallets">
-            {logins.map((l) => (
-              <div key={l.label} className="vwp-wallet-row static">
-                <span className="vwp-wallet-icon"><Mail size={16} /></span>
-                <span className="vwp-wallet-text">
-                  <span className="vwp-wallet-name">{l.label}</span>
-                  <span className="vwp-muted">{l.value}</span>
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
