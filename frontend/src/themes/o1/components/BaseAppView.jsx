@@ -9,6 +9,7 @@ import DeFiVibePanel from './DeFiVibePanel';
 import TokenomicsPage from '../pages/TokenomicsPage';
 import WalletPage from '../../../components/wallet/WalletPage';
 import AccountPage from '../../../components/wallet/AccountPage';
+import WalletToggle from '../../../components/wallet/WalletToggle';
 import ContractsPage from '../pages/ContractsPage';
 import BaseAppAdminView from './BaseAppAdminView';
 import { PageHeader } from './ui';
@@ -219,6 +220,7 @@ export function BaseAppView({ RewardsComponent }) {
                     title="Swap"
                     description="Instant exchange on Base via optimal liquidity routing"
                   />
+                  <WalletToggle theme="o1" size="md" label="Swap with" />
                   <DeFiVibePanel />
                 </div>
               </section>

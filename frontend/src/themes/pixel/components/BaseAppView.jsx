@@ -9,6 +9,7 @@ import DeFiVibePanel from './DeFiVibePanel';
 import TokenomicsPage from '../pages/TokenomicsPage';
 import WalletPage from '../../../components/wallet/WalletPage';
 import AccountPage from '../../../components/wallet/AccountPage';
+import WalletToggle from '../../../components/wallet/WalletToggle';
 import ContractsPage from '../pages/ContractsPage';
 import BaseAppAdminView from './BaseAppAdminView';
 import './BaseAppTheme.css';
@@ -264,6 +265,8 @@ export function BaseAppView({ RewardsComponent }) {
                     </span>
                   </div>
                 </div>
+
+                <WalletToggle theme="pixel" size="md" label="Swap with" />
 
                 {/* Embedded DeFi Swap Widget Card */}
                 <div

@@ -4,6 +4,7 @@ import { useAccount } from 'wagmi';
 import { useVibeBalances } from '../../../hooks/useVibeBalances';
 import { useVibeCheckIn } from '../../../hooks/useVibeCheckIn';
 import { ThemeSwitcher } from './ThemeSwitcher';
+import WalletToggle from '../../../components/wallet/WalletToggle';
 import { useVibeWallets } from '../../../hooks/useVibeWallets';
 
 const TAB_TITLES = {
@@ -141,6 +142,7 @@ export function BaseAppHeader({ onOpenSidebar, activeTab, isDesktop = false }) {
 
       {/* Right side: Balances or Connect Wallet */}
       <div className="base-app-header-right" style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+        {hasWallet && <WalletToggle theme="pixel" size="sm" />}
         <ThemeSwitcher />
         {hasWallet ? (
           <div className="header-balances-wrap" style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
