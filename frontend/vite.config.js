@@ -99,6 +99,7 @@ const DEV_API = {
   '/api/agent': ['/api/_lib/agent.js', 'handleAgentIndex'],
   '/api/rounds': ['/api/_lib/agent.js', 'handleRounds'],
   '/api/history': ['/api/_lib/agent.js', 'handleHistory'],
+  '/api/activity': ['/api/_lib/activity.js', 'handleActivity'],
 }
 
 function scheduleApiDev() {

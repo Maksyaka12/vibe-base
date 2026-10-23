@@ -342,7 +342,7 @@ export function BaseAppView({ RewardsComponent }) {
               <ContractsPage isBaseAppMode={true} />
             ) : activeTab === 'wallet' ? (
               <section style={{ padding: '24px 0 60px 0' }}>
-                <div style={{ maxWidth: '560px', margin: '0 auto', padding: '0 14px' }}>
+                <div style={{ maxWidth: '1040px', margin: '0 auto', padding: '0 14px' }}>
                   <div className="rewards-hero-header" style={{ textAlign: 'center', marginBottom: '20px', padding: '12px 8px 8px 8px' }}>
                     <h2 className="rewards-hero-title" style={{ fontSize: '18px', margin: '0 0 10px 0', color: '#ffffff', fontFamily: "'Press Start 2P', monospace", lineHeight: 1.3 }}>WALLET</h2>
                     <p style={{ margin: 0, fontSize: '12px', color: '#88aacc' }}>Balances, deposits and transfers for your Vibe Hub wallets</p>

@@ -4,6 +4,7 @@ import { isAddress, formatUnits } from 'viem';
 import { ArrowDownToLine, Send, ArrowLeftRight, Copy, Check, Bot, Wallet as WalletIcon, ChevronDown, X } from 'lucide-react';
 import { useWalletAssets, TOKENS, tokenAmount } from '../../hooks/useWalletAssets';
 import { isWalletRejection } from '../../config/walletTx';
+import ActivityCard, { useWalletActivity } from './ActivityCard';
 import './WalletPages.css';
 
 // Wallet page shared by both themes (`theme` picks the palette): balances of the active wallet,
@@ -211,6 +212,7 @@ export default function WalletPage({ theme = 'o1', onSwap }) {
   const { mainAddress, agentAddress, hasAgentWallet, active, activeAddress, setActive, balancesOf, usdValue } = assets;
   const [panel, setPanel] = useState(null);
   const closePanel = useCallback(() => setPanel(null), []);
+  const activity = useWalletActivity(activeAddress);
 
   if (!mainAddress) {
     return <div className={`vwp vwp-${theme}`}><div className="vwp-card vwp-empty">Log in to see your wallet.</div></div>;
@@ -228,8 +230,9 @@ export default function WalletPage({ theme = 'o1', onSwap }) {
   const bal = balancesOf(activeAddress);
 
   return (
-    <div className={`vwp vwp-${theme}`}>
-      <div className="vwp-card">
+    <div className={`vwp vwp-${theme} vwp-wallet-page`}>
+      <div className="vwp-wallet-grid">
+      <div className="vwp-card vwp-area-bal">
         <div className="vwp-muted">Your balance</div>
         <div className="vwp-total">{usd(usdValue(activeAddress))}</div>
 
@@ -262,7 +265,7 @@ export default function WalletPage({ theme = 'o1', onSwap }) {
         )}
       </div>
 
-      <div className="vwp-card">
+      <div className="vwp-card vwp-area-tok">
         <div className="vwp-card-head">
           <div>
             <div className="vwp-card-title">{activeWallet.name}</div>
@@ -292,7 +295,7 @@ export default function WalletPage({ theme = 'o1', onSwap }) {
         </div>
       </div>
 
-      <div className="vwp-actions">
+      <div className="vwp-actions vwp-area-act">
         <button type="button" className="vwp-btn vwp-btn-primary" onClick={() => setPanel('deposit')}>
           <ArrowDownToLine size={16} /> Deposit
         </button>
@@ -302,6 +305,11 @@ export default function WalletPage({ theme = 'o1', onSwap }) {
         <button type="button" className="vwp-btn" onClick={onSwap}>
           <ArrowLeftRight size={16} /> Swap
         </button>
+      </div>
+
+      <div className="vwp-area-hist">
+        <ActivityCard activity={activity} walletName={activeWallet.name} />
+      </div>
       </div>
 
       {panel === 'deposit' && (
@@ -320,6 +328,7 @@ export default function WalletPage({ theme = 'o1', onSwap }) {
                 from={other.address}
                 defaultTo={activeAddress}
                 lockTo
+                onDone={activity.reload}
                 submitLabel={`Transfer from ${other.key === 'main' ? 'main wallet' : 'agent wallet'}`}
               />
             </>
@@ -334,6 +343,7 @@ export default function WalletPage({ theme = 'o1', onSwap }) {
             assets={assets}
             from={activeAddress}
             quickTo={other ? { label: `My ${other.key === 'main' ? 'main' : 'agent'} wallet`, address: other.address } : null}
+            onDone={activity.reload}
             submitLabel="Send"
           />
         </Modal>

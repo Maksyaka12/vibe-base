@@ -20,7 +20,7 @@
     }
   ],
   "rewrites": [
-    { "source": "/api/:route(claims|status|staking|swap|rounds|history)", "destination": "/api/agent?route=:route" },
+    { "source": "/api/:route(claims|status|staking|swap|rounds|history|activity)", "destination": "/api/agent?route=:route" },
     { "source": "/api/agent/:route(act|token)", "destination": "/api/agent?route=:route" },
     { "source": "/r", "destination": "/r/index.html" },
     { "source": "/r/", "destination": "/r/index.html" },
