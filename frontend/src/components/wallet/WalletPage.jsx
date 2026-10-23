@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { isAddress, formatUnits } from 'viem';
-import { ArrowDownToLine, Send, ArrowLeftRight, Copy, Check, Bot, Wallet as WalletIcon } from 'lucide-react';
+import { ArrowDownToLine, Send, ArrowLeftRight, Copy, Check, Bot, Wallet as WalletIcon, ChevronDown, X } from 'lucide-react';
 import { useWalletAssets, TOKENS, tokenAmount } from '../../hooks/useWalletAssets';
 import { isWalletRejection } from '../../config/walletTx';
 import './WalletPages.css';
@@ -32,7 +33,64 @@ export function CopyButton({ value, size = 14 }) {
   );
 }
 
-function TransferForm({ assets, from, defaultTo = '', lockTo = false, submitLabel, onDone }) {
+const PERCENTS = [25, 50, 100];
+// keep a little ETH for gas when sending "Max" ETH
+const ETH_GAS_RESERVE = 20_000_000_000_000n; // 0.00002 ETH
+
+function useOutsideClose(open, onClose) {
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!open) return undefined;
+    const close = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) onClose();
+    };
+    document.addEventListener('mousedown', close);
+    return () => document.removeEventListener('mousedown', close);
+  }, [open, onClose]);
+  return ref;
+}
+
+function TokenSelect({ value, onChange, balances }) {
+  const [open, setOpen] = useState(false);
+  const close = useCallback(() => setOpen(false), []);
+  const ref = useOutsideClose(open, close);
+  const current = TOKENS.find((t) => t.symbol === value);
+  return (
+    <div className="vwp-select" ref={ref}>
+      <button type="button" className="vwp-select-btn" onClick={() => setOpen((v) => !v)} aria-haspopup="listbox" aria-expanded={open}>
+        <img src={current.icon} alt="" className="vwp-select-icon" />
+        <span>{current.symbol}</span>
+        <ChevronDown size={14} className={`vwp-select-chevron ${open ? 'open' : ''}`} />
+      </button>
+      {open && (
+        <div className="vwp-select-menu" role="listbox">
+          {TOKENS.map((t) => (
+            <button
+              key={t.symbol}
+              type="button"
+              role="option"
+              aria-selected={t.symbol === value}
+              className={`vwp-select-item ${t.symbol === value ? 'on' : ''}`}
+              onClick={() => {
+                onChange(t.symbol);
+                setOpen(false);
+              }}
+            >
+              <img src={t.icon} alt="" className="vwp-select-icon" />
+              <span className="vwp-select-text">
+                <span className="vwp-token-name">{t.symbol === 'VIBE' ? '$VIBE' : t.symbol}</span>
+                <span className="vwp-muted">{t.name}</span>
+              </span>
+              <span className="vwp-select-bal">{amt(tokenAmount(t.symbol, balances?.[t.symbol]), t.symbol)}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function TransferForm({ assets, from, defaultTo = '', lockTo = false, quickTo = null, submitLabel, onDone }) {
   const [to, setTo] = useState(defaultTo);
   const [token, setToken] = useState('ETH');
   const [amount, setAmount] = useState('');
@@ -40,12 +98,23 @@ function TransferForm({ assets, from, defaultTo = '', lockTo = false, submitLabe
   const [notice, setNotice] = useState(null);
 
   const t = TOKENS.find((x) => x.symbol === token);
-  const raw = assets.balancesOf(from)?.[token];
+  const balances = assets.balancesOf(from);
+  const raw = balances?.[token];
   const available = tokenAmount(token, raw);
   const num = Number(amount);
   const validTo = isAddress(to || '');
   const tooMuch = available != null && num > available;
   const canSend = validTo && num > 0 && !tooMuch && !busy && to.toLowerCase() !== from?.toLowerCase();
+
+  const setPercent = (pct) => {
+    if (raw == null) return;
+    let value = (raw * BigInt(pct)) / 100n;
+    if (token === 'ETH' && pct === 100) value = value > ETH_GAS_RESERVE ? value - ETH_GAS_RESERVE : 0n;
+    if (value <= 0n) return setAmount('');
+    const text = formatUnits(value, t.decimals);
+    // exact for Max (no dust left), 6 decimals for the partial amounts
+    setAmount(pct === 100 ? text : text.replace(/(\.\d{6})\d+$/, '$1'));
+  };
 
   const submit = async (e) => {
     e.preventDefault();
@@ -67,35 +136,44 @@ function TransferForm({ assets, from, defaultTo = '', lockTo = false, submitLabe
   return (
     <form className="vwp-form" onSubmit={submit}>
       {!lockTo && (
-        <label className="vwp-field">
-          <span>Recipient</span>
-          <input value={to} onChange={(e) => setTo(e.target.value.trim())} placeholder="0x…" spellCheck={false} />
-        </label>
+        <div className="vwp-field">
+          <span>
+            Recipient
+            {quickTo && (
+              <button type="button" className="vwp-link" onClick={() => setTo(quickTo.address)}>
+                {quickTo.label}
+              </button>
+            )}
+          </span>
+          <input value={to} onChange={(e) => setTo(e.target.value.trim())} placeholder="0x…" spellCheck={false} aria-label="Recipient address" />
+        </div>
       )}
-      <label className="vwp-field">
+      <div className="vwp-field">
         <span>
           Amount
-          {available != null && (
-            <button type="button" className="vwp-link" onClick={() => setAmount(formatUnits(raw, t.decimals))}>
-              Max {amt(available, token)}
-            </button>
-          )}
+          {available != null && <span className="vwp-muted">Balance {amt(available, token)} {token}</span>}
         </span>
         <div className="vwp-amount">
           <input
             inputMode="decimal"
             placeholder="0.0"
             value={amount}
+            aria-label="Amount"
             onChange={(e) => setAmount(e.target.value.replace(',', '.').replace(/[^0-9.]/g, ''))}
           />
-          <select value={token} onChange={(e) => setToken(e.target.value)}>
-            {TOKENS.map((x) => <option key={x.symbol} value={x.symbol}>{x.symbol}</option>)}
-          </select>
+          <TokenSelect value={token} onChange={(v) => { setToken(v); setAmount(''); }} balances={balances} />
         </div>
-      </label>
+        <div className="vwp-percents">
+          {PERCENTS.map((p) => (
+            <button key={p} type="button" className="vwp-chip" onClick={() => setPercent(p)} disabled={!raw}>
+              {p === 100 ? 'Max' : `${p}%`}
+            </button>
+          ))}
+        </div>
+      </div>
       {to && !validTo && !lockTo && <div className="vwp-notice err">Enter a valid Base address</div>}
       {tooMuch && <div className="vwp-notice err">Not enough {token}</div>}
-      <button type="submit" className="vwp-btn vwp-btn-primary" disabled={!canSend}>
+      <button type="submit" className="vwp-btn vwp-btn-primary vwp-btn-full" disabled={!canSend}>
         {busy ? 'Confirming…' : submitLabel}
       </button>
       {notice && <div className={`vwp-notice ${notice.ok ? 'ok' : 'err'}`}>{notice.text}</div>}
@@ -103,10 +181,36 @@ function TransferForm({ assets, from, defaultTo = '', lockTo = false, submitLabe
   );
 }
 
+function Modal({ theme, title, onClose, children }) {
+  useEffect(() => {
+    const esc = (e) => e.key === 'Escape' && onClose();
+    document.addEventListener('keydown', esc);
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.removeEventListener('keydown', esc);
+      document.body.style.overflow = overflow;
+    };
+  }, [onClose]);
+  return createPortal(
+    <div className={`vwp-${theme} vwp-modal-overlay`} onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
+      <div className="vwp vwp-card vwp-modal" role="dialog" aria-modal="true" aria-label={title}>
+        <div className="vwp-modal-head">
+          <div className="vwp-card-title">{title}</div>
+          <button type="button" className="vwp-icon-btn" onClick={onClose} aria-label="Close"><X size={18} /></button>
+        </div>
+        {children}
+      </div>
+    </div>,
+    document.body
+  );
+}
+
 export default function WalletPage({ theme = 'o1', onSwap }) {
   const assets = useWalletAssets();
   const { mainAddress, agentAddress, hasAgentWallet, active, activeAddress, setActive, balancesOf, usdValue } = assets;
   const [panel, setPanel] = useState(null);
+  const closePanel = useCallback(() => setPanel(null), []);
 
   if (!mainAddress) {
     return <div className={`vwp vwp-${theme}`}><div className="vwp-card vwp-empty">Log in to see your wallet.</div></div>;
@@ -189,10 +293,10 @@ export default function WalletPage({ theme = 'o1', onSwap }) {
       </div>
 
       <div className="vwp-actions">
-        <button type="button" className={`vwp-btn vwp-btn-primary ${panel === 'deposit' ? 'on' : ''}`} onClick={() => setPanel(panel === 'deposit' ? null : 'deposit')}>
+        <button type="button" className="vwp-btn vwp-btn-primary" onClick={() => setPanel('deposit')}>
           <ArrowDownToLine size={16} /> Deposit
         </button>
-        <button type="button" className={`vwp-btn ${panel === 'send' ? 'on' : ''}`} onClick={() => setPanel(panel === 'send' ? null : 'send')}>
+        <button type="button" className="vwp-btn" onClick={() => setPanel('send')}>
           <Send size={16} /> Send
         </button>
         <button type="button" className="vwp-btn" onClick={onSwap}>
@@ -201,8 +305,7 @@ export default function WalletPage({ theme = 'o1', onSwap }) {
       </div>
 
       {panel === 'deposit' && (
-        <div className="vwp-card">
-          <div className="vwp-card-title">Deposit to {activeWallet.name}</div>
+        <Modal theme={theme} title={`Deposit to ${activeWallet.name}`} onClose={closePanel}>
           <p className="vwp-hint">Send ETH (needed for gas), $VIBE or USDC on the Base network to this address.</p>
           <div className="vwp-address-box">
             <span className="vwp-mono">{activeAddress}</span>
@@ -210,7 +313,7 @@ export default function WalletPage({ theme = 'o1', onSwap }) {
           </div>
           {other && (
             <>
-              <div className="vwp-section-label">Or move funds from your {other.key === 'main' ? 'main wallet' : 'agent wallet'}</div>
+              <div className="vwp-divider"><span>or move funds from your {other.key === 'main' ? 'main wallet' : 'agent wallet'}</span></div>
               <TransferForm
                 key={`deposit-${activeAddress}`}
                 assets={assets}
@@ -221,20 +324,19 @@ export default function WalletPage({ theme = 'o1', onSwap }) {
               />
             </>
           )}
-        </div>
+        </Modal>
       )}
 
       {panel === 'send' && (
-        <div className="vwp-card">
-          <div className="vwp-card-title">Send from {activeWallet.name}</div>
-          {other && (
-            <p className="vwp-hint">
-              To your {other.key === 'main' ? 'main' : 'agent'} wallet:{' '}
-              <span className="vwp-mono">{shortAddr(other.address)}</span> <CopyButton value={other.address} size={12} />
-            </p>
-          )}
-          <TransferForm key={`send-${activeAddress}`} assets={assets} from={activeAddress} submitLabel="Send" />
-        </div>
+        <Modal theme={theme} title={`Send from ${activeWallet.name}`} onClose={closePanel}>
+          <TransferForm
+            key={`send-${activeAddress}`}
+            assets={assets}
+            from={activeAddress}
+            quickTo={other ? { label: `My ${other.key === 'main' ? 'main' : 'agent'} wallet`, address: other.address } : null}
+            submitLabel="Send"
+          />
+        </Modal>
       )}
     </div>
   );

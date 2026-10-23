@@ -141,6 +141,7 @@ export function BaseAppHeader({ onOpenSidebar, activeTab, isDesktop = false }) {
 
       {/* Right side: Balances or Connect Wallet */}
       <div className="base-app-header-right" style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+        <ThemeSwitcher />
         {hasWallet ? (
           <div className="header-balances-wrap" style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
             {/* Daily Streak Pill */}
@@ -294,7 +295,6 @@ export function BaseAppHeader({ onOpenSidebar, activeTab, isDesktop = false }) {
             <span>CONNECT</span>
           </button>
         )}
-        <ThemeSwitcher />
       </div>
     </header>
   );

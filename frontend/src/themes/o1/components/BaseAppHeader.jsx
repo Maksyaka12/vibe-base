@@ -90,6 +90,7 @@ export function BaseAppHeader({ onOpenSidebar, isDesktop = false }) {
 
       {/* Right side: Three pills or Connect Wallet */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <ThemeSwitcher />
         {hasWallet ? (
           <>
             {/* 1. Streak Pill */}
@@ -203,7 +204,6 @@ export function BaseAppHeader({ onOpenSidebar, isDesktop = false }) {
             <span>Connect wallet</span>
           </button>
         )}
-        <ThemeSwitcher />
       </div>
     </header>
   );
