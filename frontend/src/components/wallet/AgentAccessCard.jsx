@@ -84,7 +84,7 @@ export default function AgentAccessCard({ agentAddress }) {
       </div>
       <p className="vwp-hint">
         Let your AI agent use the Vibe Agent Wallet on its own: check in, claim rewards and achievements, stake, swap and send funds,
-        with no signatures. Transfers to your main wallet are unlimited, to other addresses they are capped per day. Minting is not available to agents.
+        with no signatures. Transfers to your main wallet are unlimited, to other addresses they are capped per day.
         Your main wallet is never touched.
       </p>
 

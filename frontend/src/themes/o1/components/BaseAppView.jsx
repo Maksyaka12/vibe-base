@@ -269,10 +269,6 @@ export function BaseAppView({ RewardsComponent }) {
             ) : activeTab === 'account' ? (
               <section style={{ padding: '24px 0 60px 0' }}>
                 <div style={{ maxWidth: '560px', margin: '0 auto', padding: '0 14px' }}>
-                  <PageHeader
-                    title="Account"
-                    description="Your identity, wallets and linked logins"
-                  />
                   <AccountPage theme="o1" onOpenWallet={() => handleSelectTab('wallet')} />
                 </div>
               </section>
