@@ -40,6 +40,35 @@ function ActiveClaimCountdown({ targetDate }) {
   return <span style={{ fontVariantNumeric: 'tabular-nums', fontFamily: 'var(--mono)' }}>{timeLeft}</span>;
 }
 
+const utcLabel = (d) => `${new Date(d).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'UTC' })} UTC`;
+
+// Before a round's claim opens: live countdowns to its snapshot and to the claim.
+function RoundTimers({ snapshot, claim }) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, []);
+  if (!claim || now >= new Date(claim).getTime()) return null;
+  const snapshotDone = snapshot && now >= new Date(snapshot).getTime();
+  return (
+    <div className="o1-hub-timers">
+      {snapshot && (
+        <div className={`o1-hub-timer ${snapshotDone ? 'done' : ''}`}>
+          <span className="o1-hub-timer-label">{snapshotDone ? 'Snapshot taken' : 'Snapshot in'}</span>
+          <span className="o1-hub-timer-value">{snapshotDone ? 'Done' : formatClaimCountdown(snapshot)}</span>
+          <span className="o1-hub-timer-date">{utcLabel(snapshot)}</span>
+        </div>
+      )}
+      <div className="o1-hub-timer">
+        <span className="o1-hub-timer-label">Claim opens in</span>
+        <span className="o1-hub-timer-value">{formatClaimCountdown(claim)}</span>
+        <span className="o1-hub-timer-date">{utcLabel(claim)}</span>
+      </div>
+    </div>
+  );
+}
+
 const stripYear = (str) => {
   if (!str) return '';
   return str.replace(/\s\d{4},/, ',');
@@ -262,6 +291,8 @@ export default function BaseAppRewardsView({
                 </div>
               </div>
 
+              {!isFeaturedHolderClaimLive && <RoundTimers snapshot={featuredHolder.snapshotDateObj} claim={featuredHolder.dateObj} />}
+
               <div className="o1-hub-tiles-3">
                 <Tile
                   label="Rewards pool"
@@ -414,6 +445,8 @@ export default function BaseAppRewardsView({
                   )}
                 </div>
               </div>
+
+              {!isFeaturedVibeClubClaimLive && <RoundTimers snapshot={featuredVibeClub.snapshotDateObj} claim={featuredVibeClub.dateObj} />}
 
               <div className="o1-hub-tiles-3">
                 <Tile
