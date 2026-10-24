@@ -161,10 +161,17 @@ export default function BaseAppRewardsView({
   const activeGiveaways = GIVEAWAYS_DATA.filter(e => e.status === 'ongoing');
   const pastGiveaways = GIVEAWAYS_DATA.filter(e => e.status === 'ended');
 
+  // Tab badge: live rounds, or the next one when nothing is live (there is always a next round)
+  const tabCount = (live, upcoming) => (live.length > 0
+    ? { count: `${live.length} live`, tone: 'success' }
+    : upcoming.length > 0
+    ? { count: '1 upcoming', tone: 'warn' }
+    : { count: 'Ended', tone: 'neutral' });
+
   const tabs = [
-    { id: 'holders', label: 'Holders', image: '/rewards-hub/holders.jfif', count: `${activeHolders.length} live`, tone: activeHolders.length > 0 ? 'success' : 'neutral' },
-    { id: 'vibe-club', label: 'Vibe Club', image: '/rewards-hub/vibe-club.jfif', count: `${activeVibeClubs.length} live`, tone: activeVibeClubs.length > 0 ? 'success' : 'neutral' },
-    { id: 'staking', label: 'Staking', image: '/rewards-hub/staking.jfif', count: `${activeStakings.length} live`, tone: activeStakings.length > 0 ? 'success' : 'neutral' },
+    { id: 'holders', label: 'Holders', image: '/rewards-hub/holders.jfif', ...tabCount(activeHolders, upcomingHolders) },
+    { id: 'vibe-club', label: 'Vibe Club', image: '/rewards-hub/vibe-club.jfif', ...tabCount(activeVibeClubs, upcomingVibeClubs) },
+    { id: 'staking', label: 'Staking', image: '/rewards-hub/staking.jfif', ...tabCount(activeStakings, upcomingStakings) },
     { id: 'giveaways', label: 'Giveaways', image: '/rewards-hub/giveaways.jfif', count: `${activeGiveaways.length} active`, tone: activeGiveaways.length > 0 ? 'accent' : 'neutral' }
   ];
 
