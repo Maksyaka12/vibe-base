@@ -10,7 +10,7 @@ import { useVibeWallets } from './useVibeWallets';
 // from either of them. Shared by the Wallet and Account pages of both themes.
 
 export const TOKENS = [
-  { symbol: 'VIBE', name: 'Vibe', address: VIBE_TOKEN, decimals: 18, icon: '/new-logo-vibe.png' },
+  { symbol: 'VIBE', name: 'Vibe', address: VIBE_TOKEN, decimals: 18, icon: '/new-logo.png' },
   { symbol: 'ETH', name: 'Ethereum', address: null, decimals: 18, icon: 'https://assets.coingecko.com/coins/images/279/small/ethereum.png' },
   { symbol: 'USDC', name: 'USD Coin', address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', decimals: 6, icon: 'https://assets.coingecko.com/coins/images/6319/small/usdc.png' },
 ];

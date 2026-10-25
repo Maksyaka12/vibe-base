@@ -18,7 +18,7 @@ export default function AccountPage({ theme = 'o1', onOpenWallet }) {
   }
 
     const handle = shortAddr(mainAddress);
-  const avatar = '/new-logo-vibe.png';
+  const avatar = '/new-logo.png';
 
   const wallets = hasAgentWallet
     ? [

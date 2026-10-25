@@ -876,7 +876,7 @@ function Rewards({ isBaseAppMode = false } = {}) {
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', gap: '8px' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
                             <img
-                              src="/new-logo-vibe.png"
+                              src="/new-logo.png"
                               alt="VIBE"
                               style={{
                                 width: '38px',
@@ -1237,7 +1237,7 @@ function Rewards({ isBaseAppMode = false } = {}) {
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', gap: '8px' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
                             <img
-                              src="/new-logo-vibe.png"
+                              src="/new-logo.png"
                               alt="VIBE"
                               style={{
                                 width: '38px',
@@ -1637,7 +1637,7 @@ function Rewards({ isBaseAppMode = false } = {}) {
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', gap: '8px' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
                             <img
-                              src="/new-logo-vibe.png"
+                              src="/new-logo.png"
                               alt="VIBE"
                               style={{
                                 width: '38px',
@@ -1954,7 +1954,7 @@ function Rewards({ isBaseAppMode = false } = {}) {
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', gap: '8px' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
                             <img
-                              src="/new-logo-vibe.png"
+                              src="/new-logo.png"
                               alt="VIBE"
                               style={{
                                 width: '38px',
@@ -2194,7 +2194,7 @@ export default function App() {
         appearance: {
           theme: 'dark',
           accentColor: '#00f5ff',
-          logo: '/new-logo-vibe.png',
+          logo: '/new-logo.png',
           showWalletLoginFirst: true,
         },
         embeddedWallets: {

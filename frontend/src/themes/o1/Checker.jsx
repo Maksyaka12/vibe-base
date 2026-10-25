@@ -1836,7 +1836,7 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
           >
             <div className="ch-unauth">
               <div style={{ width: 64, height: 64, borderRadius: '50%', margin: '0 auto 20px', overflow: 'hidden' }}>
-                <img src="/new-logo-vibe.png" style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="VIBE" />
+                <img src="/new-logo.png" style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="VIBE" />
               </div>
               <h3 style={{ fontSize: '1.4rem', marginBottom: '8px', fontWeight: 800, color: 'var(--ink)' }}>
                 Wallet not connected
@@ -1875,11 +1875,11 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
                         src={userNft.image}
                         alt={userNft.name}
                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                        onError={(e) => { e.target.src = '/new-logo-vibe.png'; }}
+                        onError={(e) => { e.target.src = '/new-logo.png'; }}
                       />
                     ) : (nftCount && nftCount > 0) ? (
                       <img
-                        src="/new-logo-vibe.png"
+                        src="/new-logo.png"
                         alt="Vibe Club Member"
                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                       />
@@ -2203,7 +2203,7 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', gap: '8px' }}>
                               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
                                 <img
-                                  src="/new-logo-vibe.png"
+                                  src="/new-logo.png"
                                   alt="VIBE"
                                   style={{
                                     width: '36px',
@@ -2450,7 +2450,7 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
                                     
                                     flexShrink: 0
                                   }}
-                                  onError={(e) => { e.target.src = '/new-logo-vibe.png'; }}
+                                  onError={(e) => { e.target.src = '/new-logo.png'; }}
                                 />
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
                                   <h4 style={{ margin: 0, fontSize: '1.02rem', fontWeight: 900, color: 'var(--ink)', letterSpacing: '-0.02em', whiteSpace: 'nowrap' }}>
@@ -2780,7 +2780,7 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', gap: '8px' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
                             <img
-                              src="/new-logo-vibe.png"
+                              src="/new-logo.png"
                               alt="VIBE"
                               style={{
                                 width: '36px',
@@ -2863,7 +2863,7 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
                               }}
                             >
                               <img
-                                src="/vibe-logo-nobg.png"
+                                src="/new-logo.png"
                                 alt="Eligible VIBE"
                                 style={{ width: 72, height: 72, objectFit: 'contain', margin: '-2px 0' }}
                               />
@@ -3084,7 +3084,7 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
                               }}
                             >
                               <img
-                                src="/vibe-logo-nobg.png"
+                                src="/new-logo.png"
                                 alt="Eligible NFT"
                                 style={{ width: 72, height: 72, objectFit: 'contain', margin: '-2px 0' }}
                               />

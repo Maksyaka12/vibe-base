@@ -196,7 +196,7 @@ export function BaseAppSidebar({
             {isCollapsed ? (
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
                 <img
-                  src="/new-logo-vibe.png"
+                  src="/new-logo.png"
                   alt="VIBE"
                   onClick={() => onSelectTab('hub')}
                   style={{
@@ -238,7 +238,7 @@ export function BaseAppSidebar({
                   style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
                 >
                   <img
-                    src="/new-logo-vibe.png"
+                    src="/new-logo.png"
                     alt="VIBE"
                     style={{
                       width: '28px',

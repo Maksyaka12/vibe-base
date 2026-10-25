@@ -237,7 +237,7 @@ export function BaseAppSidebar({
             {isCollapsed ? (
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
                 <img
-                  src="/new-logo-vibe.png"
+                  src="/new-logo.png"
                   alt="VIBE"
                   title="$VIBE"
                   onClick={() => onSelectTab('hub')}
@@ -281,7 +281,7 @@ export function BaseAppSidebar({
                   style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
                 >
                   <img
-                    src="/new-logo-vibe.png"
+                    src="/new-logo.png"
                     alt="VIBE"
                     style={{
                       width: isDesktop ? '32px' : '28px',
@@ -879,7 +879,7 @@ export function BaseAppSidebar({
                     style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: 0, background: 'transparent', border: 'none', padding: 0, cursor: 'pointer' }}
                   >
                     <img
-                      src="/new-logo-vibe.png"
+                      src="/new-logo.png"
                       alt="avatar"
                       style={{ width: isDesktop ? '20px' : '18px', height: isDesktop ? '20px' : '18px', borderRadius: '4px' }}
                     />

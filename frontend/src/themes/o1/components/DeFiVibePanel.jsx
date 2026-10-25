@@ -53,7 +53,7 @@ export default function DeFiVibePanel({ player }) {
           />
           <div className="o1-swap-token-pill">
             <img
-              src={mode === 'buy' ? 'https://assets.coingecko.com/coins/images/279/small/ethereum.png' : '/new-logo-vibe.png'}
+              src={mode === 'buy' ? 'https://assets.coingecko.com/coins/images/279/small/ethereum.png' : '/new-logo.png'}
               alt={mode === 'buy' ? 'ETH' : '$VIBE'}
               className="o1-swap-token-icon"
             />
@@ -106,7 +106,7 @@ export default function DeFiVibePanel({ player }) {
           </div>
           <div className="o1-swap-token-pill">
             <img
-              src={mode === 'buy' ? '/new-logo-vibe.png' : 'https://assets.coingecko.com/coins/images/279/small/ethereum.png'}
+              src={mode === 'buy' ? '/new-logo.png' : 'https://assets.coingecko.com/coins/images/279/small/ethereum.png'}
               alt={mode === 'buy' ? '$VIBE' : 'ETH'}
               className="o1-swap-token-icon"
             />

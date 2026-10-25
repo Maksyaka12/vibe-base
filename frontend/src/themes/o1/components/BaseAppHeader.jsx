@@ -63,7 +63,7 @@ export function BaseAppHeader({ onOpenSidebar, isDesktop = false }) {
         {!isDesktop && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', userSelect: 'none' }}>
             <img
-              src="/new-logo-vibe.png"
+              src="/new-logo.png"
               alt="VIBE"
               style={{
                 width: '24px',
@@ -169,7 +169,7 @@ export function BaseAppHeader({ onOpenSidebar, isDesktop = false }) {
               }}
             >
               <img
-                src="/new-logo-vibe.png"
+                src="/new-logo.png"
                 alt="$VIBE"
                 style={{
                   width: '16px',

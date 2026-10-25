@@ -92,7 +92,7 @@ export function BaseAppHeader({ onOpenSidebar, activeTab, isDesktop = false }) {
           }}
         >
           <img
-            src="/new-logo-vibe.png"
+            src="/new-logo.png"
             alt="VIBE"
             style={{
               width: '24px',
@@ -211,7 +211,7 @@ export function BaseAppHeader({ onOpenSidebar, activeTab, isDesktop = false }) {
                 {nftCount} NFT
               </span>
               <img
-                src="/new-logo-vibe.png"
+                src="/new-logo.png"
                 alt="NFT"
                 className="header-balance-icon"
                 style={{
@@ -256,7 +256,7 @@ export function BaseAppHeader({ onOpenSidebar, activeTab, isDesktop = false }) {
                 {formattedBalance}
               </span>
               <img
-                src="/new-logo-vibe.png"
+                src="/new-logo.png"
                 alt="$VIBE"
                 className="header-balance-icon"
                 style={{

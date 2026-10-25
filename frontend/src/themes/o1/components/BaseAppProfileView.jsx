@@ -428,7 +428,7 @@ export function BaseAppProfileView(props) {
           <Card className="o1-nft-card">
             <div className="o1-nft-frame">
               <img
-                src={hasNft ? (userNft?.image || '/nft/images/5.png') : (address ? '/nft/images/5.png' : '/new-logo-vibe.png')}
+                src={hasNft ? (userNft?.image || '/nft/images/5.png') : (address ? '/nft/images/5.png' : '/new-logo.png')}
                 alt={nftDisplayName}
                 className={`o1-nft-img ${hasNft ? '' : 'non-member'}`}
               />

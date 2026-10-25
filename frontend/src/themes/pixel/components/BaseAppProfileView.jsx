@@ -472,7 +472,7 @@ export function BaseAppProfileView(props) {
               boxShadow: '0 0 20px rgba(0, 245, 255, 0.35)'
             }}
           >
-            <img src="/new-logo-vibe.png" alt="Vibe" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <img src="/new-logo.png" alt="Vibe" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           </div>
           <div className="profile-connect-title" style={{ fontSize: '10px', color: '#ffffff', fontFamily: "'Press Start 2P', monospace", marginBottom: '8px', fontWeight: 900 }}>
             CONNECT YOUR WALLET
@@ -507,7 +507,7 @@ export function BaseAppProfileView(props) {
           {/* Main NFT Card Frame (Identical to Vibe Club NFT section) */}
           <div className="profile-nft-card-frame">
             <img
-              src={hasNft ? (userNft?.image || '/nft/images/5.png') : '/new-logo-vibe.png'}
+              src={hasNft ? (userNft?.image || '/nft/images/5.png') : '/new-logo.png'}
               alt={nftDisplayName}
               className="profile-nft-main-img"
               style={{

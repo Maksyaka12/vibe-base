@@ -268,7 +268,7 @@ export default function BaseAppRewardsView({
               <div className="o1-hub-featured-head">
                 <div className="o1-hub-featured-title-wrap">
                   <div className="o1-hub-featured-icon">
-                    <img src="/new-logo-vibe.png" alt="VIBE" />
+                    <img src="/new-logo.png" alt="VIBE" />
                   </div>
                   <div>
                     <div className="o1-hub-featured-name">{featuredHolder.unlock}</div>
@@ -423,7 +423,7 @@ export default function BaseAppRewardsView({
               <div className="o1-hub-featured-head">
                 <div className="o1-hub-featured-title-wrap">
                   <div className="o1-hub-featured-icon">
-                    <img src="/new-logo-vibe.png" alt="VIBE" />
+                    <img src="/new-logo.png" alt="VIBE" />
                   </div>
                   <div>
                     <div className="o1-hub-featured-name">{featuredVibeClub.epoch}</div>
