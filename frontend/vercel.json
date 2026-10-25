@@ -12,10 +12,10 @@
     }
   ],
   "rewrites": [
-    { "source": "/r", "destination": "/r/index.html" },
-    { "source": "/r/", "destination": "/r/index.html" },
-    { "source": "/docs", "destination": "/docs.html" },
-    { "source": "/docs/(.*)", "destination": "/docs.html" },
+    { "source": "/r", "destination": "/index.html" },
+    { "source": "/r/", "destination": "/index.html" },
+    { "source": "/docs", "destination": "/index.html" },
+    { "source": "/docs/(.*)", "destination": "/index.html" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

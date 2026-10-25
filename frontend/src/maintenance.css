@@ -1,0 +1,184 @@
+.mt-root {
+  --bg: #090A0C;
+  --surface: #111317;
+  --border: rgba(255, 255, 255, 0.07);
+  --text: #F5F7FA;
+  --text-2: #A3A9B3;
+  --text-3: #6C727D;
+  --accent: #66BEFF;
+  --accent-soft: rgba(102, 190, 255, 0.14);
+  --accent-border: rgba(102, 190, 255, 0.30);
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px 16px;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+.mt-grid {
+  position: absolute;
+  inset: -50%;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(circle at center, #000 0%, transparent 55%);
+  -webkit-mask-image: radial-gradient(circle at center, #000 0%, transparent 55%);
+  animation: mt-drift 24s linear infinite;
+}
+
+.mt-glow {
+  position: absolute;
+  width: 640px;
+  height: 640px;
+  max-width: 140vw;
+  max-height: 140vw;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(102, 190, 255, 0.16), transparent 65%);
+  filter: blur(20px);
+  animation: mt-breathe 6s ease-in-out infinite;
+}
+
+.mt-card {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  animation: mt-rise 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.mt-logo {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  margin-bottom: 32px;
+  display: grid;
+  place-items: center;
+}
+
+.mt-logo img {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  border-radius: 24px;
+  border: 1px solid var(--border);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  animation: mt-float 5s ease-in-out infinite;
+}
+
+.mt-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 28px;
+  border: 1px solid var(--accent-border);
+  animation: mt-pulse 3s ease-out infinite;
+}
+
+.mt-ring-2 {
+  animation-delay: 1.5s;
+}
+
+.mt-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  margin-bottom: 20px;
+  border-radius: 999px;
+  border: 1px solid var(--accent-border);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.mt-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 0 rgba(102, 190, 255, 0.6);
+  animation: mt-blink 1.6s ease-in-out infinite;
+}
+
+.mt-title {
+  margin: 0 0 12px;
+  font-size: clamp(30px, 7vw, 44px);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  font-family: var(--font-sans);
+}
+
+.mt-title span {
+  background: linear-gradient(90deg, #66BEFF, #B8E2FF, #66BEFF);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: mt-shine 4s linear infinite;
+}
+
+.mt-sub {
+  margin: 0 0 32px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--text-2);
+}
+
+.mt-progress {
+  position: relative;
+  width: 100%;
+  max-width: 280px;
+  height: 3px;
+  border-radius: 3px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.mt-progress span {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 40%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  animation: mt-load 1.8s ease-in-out infinite;
+}
+
+.mt-foot {
+  margin-top: 14px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+@keyframes mt-drift { to { transform: translate(48px, 48px); } }
+@keyframes mt-breathe { 0%, 100% { opacity: 0.7; transform: scale(1); } 50% { opacity: 1; transform: scale(1.08); } }
+@keyframes mt-rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+@keyframes mt-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@keyframes mt-pulse { from { opacity: 0.9; transform: scale(1); } to { opacity: 0; transform: scale(1.6); } }
+@keyframes mt-blink { 0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(102, 190, 255, 0.6); } 50% { opacity: 0.5; box-shadow: 0 0 0 5px rgba(102, 190, 255, 0); } }
+@keyframes mt-shine { to { background-position: 200% center; } }
+@keyframes mt-load { from { left: -40%; } to { left: 100%; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .mt-root *, .mt-root *::before, .mt-root *::after { animation: none !important; }
+}

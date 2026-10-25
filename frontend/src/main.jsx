@@ -1,10 +1,21 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App.jsx';
+import Maintenance from './Maintenance.jsx';
 import './index.css';
 
-ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+// While true, every page shows the upgrade screen and the app itself is not loaded.
+const MAINTENANCE = true;
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+
+if (MAINTENANCE) {
+  root.render(<Maintenance />);
+} else {
+  import('./App.jsx').then(({ default: App }) => {
+    root.render(
+      <React.StrictMode>
+        <App />
+      </React.StrictMode>
+    );
+  });
+}
