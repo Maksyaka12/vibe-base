@@ -11,7 +11,7 @@ export default function Maintenance() {
         <div className="mt-logo">
           <span className="mt-ring" aria-hidden="true" />
           <span className="mt-ring mt-ring-2" aria-hidden="true" />
-          <img src="/new-logo-vibe.png" alt="Vibe Hub" />
+          <img src="/new-logo.png" alt="Vibe Hub" />
         </div>
 
         <div className="mt-badge">
