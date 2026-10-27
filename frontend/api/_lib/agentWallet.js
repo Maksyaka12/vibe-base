@@ -36,9 +36,9 @@ const KYBER_ROUTER = '0x6131B5fae19EA4f9D964eAc0408E4408b66337b5';
 const USDC = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913';
 
 const TOKENS = {
-  ETH: { address: null, decimals: 18, limit: env('AGENT_DAILY_LIMIT_ETH') || '0.1' },
-  VIBE: { address: VIBE_TOKEN, decimals: 18, limit: env('AGENT_DAILY_LIMIT_VIBE') || '10000000' },
-  USDC: { address: USDC, decimals: 6, limit: env('AGENT_DAILY_LIMIT_USDC') || '250' },
+  ETH: { address: null, decimals: 18, limit: env('AGENT_DAILY_LIMIT_ETH') || '5' },
+  VIBE: { address: VIBE_TOKEN, decimals: 18, limit: env('AGENT_DAILY_LIMIT_VIBE') || '100000000' },
+  USDC: { address: USDC, decimals: 6, limit: env('AGENT_DAILY_LIMIT_USDC') || '10000' },
 };
 
 // Highest daily caps a user can set for transfers to other addresses.
