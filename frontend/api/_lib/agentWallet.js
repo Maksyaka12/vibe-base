@@ -183,7 +183,9 @@ export async function handleAgentSettings({ method, headers = {}, body }) {
       if (!(name in DEFAULT_SETTINGS.allow) || typeof value !== 'boolean') return json(400, { error: `Unknown setting ${name}` });
       next.allow[name] = value;
     }
-    await (await store()).write([['set', settingsKey(me.wallet.address), next]]);
+    // only what differs from the defaults is stored, so a later change of the defaults reaches everyone else
+    const differs = (group) => Object.fromEntries(Object.entries(next[group]).filter(([k, v]) => String(v) !== String(DEFAULT_SETTINGS[group][k])));
+    await (await store()).write([['set', settingsKey(me.wallet.address), { limits: differs('limits'), allow: differs('allow') }]]);
     return json(200, await settingsView(me), { 'Cache-Control': 'no-store' });
   } catch (e) {
     return json(500, { error: e.message || 'Server error' });
