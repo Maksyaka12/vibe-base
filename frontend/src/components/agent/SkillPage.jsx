@@ -22,7 +22,7 @@ const CAN_DO = [
 
 const HOW = [
   { icon: Wallet, title: 'Your agent gets its own wallet', text: 'The Vibe Agent Wallet is created for you at login. Your agent works from it, never from your main wallet.' },
-  { icon: Zap, title: 'It acts without you', text: 'No pop-ups, no signatures. Our server signs for the agent wallet, the agent only holds a revocable key.' },
+  { icon: Zap, title: 'It acts without you', text: 'No pop-ups, no signatures. You just say what you need in chat, and your agent does the rest.' },
   { icon: ShieldCheck, title: 'You stay in control', text: 'Only Vibe Hub contracts, daily caps for transfers, every action can be switched off in Settings.' },
 ];
 
