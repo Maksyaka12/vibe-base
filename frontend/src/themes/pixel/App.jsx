@@ -2170,6 +2170,7 @@ function DomainRouter() {
       <Route path="/profile" element={<BaseAppView RewardsComponent={Rewards} />} />
       <Route path="/wallet" element={<BaseAppView RewardsComponent={Rewards} />} />
       <Route path="/account" element={<BaseAppView RewardsComponent={Rewards} />} />
+      <Route path="/agents" element={<BaseAppView RewardsComponent={Rewards} />} />
       <Route path="/dashboard" element={<Navigate to="/profile" replace />} />
       <Route path="/contracts" element={<BaseAppView RewardsComponent={Rewards} />} />
       <Route path="/adresses" element={<Navigate to="/contracts" replace />} />

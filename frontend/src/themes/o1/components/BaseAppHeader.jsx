@@ -5,6 +5,7 @@ import { useVibeBalances } from '../../../hooks/useVibeBalances';
 import { useVibeCheckIn } from '../../../hooks/useVibeCheckIn';
 import { ThemeSwitcher } from './ThemeSwitcher';
 import WalletToggle from '../../../components/wallet/WalletToggle';
+import AgentsButton from '../../../components/agent/AgentsButton';
 import { useVibeWallets } from '../../../hooks/useVibeWallets';
 
 export function BaseAppHeader({ onOpenSidebar, isDesktop = false }) {
@@ -91,6 +92,7 @@ export function BaseAppHeader({ onOpenSidebar, isDesktop = false }) {
 
       {/* Right side: Three pills or Connect Wallet */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <AgentsButton theme="o1" />
         {hasWallet && <WalletToggle theme="o1" size="sm" />}
         <ThemeSwitcher />
         {hasWallet ? (

@@ -5,6 +5,7 @@ import { useVibeBalances } from '../../../hooks/useVibeBalances';
 import { useVibeCheckIn } from '../../../hooks/useVibeCheckIn';
 import { ThemeSwitcher } from './ThemeSwitcher';
 import WalletToggle from '../../../components/wallet/WalletToggle';
+import AgentsButton from '../../../components/agent/AgentsButton';
 import { useVibeWallets } from '../../../hooks/useVibeWallets';
 
 const TAB_TITLES = {
@@ -142,6 +143,7 @@ export function BaseAppHeader({ onOpenSidebar, activeTab, isDesktop = false }) {
 
       {/* Right side: Balances or Connect Wallet */}
       <div className="base-app-header-right" style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+        <AgentsButton theme="pixel" />
         {hasWallet && <WalletToggle theme="pixel" size="sm" />}
         <ThemeSwitcher />
         {hasWallet ? (
