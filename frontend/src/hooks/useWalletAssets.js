@@ -4,6 +4,7 @@ import { encodeFunctionData, formatUnits, parseAbi, parseUnits } from 'viem';
 import { publicClient } from '../config/rpc';
 import { VIBE_TOKEN } from '../config/distributors';
 import { sendWalletTx, waitUntil } from '../config/walletTx';
+import { fetchPrices } from '../config/prices';
 import { useVibeWallets } from './useVibeWallets';
 
 // Balances (ETH, VIBE, USDC) and USD value of the user's main and agent wallets, plus sending
@@ -33,16 +34,9 @@ async function readBalances(address) {
   return out;
 }
 
-// USD prices from the deepest VIBE/ETH pair on Base (Uniswap v4 quotes native ETH): priceUsd for VIBE,
-// priceUsd / priceNative for ETH
 async function readPrices() {
-  const res = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${VIBE_TOKEN}`).then((r) => r.json());
-  const pair = (res?.pairs || [])
-    .filter((p) => p.chainId === 'base' && ['ETH', 'WETH'].includes(p.quoteToken?.symbol))
-    .sort((a, b) => (b.liquidity?.usd || 0) - (a.liquidity?.usd || 0))[0];
-  const vibe = Number(pair?.priceUsd) || 0;
-  const eth = vibe && Number(pair?.priceNative) ? vibe / Number(pair.priceNative) : 0;
-  return { VIBE: vibe, ETH: eth, USDC: 1 };
+  const p = await fetchPrices();
+  return { VIBE: p?.vibe || 0, ETH: p?.eth || 0, USDC: 1 };
 }
 
 export const tokenAmount = (token, raw) => (raw == null ? null : Number(formatUnits(raw, TOKENS.find((t) => t.symbol === token).decimals)));

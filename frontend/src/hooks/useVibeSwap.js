@@ -4,6 +4,7 @@ import { encodeFunctionData, formatUnits, parseAbi, parseUnits } from 'viem';
 import { publicClient } from '../config/rpc';
 import { sendWalletTx, isWalletRejection, waitUntil } from '../config/walletTx';
 import { useUserBalances } from './useUserBalances';
+import { fetchPrices } from '../config/prices';
 import { useVibeWallets } from './useVibeWallets';
 
 // ETH <-> $VIBE swap logic shared by the Swap panels of both themes.
@@ -87,19 +88,15 @@ async function bestQuote(args) {
   return ok.sort((a, b) => (b.out > a.out ? 1 : b.out < a.out ? -1 : 0))[0];
 }
 
-// USD prices from the deepest VIBE/ETH pool (DexScreener): VIBE = priceUsd, ETH = priceUsd / priceNative
+// USD prices of $VIBE and ETH (DEX Screener, GeckoTerminal as a fallback)
 function usePrices() {
   const [prices, setPrices] = useState({ vibe: 0, eth: 0 });
   useEffect(() => {
     let active = true;
     const load = async () => {
       try {
-        const res = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${VIBE}`).then((r) => r.json());
-        const pair = (res?.pairs || []).filter((p) => p.chainId === 'base' && ['ETH', 'WETH'].includes(p.quoteToken?.symbol))
-          .sort((a, b) => (b.liquidity?.usd || 0) - (a.liquidity?.usd || 0))[0];
-        const vibe = Number(pair?.priceUsd) || 0;
-        const native = Number(pair?.priceNative) || 0;
-        if (active && vibe && native) setPrices({ vibe, eth: vibe / native });
+        const p = await fetchPrices();
+        if (active && p) setPrices(p);
       } catch (e) {}
     };
     load();

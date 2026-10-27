@@ -1,27 +1,14 @@
 // Finding a wallet's Vibe Club NFT, shared by both themes (profile avatar, mint card).
 // Token ids are spread over 1..333, so every id is checked rather than the first few.
 import { parseAbi } from 'viem';
-import { VIBE_CLUB_NFT, VIBE_TOKEN } from './snapshot/constants.js';
+import { VIBE_CLUB_NFT } from './snapshot/constants.js';
+import { fetchPrices } from '../config/prices.js';
 
-const ETH_QUOTES = ['0x0000000000000000000000000000000000000000', '0x4200000000000000000000000000000000000006']; // native ETH, WETH
-
-// $VIBE per 1 ETH from the deepest VIBE/ETH pool on DEX Screener, or null when it is not available
+// $VIBE per 1 ETH from the market price, or null when it is not available
 // (the mint for $VIBE then waits instead of using a guessed price).
 export async function fetchVibePerEth() {
-  try {
-    const res = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${VIBE_TOKEN}`);
-    const data = await res.json();
-    const pairs = (data?.pairs || []).filter((p) =>
-      p.chainId === 'base' &&
-      p.baseToken?.address?.toLowerCase() === VIBE_TOKEN.toLowerCase() &&
-      ETH_QUOTES.includes(p.quoteToken?.address?.toLowerCase()) &&
-      Number(p.priceNative) > 0
-    );
-    pairs.sort((a, b) => (b.liquidity?.usd || 0) - (a.liquidity?.usd || 0));
-    return pairs[0] ? 1 / Number(pairs[0].priceNative) : null;
-  } catch (e) {
-    return null;
-  }
+  const p = await fetchPrices();
+  return p ? p.eth / p.vibe : null;
 }
 
 // $VIBE the Vibe Club contract sent to the burn address (from /api/nft-burned), or null when unavailable.
