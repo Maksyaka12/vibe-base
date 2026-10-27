@@ -206,6 +206,25 @@ function Modal({ theme, title, onClose, children }) {
   );
 }
 
+// Deposit to `address`: its address to copy, and a transfer from the user's other wallet (`from`) when there is one.
+export function DepositModal({ theme, assets, title, address, from, fromLabel, onClose }) {
+  return (
+    <Modal theme={theme} title={title} onClose={onClose}>
+      <p className="vwp-hint">Send ETH (needed for gas), $VIBE or USDC on the Base network to this address.</p>
+      <div className="vwp-address-box">
+        <span className="vwp-mono">{address}</span>
+        <CopyButton value={address} />
+      </div>
+      {from && (
+        <>
+          <div className="vwp-divider"><span>or move funds from your {fromLabel}</span></div>
+          <TransferForm key={`deposit-${address}`} assets={assets} from={from} defaultTo={address} lockTo submitLabel={`Transfer from ${fromLabel}`} />
+        </>
+      )}
+    </Modal>
+  );
+}
+
 export default function WalletPage({ theme = 'o1', onSwap }) {
   const assets = useWalletAssets();
   const { mainAddress, agentAddress, hasAgentWallet, active, activeAddress, setActive, balancesOf, usdValue } = assets;
@@ -305,26 +324,15 @@ export default function WalletPage({ theme = 'o1', onSwap }) {
       </div>
 
       {panel === 'deposit' && (
-        <Modal theme={theme} title={`Deposit to ${activeWallet.name}`} onClose={closePanel}>
-          <p className="vwp-hint">Send ETH (needed for gas), $VIBE or USDC on the Base network to this address.</p>
-          <div className="vwp-address-box">
-            <span className="vwp-mono">{activeAddress}</span>
-            <CopyButton value={activeAddress} />
-          </div>
-          {other && (
-            <>
-              <div className="vwp-divider"><span>or move funds from your {other.key === 'main' ? 'main wallet' : 'agent wallet'}</span></div>
-              <TransferForm
-                key={`deposit-${activeAddress}`}
-                assets={assets}
-                from={other.address}
-                defaultTo={activeAddress}
-                lockTo
-                submitLabel={`Transfer from ${other.key === 'main' ? 'main wallet' : 'agent wallet'}`}
-              />
-            </>
-          )}
-        </Modal>
+        <DepositModal
+          theme={theme}
+          assets={assets}
+          title={`Deposit to ${activeWallet.name}`}
+          address={activeAddress}
+          from={other?.address}
+          fromLabel={other?.key === 'main' ? 'main wallet' : 'agent wallet'}
+          onClose={closePanel}
+        />
       )}
 
       {panel === 'send' && (

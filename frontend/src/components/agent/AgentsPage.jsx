@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
 import {
   Bot, Terminal, Copy, Check, ArrowUpRight, CalendarCheck, Gift, Award, Layers, ArrowLeftRight, Send,
-  ShieldCheck, KeyRound, Wallet, Lock, Gauge, Crown, Fuel,
+  ShieldCheck, KeyRound, Wallet, Lock, Gauge, Crown, Fuel, ArrowDownToLine,
 } from 'lucide-react';
 import { useVibeWallets } from '../../hooks/useVibeWallets';
+import { useWalletAssets } from '../../hooks/useWalletAssets';
 import AgentAccessCard from '../wallet/AgentAccessCard';
+import { DepositModal } from '../wallet/WalletPage';
 import '../wallet/WalletPages.css';
 import './AgentsPage.css';
 
@@ -43,7 +45,6 @@ const EXAMPLES = [
   'Buy $VIBE for 0.01 ETH',
   'Show the upcoming rewards schedule',
   'When is the next unlock?',
-  'What did I earn so far?',
 ];
 
 function useCopy() {
@@ -70,10 +71,13 @@ function StepHead({ n, title, text }) {
   );
 }
 
-export default function AgentsPage({ theme = 'o1', onOpenWallet }) {
+export default function AgentsPage({ theme = 'o1' }) {
   const { authenticated, login } = usePrivy();
-  const { agentAddress, hasAgentWallet } = useVibeWallets();
+  const { mainAddress, agentAddress, hasAgentWallet } = useVibeWallets();
+  const assets = useWalletAssets();
   const [copied, copy] = useCopy();
+  const [depositOpen, setDepositOpen] = useState(false);
+  const closeDeposit = useCallback(() => setDepositOpen(false), []);
 
   return (
     <div className={`vwp-${theme} agp`}>
@@ -81,7 +85,7 @@ export default function AgentsPage({ theme = 'o1', onOpenWallet }) {
         <div className="agp-hero-text">
           <span className="agp-hero-badge"><Bot size={14} /> Agent Zone</span>
           <h1>Let your agent run <span>Vibe Hub</span> for you</h1>
-          <p>Set up your agent once. <b>Then just ask.</b></p>
+          <p>Set up your agent once. Then just ask.</p>
           <div className="agp-abilities">
             {ABILITIES.map(({ icon: Icon, text }) => (
               <span key={text} className="agp-ability"><Icon size={14} /> {text}</span>
@@ -133,9 +137,13 @@ export default function AgentsPage({ theme = 'o1', onOpenWallet }) {
               {copied === 'address' ? <Check size={14} /> : <Copy size={14} />}
             </button>
           )}
-          {onOpenWallet && (
-            <button type="button" className="agp-btn agp-btn-main" onClick={onOpenWallet}>
-              <Wallet size={15} /> Open Wallet
+          {hasAgentWallet ? (
+            <button type="button" className="agp-btn agp-btn-main" onClick={() => setDepositOpen(true)}>
+              <ArrowDownToLine size={15} /> Deposit
+            </button>
+          ) : !authenticated && (
+            <button type="button" className="agp-btn agp-btn-main" onClick={login}>
+              <Wallet size={15} /> Connect wallet
             </button>
           )}
         </div>
@@ -179,6 +187,7 @@ export default function AgentsPage({ theme = 'o1', onOpenWallet }) {
         <StepHead n={4} title="Just ask your agent" />
         <div className="agp-examples">
           {EXAMPLES.map((e) => <span key={e} className="agp-example">{e}</span>)}
+          <span className="agp-example agp-typing" aria-label="and more"><i /><i /><i /></span>
         </div>
       </section>
 
@@ -209,6 +218,18 @@ export default function AgentsPage({ theme = 'o1', onOpenWallet }) {
           </div>
         </div>
       </section>
+
+      {depositOpen && hasAgentWallet && (
+        <DepositModal
+          theme={theme}
+          assets={assets}
+          title="Deposit to Vibe Agent Wallet"
+          address={agentAddress}
+          from={mainAddress}
+          fromLabel="main wallet"
+          onClose={closeDeposit}
+        />
+      )}
     </div>
   );
 }
