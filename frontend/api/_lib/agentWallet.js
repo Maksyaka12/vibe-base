@@ -10,6 +10,8 @@
 //   (staking payouts only to the wallet itself), $VIBE approvals for staking;
 // - swaps ETH <-> $VIBE (the server builds the route, the output always comes back to the wallet);
 // - transfers of ETH / $VIBE / USDC: unlimited to the user's own main wallet, daily-capped to anyone else.
+// The user can lower or raise the daily caps and turn swaps, staking and transfers to other addresses off
+// (GET / PUT /api/agent/settings); the checks below read those settings.
 // Minting is not offered to agents.
 //
 // Env: PRIVY_APP_SECRET, PRIVY_AUTHORIZATION_KEY (private key of the key quorum), optional PRIVY_APP_ID,
@@ -38,6 +40,24 @@ const TOKENS = {
   VIBE: { address: VIBE_TOKEN, decimals: 18, limit: env('AGENT_DAILY_LIMIT_VIBE') || '10000000' },
   USDC: { address: USDC, decimals: 6, limit: env('AGENT_DAILY_LIMIT_USDC') || '250' },
 };
+
+// Highest daily caps a user can set for transfers to other addresses.
+const MAX_LIMITS = { ETH: '10', VIBE: '1000000000', USDC: '100000' };
+const DEFAULT_SETTINGS = {
+  limits: Object.fromEntries(Object.entries(TOKENS).map(([symbol, t]) => [symbol, t.limit])),
+  allow: { swaps: true, staking: true, transfers: true },
+};
+
+const settingsKey = (address) => `agent_settings:${String(address || '').toLowerCase()}`;
+
+/** The user's agent settings over the defaults. */
+async function readSettings(address) {
+  const saved = (await (await store()).get(settingsKey(address))) || {};
+  return {
+    limits: { ...DEFAULT_SETTINGS.limits, ...saved.limits },
+    allow: { ...DEFAULT_SETTINGS.allow, ...saved.allow },
+  };
+}
 
 const ERC20 = parseAbi([
   'function transfer(address to, uint256 amount) returns (bool)',
@@ -130,6 +150,46 @@ export async function handleAgentToken({ method, headers = {} }) {
   }
 }
 
+// ─────────────────────────────── /api/agent/settings ───────────────────────────────
+// GET: the agent wallet's settings and what it sent to other addresses today; PUT { limits?, allow? }: change them.
+
+const DECIMAL = /^\d+(\.\d+)?$/;
+
+async function settingsView(me) {
+  const settings = await readSettings(me.wallet.address);
+  const today = (await (await store()).get(dayKey(me.wallet.address))) || {};
+  const spentToday = Object.fromEntries(Object.entries(TOKENS).map(([symbol, t]) => [symbol, formatUnits(BigInt(today[symbol] || '0'), t.decimals)]));
+  return { address: getAddress(me.wallet.address), mainAddress: me.mainAddress, ...settings, defaults: DEFAULT_SETTINGS, max: MAX_LIMITS, spentToday };
+}
+
+export async function handleAgentSettings({ method, headers = {}, body }) {
+  if (!['GET', 'PUT'].includes(method)) return json(405, { error: 'Method not allowed' }, { Allow: 'GET, PUT' });
+  try {
+    const me = await siteUser(headers);
+    if (me.error) return me.error;
+    if (method === 'GET') return json(200, await settingsView(me), { 'Cache-Control': 'no-store' });
+
+    const req = body && typeof body === 'object' ? body : {};
+    const current = await readSettings(me.wallet.address);
+    const next = { limits: { ...current.limits }, allow: { ...current.allow } };
+    for (const [symbol, value] of Object.entries(req.limits || {})) {
+      const t = TOKENS[symbol];
+      const v = String(value).trim();
+      if (!t || !DECIMAL.test(v)) return json(400, { error: `Enter a number for the ${symbol} limit` });
+      if (parseUnits(v, t.decimals) > parseUnits(MAX_LIMITS[symbol], t.decimals)) return json(400, { error: `The ${symbol} limit can be at most ${MAX_LIMITS[symbol]}` });
+      next.limits[symbol] = v.replace(/^0+(?=\d)/, '');
+    }
+    for (const [name, value] of Object.entries(req.allow || {})) {
+      if (!(name in DEFAULT_SETTINGS.allow) || typeof value !== 'boolean') return json(400, { error: `Unknown setting ${name}` });
+      next.allow[name] = value;
+    }
+    await (await store()).write([['set', settingsKey(me.wallet.address), next]]);
+    return json(200, await settingsView(me), { 'Cache-Control': 'no-store' });
+  } catch (e) {
+    return json(500, { error: e.message || 'Server error' });
+  }
+}
+
 // ─────────────────────────────── /api/agent/act ───────────────────────────────
 
 async function agentFromKey(headers) {
@@ -141,13 +201,15 @@ async function agentFromKey(headers) {
 const dayKey = (address) => `agent_spend:${lower(address)}:${new Date().toISOString().slice(0, 10)}`;
 
 /** Checks a transfer against today's cap; returns an error message or null. Transfers to the main wallet are free. */
-async function checkLimit(agent, symbol, to, amount) {
+async function checkLimit(agent, settings, symbol, to, amount) {
   if (agent.mainAddress && lower(to) === lower(agent.mainAddress)) return null;
+  if (!settings.allow.transfers) return 'Transfers to other addresses are turned off in your Vibe Hub settings. Transfers to your own main wallet still work.';
   const t = TOKENS[symbol];
+  const limit = settings.limits[symbol];
   const spent = BigInt((await (await store()).get(dayKey(agent.address)))?.[symbol] || '0');
-  const cap = parseUnits(t.limit, t.decimals);
+  const cap = parseUnits(limit, t.decimals);
   if (spent + amount > cap) {
-    return `Daily limit for transfers to other addresses is ${t.limit} ${symbol}; ${formatUnits(cap - spent < 0n ? 0n : cap - spent, t.decimals)} ${symbol} left today. Transfers to your own main wallet have no limit.`;
+    return `Daily limit for transfers to other addresses is ${limit} ${symbol}; ${formatUnits(cap - spent < 0n ? 0n : cap - spent, t.decimals)} ${symbol} left today. Transfers to your own main wallet have no limit.`;
   }
   return null;
 }
@@ -161,8 +223,11 @@ async function recordSpend(agent, symbol, to, amount) {
   await db.write([['set', key, today]]);
 }
 
-/** Refuses anything outside the agent rules; returns an error message or null. */
-function checkTx(agent, tx) {
+const STAKING_OFF = 'Staking is turned off in your Vibe Hub settings';
+const SWAPS_OFF = 'Swaps are turned off in your Vibe Hub settings';
+
+/** Refuses anything outside the agent rules and the user's settings; returns an error message or null. */
+function checkTx(agent, settings, tx) {
   const to = lower(tx.to);
   const value = BigInt(tx.value || 0);
   const self = lower(agent.address);
@@ -170,6 +235,7 @@ function checkTx(agent, tx) {
 
   if ([lower(CHECK_IN), lower(ACHIEVEMENTS), ...distributors].includes(to)) return value === 0n ? null : 'This call takes no ETH';
   if (to === lower(STAKING)) {
+    if (!settings.allow.staking) return STAKING_OFF;
     if (value !== 0n) return 'This call takes no ETH';
     let call;
     try { call = decodeFunctionData({ abi: STAKING_ABI, data: tx.data }); } catch { return 'Unknown staking call'; }
@@ -180,7 +246,8 @@ function checkTx(agent, tx) {
   if (to === lower(VIBE_TOKEN)) {
     let call;
     try { call = decodeFunctionData({ abi: ERC20, data: tx.data }); } catch { return 'Unknown token call'; }
-    if (call.functionName === 'approve' && [lower(STAKING), lower(KYBER_ROUTER)].includes(lower(call.args[0]))) return null;
+    if (call.functionName === 'approve' && lower(call.args[0]) === lower(STAKING)) return settings.allow.staking ? null : STAKING_OFF;
+    if (call.functionName === 'approve' && lower(call.args[0]) === lower(KYBER_ROUTER)) return settings.allow.swaps ? null : SWAPS_OFF;
     return 'Use {"action":"transfer"} to send tokens';
   }
   if (to === lower(KYBER_ROUTER)) return 'Use {"action":"swap"} for swaps';
@@ -218,6 +285,7 @@ export async function handleAgentAct({ method, headers = {}, body }) {
     const agent = await agentFromKey(headers);
     if (!agent) return json(401, { error: 'Missing or revoked agent key: enable the agent in Vibe Hub → Account and pass Authorization: Bearer <key>' });
     const req = body && typeof body === 'object' ? body : {};
+    const settings = await readSettings(agent.address);
 
     if (req.action === 'transfer') {
       const symbol = String(req.token || '').toUpperCase().replace('$', '');
@@ -227,7 +295,7 @@ export async function handleAgentAct({ method, headers = {}, body }) {
       }
       const amount = parseUnits(String(req.amount), t.decimals);
       if (amount <= 0n) return json(400, { error: 'Amount must be above zero' });
-      const limitError = await checkLimit(agent, symbol, req.to, amount);
+      const limitError = await checkLimit(agent, settings, symbol, req.to, amount);
       if (limitError) return json(403, { error: limitError });
       const tx = t.address
         ? { to: t.address, data: encodeFunctionData({ abi: ERC20, functionName: 'transfer', args: [getAddress(req.to), amount] }), value: 0n }
@@ -238,6 +306,7 @@ export async function handleAgentAct({ method, headers = {}, body }) {
     }
 
     if (req.action === 'swap') {
+      if (!settings.allow.swaps) return json(403, { error: SWAPS_OFF });
       const quote = await handleSwap({ method: 'GET', query: { address: agent.address, side: req.side, amount: req.amount, slippage: req.slippage } });
       if (quote.status !== 200) return quote;
       const hashes = await sendAll(agent, quote.body.txs);
@@ -250,7 +319,7 @@ export async function handleAgentAct({ method, headers = {}, body }) {
     }
     for (const tx of txs) {
       if (tx.sender && tx.sender !== 'any' && lower(tx.sender) !== lower(agent.address)) return json(400, { error: `This tx was built for ${tx.sender}; request it again with address=${agent.address}` });
-      const err = checkTx(agent, tx);
+      const err = checkTx(agent, settings, tx);
       if (err) return json(403, { error: err, to: tx.to });
     }
     const hashes = await sendAll(agent, txs);

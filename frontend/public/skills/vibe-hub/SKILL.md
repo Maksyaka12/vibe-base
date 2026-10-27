@@ -53,7 +53,7 @@ The response is `{ "from": "<agent wallet>", "hashes": ["0x..."] }`. Reply with 
 
 - **Confirm before** staking, swapping or sending. Check-ins and claims need no confirmation.
 - Never build calldata yourself; use what the API returns.
-- Transfers to the user's main wallet are unlimited; to other addresses they are capped per day (the API says how much is left).
+- Transfers to the user's main wallet are unlimited; to other addresses they are capped per day (the API says how much is left). The user sets the caps and can turn swaps, staking and transfers to other addresses off in Vibe Hub → Settings; a `403` naming a setting means it is off there.
 - Only Vibe Hub contracts are allowed; the server refuses anything else.
 - The user's main wallet is never touched. Achievement and v2 reward claims can be sent for the main wallet (`address=<main>`, txs with `sender: "any"`) only when the user explicitly asks.
 - Errors come as `{ "error": "..." }`: relay them. `401` = the key was revoked; ask the user for a new one.

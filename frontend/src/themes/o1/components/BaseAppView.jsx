@@ -10,6 +10,7 @@ import TokenomicsPage from '../pages/TokenomicsPage';
 import WalletPage from '../../../components/wallet/WalletPage';
 import AccountPage from '../../../components/wallet/AccountPage';
 import AgentsPage from '../../../components/agent/AgentsPage';
+import SettingsPage from '../../../components/wallet/SettingsPage';
 import WalletToggle from '../../../components/wallet/WalletToggle';
 import ContractsPage from '../pages/ContractsPage';
 import BaseAppAdminView from './BaseAppAdminView';
@@ -115,6 +116,7 @@ export function BaseAppView({ RewardsComponent }) {
     if (path.includes('vibeclub') || path.includes('vibe-club') || path.includes('mint') || path.includes('nft') || path.includes('nft-club')) return 'vibeclub';
     if (path.includes('profile') || path.includes('dashboard')) return 'profile';
     if (path.includes('agents')) return 'agents';
+    if (path.includes('settings')) return 'settings';
     if (path.includes('wallet')) return 'wallet';
     if (path.includes('account')) return 'account';
     if (path.includes('tokenomics')) return 'tokenomics';
@@ -147,7 +149,7 @@ export function BaseAppView({ RewardsComponent }) {
       navigate(prefix ? '/app/claim' : '/claim', { replace: false });
     } else if (tabId === 'vibeclub') {
       navigate(prefix ? '/app/vibeclub' : '/vibeclub', { replace: false });
-    } else if (tabId === 'wallet' || tabId === 'account' || tabId === 'agents') {
+    } else if (tabId === 'wallet' || tabId === 'account' || tabId === 'agents' || tabId === 'settings') {
       navigate(`${prefix}/${tabId}`, { replace: false });
     } else if (tabId === 'profile') {
       navigate(prefix ? '/app/profile' : '/profile', { replace: false });
@@ -272,6 +274,13 @@ export function BaseAppView({ RewardsComponent }) {
               <section style={{ padding: '24px 0 60px 0' }}>
                 <div style={{ maxWidth: '1040px', margin: '0 auto', padding: '0 14px' }}>
                   <AgentsPage theme="o1" />
+                </div>
+              </section>
+            ) : activeTab === 'settings' ? (
+              <section style={{ padding: '24px 0 60px 0' }}>
+                <div style={{ maxWidth: '640px', margin: '0 auto', padding: '0 14px' }}>
+                  <PageHeader title="Settings" description="What your agent can do with the Vibe Agent Wallet and its daily limits" />
+                  <SettingsPage theme="o1" onOpenAgents={() => handleSelectTab('agents')} />
                 </div>
               </section>
             ) : activeTab === 'account' ? (

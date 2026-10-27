@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import { User, Wallet, LogOut } from 'lucide-react';
+import { User, Settings, LogOut } from 'lucide-react';
 import './WalletPages.css';
 
-// Popover opened from the sidebar wallet pill: Account, Wallet, Logout. `trigger(toggle, open)` renders the pill;
+// Popover opened from the sidebar wallet pill: Account, Settings, Logout. `trigger(toggle, open)` renders the pill;
 // `side` = 'up' (expanded sidebar) or 'right' (collapsed sidebar).
 
 export default function WalletMenu({ theme = 'o1', side = 'up', onSelect, onLogout, trigger }) {
@@ -36,8 +36,8 @@ export default function WalletMenu({ theme = 'o1', side = 'up', onSelect, onLogo
           <button type="button" role="menuitem" onClick={pick(() => onSelect('account'))}>
             <User size={15} /> Account
           </button>
-          <button type="button" role="menuitem" onClick={pick(() => onSelect('wallet'))}>
-            <Wallet size={15} /> Wallet
+          <button type="button" role="menuitem" onClick={pick(() => onSelect('settings'))}>
+            <Settings size={15} /> Settings
           </button>
           <div className="vwp-menu-sep" />
           <button type="button" role="menuitem" className="danger" onClick={pick(onLogout)}>

@@ -2,7 +2,7 @@
 // vercel.json rewrites /api/{claims,status,staking,swap,rounds,history} and /api/agent/{act,token} here as
 // ?route=<name>; /api/agent itself is the index. Logic lives in ./_lib/agent.js and ./_lib/agentWallet.js.
 import { handleAgentIndex, handleClaims, handleStatus, handleStaking, handleSwap, handleRounds, handleHistory } from './_lib/agent.js';
-import { handleAgentAct, handleAgentToken } from './_lib/agentWallet.js';
+import { handleAgentAct, handleAgentToken, handleAgentSettings } from './_lib/agentWallet.js';
 
 export const config = { maxDuration: 60 };
 
@@ -15,12 +15,13 @@ const ROUTES = {
   history: handleHistory,
   act: handleAgentAct,
   token: handleAgentToken,
+  settings: handleAgentSettings,
 };
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   if (req.method === 'OPTIONS') {
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type');
     return res.status(204).end();
   }
