@@ -2,8 +2,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
 import { ArrowLeftRight, Layers, Send, Bot, Infinity as InfinityIcon, RotateCcw } from 'lucide-react';
 import { useVibeWallets } from '../../hooks/useVibeWallets';
-import { TOKENS } from '../../hooks/useWalletAssets';
-import { shortAddr } from './WalletPage';
+import { TOKENS, tokenAmount, useWalletAssets } from '../../hooks/useWalletAssets';
+import { CopyButton, shortAddr } from './WalletPage';
 import './WalletPages.css';
 
 // Settings of the Vibe Agent Wallet: what the agent may do and its daily caps for transfers to other addresses.
@@ -16,6 +16,8 @@ const PERMISSIONS = [
 ];
 
 const fmt = (v) => Number(v).toLocaleString('en-US', { maximumFractionDigits: 6 });
+const compact = (v) => Number(v).toLocaleString('en-US', { notation: 'compact', maximumFractionDigits: 2 });
+const usd = (v) => `$${(v || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 function Switch({ on, onChange, disabled }) {
   return (
@@ -34,9 +36,12 @@ export default function SettingsPage({ theme = 'o1', onOpenAgents }) {
   const [saved, setSaved] = useState('');
   const [busy, setBusy] = useState(false);
 
-  const api = useCallback(async (method, body) => {
+  const assets = useWalletAssets();
+  const [status, setStatus] = useState(null);
+
+  const api = useCallback(async (method, body, path = '/api/agent/settings') => {
     const token = await getAccessToken();
-    const res = await fetch('/api/agent/settings', {
+    const res = await fetch(path, {
       method,
       headers: { Authorization: `Bearer ${token}`, ...(body ? { 'Content-Type': 'application/json' } : {}) },
       body: body ? JSON.stringify(body) : undefined,
@@ -54,6 +59,7 @@ export default function SettingsPage({ theme = 'o1', onOpenAgents }) {
   useEffect(() => {
     if (!hasAgentWallet) return;
     api('GET').then(apply).catch((e) => setError(e.message));
+    api('GET', null, '/api/agent/token').then(setStatus).catch(() => {});
   }, [hasAgentWallet, api]);
 
   const save = async (body, message) => {
@@ -80,25 +86,51 @@ export default function SettingsPage({ theme = 'o1', onOpenAgents }) {
 
   const dirty = data && TOKENS.some((t) => String(limits[t.symbol] ?? '') !== String(data.limits[t.symbol]));
   const transfersOn = data?.allow.transfers;
+  const enabled = Boolean(status?.signer && status?.hasKey);
+  const ethLeft = tokenAmount('ETH', assets.balancesOf(agentAddress)?.ETH);
 
   return (
     <div className={`vwp vwp-${theme}`}>
-      <div className="vwp-card">
-        <div className="vwp-card-head">
-          <div>
-            <div className="vwp-card-title">Agent wallet</div>
-            <div className="vwp-muted vwp-mono">{shortAddr(agentAddress)}</div>
+      <div className="vwp-agent-hero">
+        <div className="vwp-agent-hero-top">
+          <span className={`vwp-agent-avatar ${enabled ? 'on' : ''}`}><Bot size={24} /></span>
+          <div className="vwp-agent-id">
+            <div className="vwp-agent-name">
+              Vibe Agent Wallet
+              {status && (
+                <span className={`vwp-agent-status ${enabled ? 'on' : ''}`}>
+                  <i /> {enabled ? 'Agent active' : 'Agent off'}
+                </span>
+              )}
+            </div>
+            <div className="vwp-address-line">
+              <span className="vwp-mono vwp-muted">{shortAddr(agentAddress)}</span>
+              <CopyButton value={agentAddress} />
+            </div>
           </div>
+        </div>
+        <div className="vwp-agent-stats">
+          <div>
+            <span>Balance</span>
+            <b>{usd(assets.usdValue(agentAddress))}</b>
+          </div>
+          <div>
+            <span>ETH for gas</span>
+            <b>{ethLeft == null ? '…' : fmt(ethLeft)}</b>
+          </div>
+          <div>
+            <span>Agent key</span>
+            <b>{!status ? '…' : status.hasKey ? new Date(status.keyCreatedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : 'Not created'}</b>
+          </div>
+        </div>
+        <div className="vwp-agent-foot">
+          <p>The rules below apply to everything your agent does. Check-ins and reward claims are always allowed, your main wallet is never touched.</p>
           {onOpenAgents && (
-            <button type="button" className="vwp-btn vwp-btn-sm" onClick={onOpenAgents}>
-              <Bot size={15} /> Agent Zone
+            <button type="button" className="vwp-agent-cta" onClick={onOpenAgents}>
+              <Bot size={15} /> {enabled ? 'Agent Zone' : 'Enable agent'}
             </button>
           )}
         </div>
-        <p className="vwp-hint">
-          These rules apply to everything your agent does with its key. Check-ins and reward claims are always allowed,
-          and your main wallet is never touched.
-        </p>
       </div>
 
       <div className="vwp-card">
@@ -136,7 +168,7 @@ export default function SettingsPage({ theme = 'o1', onOpenAgents }) {
           The most your agent can send to other addresses per day (resets at 00:00 UTC). Set 0 to block a token.
         </p>
         <div className="vwp-main-free">
-          <InfinityIcon size={15} /> To your main wallet {mainAddress ? <span className="vwp-mono">{shortAddr(mainAddress)}</span> : null}: no limit
+          <InfinityIcon size={15} /> <span>To your main wallet{mainAddress && <> <span className="vwp-mono">{shortAddr(mainAddress)}</span></>}: no limit</span>
         </div>
         {data ? (
           <div className="vwp-limits">
@@ -149,11 +181,11 @@ export default function SettingsPage({ theme = 'o1', onOpenAgents }) {
                   <div className="vwp-limit-head">
                     <img src={t.icon} alt="" className="vwp-token-icon" />
                     <span className="vwp-wallet-name">{t.symbol === 'VIBE' ? '$VIBE' : t.symbol}</span>
-                    <span className="vwp-muted vwp-limit-used">{fmt(spent)} / {fmt(cap)} today</span>
                   </div>
                   <div className="vwp-limit-bar"><span style={{ width: `${pct}%` }} /></div>
+                  <span className="vwp-muted vwp-limit-used">Sent today: {compact(spent)} of {compact(cap)}</span>
                   <label className="vwp-field">
-                    <span>Per day <span className="vwp-muted">max {fmt(data.max[t.symbol])}</span></span>
+                    <span>Per day <span className="vwp-muted">max {compact(data.max[t.symbol])}</span></span>
                     <input
                       inputMode="decimal"
                       value={limits[t.symbol] ?? ''}
