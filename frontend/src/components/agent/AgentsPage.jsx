@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
 import {
   Bot, Terminal, Copy, Check, ArrowUpRight, CalendarCheck, Gift, Award, Layers, ArrowLeftRight, Send,
-  ShieldCheck, KeyRound, Wallet, Lock, Gauge,
+  ShieldCheck, KeyRound, Wallet, Lock, Gauge, Crown, Fuel,
 } from 'lucide-react';
 import { useVibeWallets } from '../../hooks/useVibeWallets';
 import AgentAccessCard from '../wallet/AgentAccessCard';
@@ -30,11 +30,21 @@ const ABILITIES = [
   { icon: Layers, text: 'Staking' },
   { icon: ArrowLeftRight, text: 'Swaps' },
   { icon: Send, text: 'Transfers' },
+  { icon: Crown, text: 'Claims for your main wallet' },
 ];
 
 const ORBIT = ['/brands/claude.svg', '/brands/openai.svg', '/brands/cursor.svg', '/brands/bankr.png'];
 
-const EXAMPLES = ['Do my Vibe check-in', 'Claim all my Vibe rewards', 'Stake 90% of my $VIBE', 'Buy $VIBE for 0.01 ETH', 'When is the next unlock?'];
+const EXAMPLES = [
+  'Do my Vibe check-in',
+  'Claim all my Vibe rewards',
+  'Claim holder rewards to my main wallet',
+  'Stake 90% of my $VIBE',
+  'Buy $VIBE for 0.01 ETH',
+  'Show the upcoming rewards schedule',
+  'When is the next unlock?',
+  'What did I earn so far?',
+];
 
 function useCopy() {
   const [copied, setCopied] = useState('');
@@ -70,8 +80,8 @@ export default function AgentsPage({ theme = 'o1', onOpenWallet }) {
       <section className="agp-hero">
         <div className="agp-hero-text">
           <span className="agp-hero-badge"><Bot size={14} /> Agent Zone</span>
-          <h1>Let your AI run <span>Vibe Hub</span> for you</h1>
-          <p>Connect Claude, ChatGPT, Cursor or Bankr once. Then just ask.</p>
+          <h1>Let your agent run <span>Vibe Hub</span> for you</h1>
+          <p>Set up your agent once. <b>Then just ask.</b></p>
           <div className="agp-abilities">
             {ABILITIES.map(({ icon: Icon, text }) => (
               <span key={text} className="agp-ability"><Icon size={14} /> {text}</span>
@@ -94,7 +104,7 @@ export default function AgentsPage({ theme = 'o1', onOpenWallet }) {
 
       <section className="agp-panel agp-enable">
         <div className="agp-enable-info">
-          <StepHead n={1} title="Enable your agent" text="Your agent works from the Vibe Agent Wallet, a separate wallet created for you at login. Enable it, copy the key and add a little ETH for gas." />
+          <StepHead n={1} title="Enable your agent" text="Your agent works from the Vibe Agent Wallet, a separate wallet created for you at login. Enable it and copy the agent key." />
           <ul className="agp-safety">
             <li><ShieldCheck size={15} /> Your main wallet is never touched</li>
             <li><Lock size={15} /> Only Vibe Hub contracts are allowed</li>
@@ -108,18 +118,31 @@ export default function AgentsPage({ theme = 'o1', onOpenWallet }) {
               <Wallet size={16} /> Connect wallet to start
             </button>
           ) : (
-            <>
-              <AgentAccessCard agentAddress={hasAgentWallet ? agentAddress : null} />
-              {hasAgentWallet && onOpenWallet && (
-                <button type="button" className="agp-link" onClick={onOpenWallet}>Top up the agent wallet →</button>
-              )}
-            </>
+            <AgentAccessCard agentAddress={hasAgentWallet ? agentAddress : null} />
+          )}
+        </div>
+      </section>
+
+      <section className="agp-panel agp-topup">
+        <StepHead n={2} title="Top up the agent wallet" text="Send a little ETH for gas, plus any $VIBE you want your agent to stake, swap or send." />
+        <div className="agp-topup-action">
+          {hasAgentWallet && (
+            <button type="button" className="agp-address" onClick={() => copy('address', agentAddress)} title="Copy address">
+              <Fuel size={15} />
+              <span>{agentAddress.slice(0, 6)}…{agentAddress.slice(-4)}</span>
+              {copied === 'address' ? <Check size={14} /> : <Copy size={14} />}
+            </button>
+          )}
+          {onOpenWallet && (
+            <button type="button" className="agp-btn agp-btn-main" onClick={onOpenWallet}>
+              <Wallet size={15} /> Open Wallet
+            </button>
           )}
         </div>
       </section>
 
       <section className="agp-panel">
-        <StepHead n={2} title="Install the skill in your AI" text="Install opens your app with the setup prompt ready. Send it, then paste your agent key." />
+        <StepHead n={3} title="Install the skill in your AI" text="Install opens your app with the setup prompt ready. Send it, then paste your agent key." />
         <div className="agp-clients">
           {CLIENTS.map(({ name, sub, logo, icon: Icon, href, full }) => (
             <div key={name} className="agp-client">
@@ -153,7 +176,7 @@ export default function AgentsPage({ theme = 'o1', onOpenWallet }) {
       </section>
 
       <section className="agp-panel">
-        <StepHead n={3} title="Just ask" />
+        <StepHead n={4} title="Just ask your agent" />
         <div className="agp-examples">
           {EXAMPLES.map((e) => <span key={e} className="agp-example">{e}</span>)}
         </div>

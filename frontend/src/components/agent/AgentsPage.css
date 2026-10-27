@@ -576,3 +576,54 @@
     display: none;
   }
 }
+
+.agp-hero p b {
+  color: var(--vwp-text);
+  font-weight: 650;
+}
+
+/* Step 2: top up */
+.agp-topup {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.agp-topup-action {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.agp-address {
+  height: 38px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 10px;
+  border: 1px dashed var(--vwp-border);
+  background: var(--vwp-surface-2);
+  color: var(--vwp-text-2);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.agp-address svg:first-child {
+  color: var(--agp-teal);
+}
+
+@media (max-width: 760px) {
+  .agp-topup {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .agp-topup-action {
+    padding-left: 44px;
+    flex-wrap: wrap;
+  }
+}
