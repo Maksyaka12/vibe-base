@@ -11,6 +11,7 @@ import WalletPage from '../../../components/wallet/WalletPage';
 import AccountPage from '../../../components/wallet/AccountPage';
 import AgentsPage from '../../../components/agent/AgentsPage';
 import SettingsPage from '../../../components/wallet/SettingsPage';
+import SkillPage from '../../../components/agent/SkillPage';
 import WalletToggle from '../../../components/wallet/WalletToggle';
 import ContractsPage from '../pages/ContractsPage';
 import BaseAppAdminView from './BaseAppAdminView';
@@ -117,6 +118,7 @@ export function BaseAppView({ RewardsComponent }) {
     if (path.includes('profile') || path.includes('dashboard')) return 'profile';
     if (path.includes('agents')) return 'agents';
     if (path.includes('settings')) return 'settings';
+    if (path.includes('skill')) return 'skill';
     if (path.includes('wallet')) return 'wallet';
     if (path.includes('account')) return 'account';
     if (path.includes('tokenomics')) return 'tokenomics';
@@ -149,7 +151,7 @@ export function BaseAppView({ RewardsComponent }) {
       navigate(prefix ? '/app/claim' : '/claim', { replace: false });
     } else if (tabId === 'vibeclub') {
       navigate(prefix ? '/app/vibeclub' : '/vibeclub', { replace: false });
-    } else if (tabId === 'wallet' || tabId === 'account' || tabId === 'agents' || tabId === 'settings') {
+    } else if (tabId === 'wallet' || tabId === 'account' || tabId === 'agents' || tabId === 'settings' || tabId === 'skill') {
       navigate(`${prefix}/${tabId}`, { replace: false });
     } else if (tabId === 'profile') {
       navigate(prefix ? '/app/profile' : '/profile', { replace: false });
@@ -274,6 +276,12 @@ export function BaseAppView({ RewardsComponent }) {
               <section style={{ padding: '24px 0 60px 0' }}>
                 <div style={{ maxWidth: '1040px', margin: '0 auto', padding: '0 14px' }}>
                   <AgentsPage theme="o1" />
+                </div>
+              </section>
+            ) : activeTab === 'skill' ? (
+              <section style={{ padding: '24px 0 60px 0' }}>
+                <div style={{ maxWidth: '1040px', margin: '0 auto', padding: '0 14px' }}>
+                  <SkillPage theme="o1" onOpenAgents={() => handleSelectTab('agents')} />
                 </div>
               </section>
             ) : activeTab === 'settings' ? (

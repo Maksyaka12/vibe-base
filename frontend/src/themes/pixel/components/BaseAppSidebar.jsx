@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Gift, Coins, Crown, LogOut, Wallet, Check, Copy, User, ArrowLeftRight, TrendingUp, FileCode2, ChevronDown, ArrowUpRight, ShieldCheck, ChevronUp } from 'lucide-react';
+import { X, Gift, Coins, Crown, LogOut, Wallet, Check, Copy, User, ArrowLeftRight, TrendingUp, FileCode2, ChevronDown, ArrowUpRight, ShieldCheck, ChevronUp, Puzzle } from 'lucide-react';
 import { usePrivy, useWallets } from '@privy-io/react-auth';
 import { useAccount, useDisconnect } from 'wagmi';
 import { useVibeWallets } from '../../../hooks/useVibeWallets';
@@ -90,6 +90,7 @@ export function BaseAppSidebar({
   // Accordion Section States
   const [isAppMenuOpen, setIsAppMenuOpen] = useState(true);
   const [isDocsOpen, setIsDocsOpen] = useState(true);
+  const [isToolsOpen, setIsToolsOpen] = useState(true);
   const [isDexOpen, setIsDexOpen] = useState(true);
   const [isSocialsOpen, setIsSocialsOpen] = useState(true);
 
@@ -152,6 +153,10 @@ export function BaseAppSidebar({
       name: 'Claim Portal',
       icon: <Coins size={isDesktop ? 15 : 13} strokeWidth={2.5} />
     }
+  ];
+
+  const toolsItems = [
+    { id: 'skill', name: 'Skill', icon: <Puzzle size={isDesktop ? 15 : 13} strokeWidth={2.5} /> }
   ];
 
   const docsItems = [
@@ -375,7 +380,7 @@ export function BaseAppSidebar({
                       letterSpacing: '0.6px'
                     }}
                   >
-                    APP MENU
+                    NAVIGATION
                   </span>
                   <ChevronDown
                     size={isDesktop ? 13 : 12}
@@ -444,6 +449,101 @@ export function BaseAppSidebar({
                             color: isActive
                               ? (isGold ? '#ffd700' : '#FFFFFF')
                               : (isGold ? '#ffd700' : '#00f5ff'),
+                            flexShrink: 0
+                          }}
+                        >
+                          {item.icon}
+                        </div>
+                        {!isCollapsed && (
+                          <span style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {item.name}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* ── SECTION: TOOLS ── */}
+            <div>
+              {!isCollapsed && (
+                <div
+                  onClick={() => setIsToolsOpen(!isToolsOpen)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '4px 6px 6px 6px',
+                    cursor: 'pointer',
+                    userSelect: 'none'
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: isDesktop ? '8.5px' : '7.5px',
+                      fontWeight: 800,
+                      color: '#00f5ff',
+                      letterSpacing: '0.6px'
+                    }}
+                  >
+                    TOOLS
+                  </span>
+                  <ChevronDown
+                    size={isDesktop ? 13 : 12}
+                    color="#00f5ff"
+                    style={{
+                      transform: isToolsOpen ? 'rotate(0deg)' : 'rotate(-90deg)',
+                      transition: 'transform 0.2s ease'
+                    }}
+                  />
+                </div>
+              )}
+
+              {(isCollapsed || isToolsOpen) && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: isDesktop ? '6px' : '5px', marginTop: isCollapsed ? '0' : '4px' }}>
+                  {toolsItems.map((item) => {
+                    const isActive = activeTab === item.id;
+                    return (
+                      <button
+                        key={item.id}
+                        title={item.name}
+                        onClick={() => {
+                          onSelectTab(item.id);
+                          if (!isDesktop) onClose();
+                        }}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: isCollapsed ? 'center' : 'flex-start',
+                          gap: isDesktop ? '10px' : '8px',
+                          width: '100%',
+                          padding: isCollapsed ? '8px 0' : (isDesktop ? '9px 11px' : '7px 9px'),
+                          borderRadius: '10px',
+                          border: isActive ? '1.5px solid #00f5ff' : '1px solid rgba(0, 245, 255, 0.08)',
+                          background: isActive ? 'rgba(0, 245, 255, 0.12)' : 'rgba(4, 14, 36, 0.6)',
+                          color: isActive ? '#00f5ff' : '#cbd5e1',
+                          fontSize: isDesktop ? '8.5px' : '7px',
+                          fontWeight: 800,
+                          cursor: 'pointer',
+                          textAlign: 'left',
+                          transition: 'all 0.15s ease',
+                          boxShadow: isActive ? '0 0 12px rgba(0, 245, 255, 0.25)' : 'none',
+                          fontFamily: "'Press Start 2P', monospace",
+                          textTransform: 'uppercase'
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: isDesktop ? '26px' : '22px',
+                            height: isDesktop ? '26px' : '22px',
+                            borderRadius: '6px',
+                            background: isActive ? '#0052ff' : 'rgba(0, 245, 255, 0.08)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: isActive ? '#FFFFFF' : '#00f5ff',
                             flexShrink: 0
                           }}
                         >

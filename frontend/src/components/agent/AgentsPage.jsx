@@ -1,29 +1,19 @@
 import { useCallback, useState } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
 import {
-  Bot, Terminal, Copy, Check, ArrowUpRight, CalendarCheck, Gift, Award, Layers, ArrowLeftRight, Send,
+  Bot, Copy, Check, CalendarCheck, Gift, Award, Layers, ArrowLeftRight, Send,
   ShieldCheck, KeyRound, Wallet, Lock, Gauge, Crown, Fuel, ArrowDownToLine,
 } from 'lucide-react';
 import { useVibeWallets } from '../../hooks/useVibeWallets';
 import { useWalletAssets } from '../../hooks/useWalletAssets';
 import AgentAccessCard from '../wallet/AgentAccessCard';
 import { DepositModal } from '../wallet/WalletPage';
+import { InstallTiles, BankrCard, useCopy } from './InstallBlocks';
 import '../wallet/WalletPages.css';
 import './AgentsPage.css';
 
 // /agents (Agent Zone): how to hand Vibe Hub to an AI agent. Step 1 enables the agent wallet, step 2 installs the
 // skill in the user's AI (links open the app with a ready prompt), and Bankr users get the keyless skill instead.
-
-const ORIGIN = 'https://vibehome.dog';
-const AGENT_PROMPT = `Set up the Vibe Hub skill: read ${ORIGIN}/skills/vibe-hub/SKILL.md and follow it. You will run Vibe Hub for me from my Vibe Agent Wallet on Base. I will paste my agent key in the next message: keep it private.`;
-const BANKR_PROMPT = `Install the Vibe Hub skill from ${ORIGIN}/skills/bankr/SKILL.md, then show my Vibe Hub status.`;
-
-const CLIENTS = [
-  { name: 'Claude', sub: 'claude.ai', logo: '/brands/claude.svg', href: `https://claude.ai/new?q=${encodeURIComponent(AGENT_PROMPT)}` },
-  { name: 'ChatGPT', sub: 'chatgpt.com', logo: '/brands/openai.svg', href: `https://chatgpt.com/?q=${encodeURIComponent(AGENT_PROMPT)}` },
-  { name: 'Cursor', sub: 'Cursor app', logo: '/brands/cursor.svg', href: `https://cursor.com/link/prompt?text=${encodeURIComponent(AGENT_PROMPT)}`, full: true },
-  { name: 'Any agent', sub: 'Claude Code, Codex, OpenClaw…', icon: Terminal },
-];
 
 const ABILITIES = [
   { icon: CalendarCheck, text: 'Daily check-in' },
@@ -46,18 +36,6 @@ const EXAMPLES = [
   'Show the upcoming rewards schedule',
   'When is the next unlock?',
 ];
-
-function useCopy() {
-  const [copied, setCopied] = useState('');
-  const copy = async (key, text) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopied(key);
-      setTimeout(() => setCopied((k) => (k === key ? '' : k)), 1600);
-    } catch {}
-  };
-  return [copied, copy];
-}
 
 function StepHead({ n, title, text }) {
   return (
@@ -151,36 +129,7 @@ export default function AgentsPage({ theme = 'o1' }) {
 
       <section className="agp-panel">
         <StepHead n={3} title="Install the skill in your AI" text="Install opens your app with the setup prompt ready. Send it, then paste your agent key." />
-        <div className="agp-clients">
-          {CLIENTS.map(({ name, sub, logo, icon: Icon, href, full }) => (
-            <div key={name} className="agp-client">
-              <span className={`agp-logo ${full ? 'full' : ''}`}>
-                {logo ? <img src={logo} alt={name} /> : <Icon size={24} />}
-              </span>
-              <div className="agp-client-name">{name}</div>
-              <div className="agp-client-sub">{sub}</div>
-              <div className="agp-client-actions">
-                {href ? (
-                  <a className="agp-btn agp-btn-main" href={href} target="_blank" rel="noopener noreferrer" onClick={() => copy(`${name}-open`, AGENT_PROMPT)}>
-                    Install <ArrowUpRight size={15} />
-                  </a>
-                ) : (
-                  <button type="button" className="agp-btn agp-btn-main" onClick={() => copy(name, AGENT_PROMPT)}>
-                    {copied === name ? <><Check size={15} /> Copied</> : <><Copy size={15} /> Copy prompt</>}
-                  </button>
-                )}
-                {href && (
-                  <button type="button" className="agp-btn" onClick={() => copy(name, AGENT_PROMPT)}>
-                    {copied === name ? <><Check size={14} /> Copied</> : <><Copy size={14} /> Copy prompt</>}
-                  </button>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-        <p className="agp-foot">
-          Chat apps read your stats and plan with you. To act on its own, the agent needs web requests: Claude Code, Cursor, Codex, OpenClaw and similar.
-        </p>
+        <InstallTiles />
       </section>
 
       <section className="agp-panel">
@@ -191,33 +140,7 @@ export default function AgentsPage({ theme = 'o1' }) {
         </div>
       </section>
 
-      <section className="agp-panel agp-bankr">
-        <div className="agp-bankr-info">
-          <div className="agp-bankr-title">
-            <span className="agp-logo full"><img src="/brands/bankr.png" alt="Bankr" /></span>
-            <div>
-              <h2>Using Bankr? No keys needed</h2>
-              <p>Bankr has its own wallet. Install the skill and it acts from your Bankr wallet.</p>
-            </div>
-          </div>
-          <ol className="agp-bankr-steps">
-            <li>Log in to Bankr: you get a wallet on Base</li>
-            <li>Send it the install prompt</li>
-            <li>Ask: “do my vibe check-in”</li>
-          </ol>
-        </div>
-        <div className="agp-bankr-action">
-          <div className="agp-prompt">{BANKR_PROMPT}</div>
-          <div className="agp-client-actions">
-            <a className="agp-btn agp-btn-main" href="https://bankr.bot" target="_blank" rel="noopener noreferrer" onClick={() => copy('bankr-open', BANKR_PROMPT)}>
-              Open Bankr <ArrowUpRight size={15} />
-            </a>
-            <button type="button" className="agp-btn" onClick={() => copy('bankr', BANKR_PROMPT)}>
-              {copied === 'bankr' ? <><Check size={14} /> Copied</> : <><Copy size={14} /> Copy prompt</>}
-            </button>
-          </div>
-        </div>
-      </section>
+      <BankrCard />
 
       {depositOpen && hasAgentWallet && (
         <DepositModal

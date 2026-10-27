@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import {
   X,
+  Puzzle,
   Gift,
   Coins,
   Crown,
@@ -93,6 +94,7 @@ export function BaseAppSidebar({
 
   const [isAppMenuOpen, setIsAppMenuOpen] = useState(true);
   const [isDocsOpen, setIsDocsOpen] = useState(true);
+  const [isToolsOpen, setIsToolsOpen] = useState(true);
   const [isDexOpen, setIsDexOpen] = useState(true);
   const [isSocialsOpen, setIsSocialsOpen] = useState(true);
 
@@ -129,6 +131,10 @@ export function BaseAppSidebar({
     { id: 'vibeclub', name: 'Vibe Club NFT', icon: <Crown size={18} strokeWidth={1.75} /> },
     { id: 'hub', name: 'Rewards Hub', icon: <Gift size={18} strokeWidth={1.75} /> },
     { id: 'claim', name: 'Claim Portal', icon: <Coins size={18} strokeWidth={1.75} /> }
+  ];
+
+  const toolsItems = [
+    { id: 'skill', name: 'Skill', icon: <Puzzle size={18} strokeWidth={1.75} /> }
   ];
 
   const docsItems = [
@@ -339,7 +345,7 @@ export function BaseAppSidebar({
                     color: 'var(--text-3)'
                   }}
                 >
-                  App menu
+                  Navigation
                 </span>
                 <ChevronDown
                   size={14}
@@ -355,6 +361,101 @@ export function BaseAppSidebar({
             {(isCollapsed || isAppMenuOpen) && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                 {appMenuItems.map((item) => {
+                  const isActive = activeTab === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      title={item.name}
+                      onClick={() => {
+                        onSelectTab(item.id);
+                        if (!isDesktop) onClose();
+                      }}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: isCollapsed ? 'center' : 'flex-start',
+                        gap: '10px',
+                        width: '100%',
+                        height: '40px',
+                        padding: isCollapsed ? '0' : '0 10px',
+                        borderRadius: '10px',
+                        border: 'none',
+                        background: isActive ? 'var(--accent-soft)' : 'transparent',
+                        color: isActive ? 'var(--accent)' : 'var(--text-2)',
+                        fontSize: '14px',
+                        fontWeight: 500,
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        fontFamily: 'var(--font-sans)',
+                        transition: 'background 0.15s ease, color 0.15s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!isActive) {
+                          e.currentTarget.style.background = 'var(--surface-2)';
+                          e.currentTarget.style.color = 'var(--text)';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!isActive) {
+                          e.currentTarget.style.background = 'transparent';
+                          e.currentTarget.style.color = 'var(--text-2)';
+                        }
+                      }}
+                    >
+                      <span style={{ display: 'flex', alignItems: 'center', color: isActive ? 'var(--accent)' : 'currentColor' }}>
+                        {item.icon}
+                      </span>
+                      {!isCollapsed && (
+                        <span style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {item.name}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Section: Tools */}
+          <div style={{ marginBottom: '8px' }}>
+            {!isCollapsed && (
+              <div
+                onClick={() => setIsToolsOpen(!isToolsOpen)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '12px 8px 6px',
+                  cursor: 'pointer',
+                  userSelect: 'none'
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: '11px',
+                    fontWeight: 600,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.06em',
+                    color: 'var(--text-3)'
+                  }}
+                >
+                  Tools
+                </span>
+                <ChevronDown
+                  size={14}
+                  color="var(--text-3)"
+                  style={{
+                    transform: isToolsOpen ? 'rotate(0deg)' : 'rotate(-90deg)',
+                    transition: 'transform 0.15s ease'
+                  }}
+                />
+              </div>
+            )}
+
+            {(isCollapsed || isToolsOpen) && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                {toolsItems.map((item) => {
                   const isActive = activeTab === item.id;
                   return (
                     <button
