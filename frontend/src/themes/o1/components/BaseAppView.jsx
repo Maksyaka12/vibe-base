@@ -270,7 +270,7 @@ export function BaseAppView({ RewardsComponent }) {
               </section>
             ) : activeTab === 'agents' ? (
               <section style={{ padding: '24px 0 60px 0' }}>
-                <div style={{ maxWidth: '680px', margin: '0 auto', padding: '0 14px' }}>
+                <div style={{ maxWidth: '1040px', margin: '0 auto', padding: '0 14px' }}>
                   <AgentsPage theme="o1" onOpenWallet={() => handleSelectTab('wallet')} />
                 </div>
               </section>
