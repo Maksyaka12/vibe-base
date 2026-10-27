@@ -13,10 +13,12 @@ import royalty2Data from '../../../data/royalty_2_proofs.json';
 import royalty3Data from '../../../data/royalty_3_proofs.json';
 import royalty4Data from '../../../data/royalty_4_proofs.json';
 import royalty5Data from '../../../data/royalty_5_proofs.json';
+import { DISTRIBUTORS } from '../../../config/distributors';
 import { Coins, Crown, Sparkles, AlertTriangle } from 'lucide-react';
 
 export const ADMIN_WALLET = '0x4c91d3bed372c11795b9ce9a9017dfe447bf050a';
 export const VIBE_TOKEN_CA = '0xb200000000000000000000df24ecb8bf51100a01';
+const shortCa = (a) => `${a.slice(0, 6)}...${a.slice(-4)}`;
 export const DISTRIBUTOR_CA = '0x77e04dd8c45725d2b2b3c8eebac2f3f1708fd089';
 export const ROYALTY_DISTRIBUTOR_CA = '0x3753EE7fa9538087f901aa5E4afc12dBA57B97c1';
 export const NFT_CONTRACT_ADDRESS = '0x9E92307Dbec2d0aE4BBF14cA93E1cA00edC4b886';
@@ -919,12 +921,12 @@ export function BaseAppAdminView() {
               </h3>
             </div>
             <a
-              href="https://basescan.org/address/0x77e04dd8c45725d2b2b3c8eebac2f3f1708fd089"
+              href={`https://basescan.org/address/${DISTRIBUTORS.holder.v2}`}
               target="_blank"
               rel="noreferrer"
               style={{ fontSize: '7.5px', color: '#88aacc', textDecoration: 'none', fontFamily: "'Press Start 2P', monospace", letterSpacing: '0.3px' }}
             >
-              CA: 0x77e0...d089 ↗
+              CA: {shortCa(DISTRIBUTORS.holder.v2)} ↗
             </a>
           </div>
 
@@ -1183,12 +1185,12 @@ export function BaseAppAdminView() {
               </h3>
             </div>
             <a
-              href="https://basescan.org/address/0x3753EE7fa9538087f901aa5E4afc12dBA57B97c1"
+              href={`https://basescan.org/address/${DISTRIBUTORS.royalty.v2}`}
               target="_blank"
               rel="noreferrer"
               style={{ fontSize: '7.5px', color: '#c084fc', textDecoration: 'none', fontFamily: "'Press Start 2P', monospace", letterSpacing: '0.3px' }}
             >
-              CA: 0x3753...97c1 ↗
+              CA: {shortCa(DISTRIBUTORS.royalty.v2)} ↗
             </a>
           </div>
 

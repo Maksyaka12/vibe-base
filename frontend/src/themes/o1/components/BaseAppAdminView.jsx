@@ -19,13 +19,14 @@ import { AdminSnapshotTool } from './AdminSnapshotTool';
 import { HOLDER_ROUNDS, VIBECLUB_ROUNDS, SCHEDULE } from '../../../data/rewardsSchedule';
 import { VIBE_ACHIEVEMENTS_CONTRACT_ADDRESS } from '../../../config/achievements';
 import { roundProofs } from '../../../data/claimRounds';
-import { distributorFor, rootCall, rootFromResult, withdrawCalldata, V2_ABI } from '../../../config/distributors';
+import { distributorFor, rootCall, rootFromResult, withdrawCalldata, V2_ABI, DISTRIBUTORS } from '../../../config/distributors';
 
 // The round the Rewards Hub shows as current: the latest one whose snapshot has passed.
 const currentRoundId = (rounds) => String(([...rounds].reverse().find((r) => Date.now() >= new Date(r.snapshotIso).getTime()) || rounds[0])?.id || 1);
 
 export const ADMIN_WALLET = '0x4c91d3bed372c11795b9ce9a9017dfe447bf050a';
 export const VIBE_TOKEN_CA = '0xb200000000000000000000df24ecb8bf51100a01';
+const shortCa = (a) => `${a.slice(0, 6)}...${a.slice(-4)}`;
 export const DISTRIBUTOR_CA = '0x77e04dd8c45725d2b2b3c8eebac2f3f1708fd089';
 export const ROYALTY_DISTRIBUTOR_CA = '0x3753EE7fa9538087f901aa5E4afc12dBA57B97c1';
 export const NFT_CONTRACT_ADDRESS = '0x9E92307Dbec2d0aE4BBF14cA93E1cA00edC4b886';
@@ -932,12 +933,12 @@ export function BaseAppAdminView() {
               Holder rewards vesting distributor
             </span>
             <a
-              href="https://basescan.org/address/0x77e04dd8c45725d2b2b3c8eebac2f3f1708fd089"
+              href={`https://basescan.org/address/${DISTRIBUTORS.holder.v2}`}
               target="_blank"
               rel="noreferrer"
               style={{ fontSize: '12px', color: 'var(--text-3)', display: 'inline-flex', alignItems: 'center', gap: '4px', textDecoration: 'none' }}
             >
-              <span style={{ fontFamily: 'var(--mono)' }}>0x77e0...d089</span>
+              <span style={{ fontFamily: 'var(--mono)' }}>{shortCa(DISTRIBUTORS.holder.v2)}</span>
               <ExternalLink size={12} />
             </a>
           </div>
@@ -1075,12 +1076,12 @@ export function BaseAppAdminView() {
               Vibe Club NFT royalty distributor
             </span>
             <a
-              href="https://basescan.org/address/0x3753EE7fa9538087f901aa5E4afc12dBA57B97c1"
+              href={`https://basescan.org/address/${DISTRIBUTORS.royalty.v2}`}
               target="_blank"
               rel="noreferrer"
               style={{ fontSize: '12px', color: 'var(--text-3)', display: 'inline-flex', alignItems: 'center', gap: '4px', textDecoration: 'none' }}
             >
-              <span style={{ fontFamily: 'var(--mono)' }}>0x3753...97c1</span>
+              <span style={{ fontFamily: 'var(--mono)' }}>{shortCa(DISTRIBUTORS.royalty.v2)}</span>
               <ExternalLink size={12} />
             </a>
           </div>

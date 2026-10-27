@@ -85,7 +85,7 @@ export default function AgentsPage({ theme = 'o1' }) {
         <div className="agp-hero-text">
           <span className="agp-hero-badge"><Bot size={14} /> Agent Zone</span>
           <h1>Let your agent run <span>Vibe Hub</span> for you</h1>
-          <p>Set up your agent once. Then just ask.</p>
+          <p>Set up your agent and give it a wallet once. Then just ask.</p>
           <div className="agp-abilities">
             {ABILITIES.map(({ icon: Icon, text }) => (
               <span key={text} className="agp-ability"><Icon size={14} /> {text}</span>
