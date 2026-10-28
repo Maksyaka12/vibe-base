@@ -1,0 +1,168 @@
+/* ================================================================
+   Based theme: the o1 UI in the Base brand (brand.base.org).
+   Same markup and layout as o1; only tokens, type and motion change.
+   Light, monochrome first, Base Blue reserved for the one element that matters.
+   Fonts: Base Sans / Base Mono are not public, so the brand's own fallbacks
+   are used: Inter Tight, Roboto Mono, Doto (display, all caps, short labels).
+   ================================================================ */
+html[data-theme='based'] {
+  color-scheme: light;
+
+  /* Surfaces: White and the Base gray ramp */
+  --bg:          #FFFFFF;
+  --bg-bar:      #FFFFFF;
+  --surface:     #FFFFFF;
+  --surface-2:   #EEF0F3; /* Gray 10 */
+  --surface-3:   #DEE1E7; /* Gray 15 */
+
+  --border:        #DEE1E7; /* Gray 15 */
+  --border-strong: #B1B7C3; /* Gray 30 */
+
+  --text:   #0A0B0D; /* Gray 100 */
+  --text-2: #5B616E; /* Gray 60 */
+  --text-3: #717886; /* Gray 50 */
+
+  /* Base Blue is the only brand colour */
+  --accent:        #0000FF;
+  --accent-hover:  #3C8AFF; /* Cerulean */
+  --accent-press:  #0033A0;
+  --on-accent:     #FFFFFF;
+  --accent-soft:   color-mix(in srgb, #0000FF 7%, transparent);
+  --accent-border: color-mix(in srgb, #0000FF 28%, transparent);
+  --base-blue:     #0000FF;
+
+  /* Semantic: readable on white */
+  --green: #098551; --green-bg: color-mix(in srgb, #66C800 14%, transparent); --green-bd: color-mix(in srgb, #66C800 40%, transparent);
+  --red:   #E5341A; --red-bg:   color-mix(in srgb, #FC401F 10%, transparent); --red-bd:   color-mix(in srgb, #FC401F 35%, transparent);
+  --amber: #B07A00; --amber-hover: #8F6300; --amber-bg: color-mix(in srgb, #FFD12F 22%, transparent); --amber-bd: color-mix(in srgb, #FFD12F 60%, transparent);
+
+  /* The agent is Base Blue too: one accent */
+  --agent:       #0000FF;
+  --agent-hover: #3C8AFF;
+  --on-agent:    #FFFFFF;
+
+  --tile:     #FFFFFF;
+  --code-bg:  #EEF0F3;
+  --tint-ink: #0A0B0D;
+
+  /* Squarer corners, like the Square */
+  --r-sm: 6px; --r-md: 8px; --r-lg: 12px; --r-xl: 16px;
+
+  --font-sans:    "Inter Tight", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono:    "Roboto Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --font-display: "Doto", var(--font-mono);
+
+  /* Base motion: one curve, short UI durations */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+html[data-theme='based'] *,
+html[data-theme='based'] *::before,
+html[data-theme='based'] *::after {
+  transition-timing-function: var(--ease);
+}
+
+/* Type: tight medium headlines (Base Sans: medium, -3%) */
+html[data-theme='based'] h1,
+html[data-theme='based'] .page-title {
+  letter-spacing: -0.03em;
+}
+
+/* Pages slide in, the Base default for routine UI */
+html[data-theme='based'] main > section {
+  animation: based-slide-in 240ms var(--ease) both;
+}
+
+@keyframes based-slide-in {
+  from { transform: translateY(10px); }
+  to   { transform: none; }
+}
+
+/* Headlines: Square-wipe - a Base Blue square travels left to right and reveals the title */
+html[data-theme='based'] .page-title,
+html[data-theme='based'] .agp-hero h1 {
+  position: relative;
+  animation: based-reveal 560ms var(--ease) both;
+}
+
+html[data-theme='based'] .page-title::after,
+html[data-theme='based'] .agp-hero h1::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--accent);
+  border-radius: 3px;
+  transform-origin: right;
+  animation: based-wipe 560ms var(--ease) both;
+  pointer-events: none;
+}
+
+@keyframes based-reveal {
+  0%, 45% { clip-path: inset(0 100% 0 0); }
+  100%    { clip-path: inset(0 0 0 0); }
+}
+
+@keyframes based-wipe {
+  0%   { transform: scaleX(0); transform-origin: left; }
+  45%  { transform: scaleX(1); transform-origin: left; }
+  46%  { transform: scaleX(1); transform-origin: right; }
+  100% { transform: scaleX(0); transform-origin: right; }
+}
+
+/* Short display labels in Doto, all caps */
+html[data-theme='based'] .agp-hero-badge,
+html[data-theme='based'] .mt-badge {
+  font-family: var(--font-display);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-radius: 4px;
+}
+
+/* The Square: the agent mark and step numbers become Base squares */
+html[data-theme='based'] .agp-num,
+html[data-theme='based'] .vwp-agent-avatar,
+html[data-theme='based'] .skp-how-icon {
+  border-radius: 5px;
+}
+
+/* Brand glows are dark-theme effects; on white the brand stays flat */
+html[data-theme='based'] .agp-hero,
+html[data-theme='based'] .vwp-agent-hero,
+html[data-theme='based'] .agp-bankr,
+html[data-theme='based'] .skp-how-card {
+  background: var(--surface);
+}
+
+html[data-theme='based'] .agp-orbit-core,
+html[data-theme='based'] .vwp-agent-avatar.on,
+html[data-theme='based'] .skp-file {
+  box-shadow: none;
+}
+
+html[data-theme='based'] .agb:hover,
+html[data-theme='based'] .agb.on,
+html[data-theme='based'] .agp-btn-main:hover,
+html[data-theme='based'] .vwp-agent-cta:hover {
+  box-shadow: none;
+}
+
+/* White brand logos need ink on a light tile */
+html[data-theme='based'] img[src$='/brands/openai.svg'] {
+  filter: invert(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-theme='based'] main > section,
+  html[data-theme='based'] .page-title,
+  html[data-theme='based'] .agp-hero h1,
+  html[data-theme='based'] .page-title::after,
+  html[data-theme='based'] .agp-hero h1::after {
+    animation: none;
+  }
+}
+
+/* Wallet, Account and Settings palette: text on Base Blue is white */
+html[data-theme='based'] .vwp-o1 {
+  --vwp-on-accent: var(--on-accent);
+}

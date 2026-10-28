@@ -14,8 +14,8 @@
   max-width: 300px;
   border-radius: 14px;
   border: 1px solid var(--vwp-border);
-  background: #0D0F13;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45), 0 0 40px rgba(46, 230, 207, 0.12);
+  background: var(--code-bg);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45), 0 0 40px color-mix(in srgb, var(--agent) 12%, transparent);
   overflow: hidden;
   transform: rotate(2deg);
   animation: agp-float 6s ease-in-out infinite;
@@ -27,14 +27,14 @@
   gap: 6px;
   padding: 10px 12px;
   border-bottom: 1px solid var(--vwp-border);
-  background: rgba(255, 255, 255, 0.02);
+  background: color-mix(in srgb, var(--tint-ink) 2%, transparent);
 }
 
 .skp-file-head span {
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.12);
+  background: color-mix(in srgb, var(--tint-ink) 12%, transparent);
 }
 
 .skp-file-head b {
@@ -115,7 +115,7 @@
 }
 
 .skp-cap:hover {
-  border-color: rgba(46, 230, 207, 0.4);
+  border-color: color-mix(in srgb, var(--agent) 40%, transparent);
   transform: translateY(-2px);
 }
 
@@ -138,7 +138,7 @@
   height: 34px;
   flex-shrink: 0;
   border-radius: 10px;
-  background: rgba(46, 230, 207, 0.1);
+  background: color-mix(in srgb, var(--agent) 10%, transparent);
   color: var(--agp-teal);
 }
 
@@ -157,7 +157,7 @@
   border-radius: 18px;
   border: 1px solid var(--vwp-border);
   background:
-    radial-gradient(90% 80% at 100% 0%, rgba(46, 230, 207, 0.08), transparent 60%),
+    radial-gradient(90% 80% at 100% 0%, color-mix(in srgb, var(--agent) 8%, transparent), transparent 60%),
     var(--vwp-surface);
 }
 
@@ -175,7 +175,7 @@
   height: 42px;
   border-radius: 12px;
   background: var(--agp-teal);
-  color: #04201C;
+  color: var(--on-agent);
 }
 
 .skp-how-num {
@@ -229,7 +229,7 @@
 }
 
 .skp-file-link:hover {
-  border-color: rgba(46, 230, 207, 0.4);
+  border-color: color-mix(in srgb, var(--agent) 40%, transparent);
   color: var(--agp-teal);
 }
 

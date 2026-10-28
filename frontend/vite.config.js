@@ -4,6 +4,8 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 const THEMES_DIR = path.resolve(__dirname, 'src/themes')
+// data-theme values served by each theme folder: Based runs the o1 UI with its own tokens (styles/based.css)
+const THEME_IDS = { o1: ['o1', 'based'] }
 
 function inlineCss() {
   return {
@@ -31,8 +33,8 @@ function inlineCss() {
   };
 }
 
-// Both themes ship in one stylesheet, so every rule from src/themes/<theme>/**.css
-// is scoped to <html data-theme="<theme>">. :where() keeps the original specificity,
+// Every rule from src/themes/<folder>/**.css is scoped to the data-theme values that folder serves
+// (THEME_IDS). :where() keeps the original specificity,
 // and keyframes get a theme suffix so same-named animations don't override each other.
 function collectKeyframes(dir) {
   const names = new Set()
@@ -58,7 +60,8 @@ function themeScope() {
       if (rel.startsWith('..') || path.isAbsolute(rel)) return
       const theme = rel.split(path.sep)[0]
       const keyframes = keyframesByTheme[theme] ||= collectKeyframes(path.join(THEMES_DIR, theme))
-      const scope = `:where(html[data-theme="${theme}"])`
+      const attr = `:is(${(THEME_IDS[theme] || [theme]).map(id => `[data-theme="${id}"]`).join(', ')})`
+      const scope = `:where(html${attr})`
       const rename = name => `${name}--${theme}`
 
       root.walkAtRules(/keyframes$/, at => { if (keyframes.has(at.params)) at.params = rename(at.params) })
@@ -70,7 +73,7 @@ function themeScope() {
         rule.selectors = rule.selectors.flatMap(sel => {
           const s = sel.trim()
           const root = s.match(/^(html|:root)(?![\w-])/)
-          if (root) return [`${root[1]}:where([data-theme="${theme}"])${s.slice(root[1].length)}`]
+          if (root) return [`${root[1]}:where(${attr})${s.slice(root[1].length)}`]
           if (s.startsWith('::')) return [`${scope}${s}`, `${scope} ${s}`]
           if (s === '*') return [scope, `${scope} *`]
           return [`${scope} ${s}`]

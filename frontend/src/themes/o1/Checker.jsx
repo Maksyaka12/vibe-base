@@ -3420,7 +3420,7 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
                     gap: '10px',
                     marginBottom: '16px',
                     paddingBottom: '16px',
-                    borderBottom: '1px solid rgba(255, 255, 255, 0.08)'
+                    borderBottom: '1px solid color-mix(in srgb, var(--tint-ink) 8%, transparent)'
                   }}
                 >
                   <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }}>
@@ -3435,10 +3435,10 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
                       color: 'var(--text-3)',
                       textDecoration: 'none',
                       fontFamily: 'monospace',
-                      background: 'rgba(255, 255, 255, 0.05)',
+                      background: 'color-mix(in srgb, var(--tint-ink) 5%, transparent)',
                       padding: '5px 10px',
                       borderRadius: '8px',
-                      border: '1px solid rgba(255, 255, 255, 0.1)'
+                      border: '1px solid color-mix(in srgb, var(--tint-ink) 10%, transparent)'
                     }}
                   >
                     Contract: {(adminDistributorType === 'holder' ? DISTRIBUTOR_CA : (adminCustomRoyaltyCa || ROYALTY_DISTRIBUTOR_CA)).slice(0, 6)}...{(adminDistributorType === 'holder' ? DISTRIBUTOR_CA : (adminCustomRoyaltyCa || ROYALTY_DISTRIBUTOR_CA)).slice(-4)} ↗
@@ -3446,7 +3446,7 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
                 </div>
 
                 {/* Distributor Selector Tabs */}
-                <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', background: 'rgba(255, 255, 255, 0.04)', padding: '4px', borderRadius: '12px' }}>
+                <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', background: 'color-mix(in srgb, var(--tint-ink) 4%, transparent)', padding: '4px', borderRadius: '12px' }}>
                   <button
                     onClick={() => {
                       setAdminDistributorType('holder');
@@ -3534,7 +3534,7 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
                     marginBottom: '24px'
                   }}
                 >
-                  <div style={{ background: 'rgba(255, 255, 255, 0.03)', borderRadius: '12px', padding: '14px 16px', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                  <div style={{ background: 'color-mix(in srgb, var(--tint-ink) 3%, transparent)', borderRadius: '12px', padding: '14px 16px', border: '1px solid color-mix(in srgb, var(--tint-ink) 6%, transparent)' }}>
                     <div style={{ fontSize: '0.70rem', color: 'var(--text-3)',  fontWeight: 700, letterSpacing: '0.04em', marginBottom: '4px' }}>
                       Contract $VIBE Balance
                     </div>
@@ -3543,7 +3543,7 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
                     </div>
                   </div>
 
-                  <div style={{ background: 'rgba(255, 255, 255, 0.03)', borderRadius: '12px', padding: '14px 16px', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                  <div style={{ background: 'color-mix(in srgb, var(--tint-ink) 3%, transparent)', borderRadius: '12px', padding: '14px 16px', border: '1px solid color-mix(in srgb, var(--tint-ink) 6%, transparent)' }}>
                     <div style={{ fontSize: '0.70rem', color: 'var(--text-3)',  fontWeight: 700, letterSpacing: '0.04em', marginBottom: '4px' }}>
                       Wallets Claimed
                     </div>
@@ -3555,7 +3555,7 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
                     </div>
                   </div>
 
-                  <div style={{ background: 'rgba(255, 255, 255, 0.03)', borderRadius: '12px', padding: '14px 16px', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                  <div style={{ background: 'color-mix(in srgb, var(--tint-ink) 3%, transparent)', borderRadius: '12px', padding: '14px 16px', border: '1px solid color-mix(in srgb, var(--tint-ink) 6%, transparent)' }}>
                     <div style={{ fontSize: '0.70rem', color: 'var(--text-3)',  fontWeight: 700, letterSpacing: '0.04em', marginBottom: '4px' }}>
                       Total Claimed
                     </div>
@@ -3564,7 +3564,7 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
                     </div>
                   </div>
 
-                  <div style={{ background: 'rgba(255, 255, 255, 0.03)', borderRadius: '12px', padding: '14px 16px', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                  <div style={{ background: 'color-mix(in srgb, var(--tint-ink) 3%, transparent)', borderRadius: '12px', padding: '14px 16px', border: '1px solid color-mix(in srgb, var(--tint-ink) 6%, transparent)' }}>
                     <div style={{ fontSize: '0.70rem', color: 'var(--text-3)',  fontWeight: 700, letterSpacing: '0.04em', marginBottom: '4px' }}>
                       Unclaimed in Round
                     </div>
@@ -3575,7 +3575,7 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
                 </div>
 
                 {/* 1. Set Merkle Root */}
-                <div style={{ background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.06)', borderRadius: '14px', padding: '18px', marginBottom: '14px' }}>
+                <div style={{ background: 'color-mix(in srgb, var(--tint-ink) 2%, transparent)', border: '1px solid color-mix(in srgb, var(--tint-ink) 6%, transparent)', borderRadius: '14px', padding: '18px', marginBottom: '14px' }}>
                   <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#f8fafc', marginBottom: '12px' }}>
                     1. Publish Merkle Root Proof
                   </div>
@@ -3658,7 +3658,7 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
                 </div>
 
                 {/* 2. Withdraw Tokens to Admin Wallet */}
-                <div style={{ background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.06)', borderRadius: '14px', padding: '18px', marginBottom: '14px' }}>
+                <div style={{ background: 'color-mix(in srgb, var(--tint-ink) 2%, transparent)', border: '1px solid color-mix(in srgb, var(--tint-ink) 6%, transparent)', borderRadius: '14px', padding: '18px', marginBottom: '14px' }}>
                   <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#f8fafc', marginBottom: '12px' }}>
                     2. Withdraw Tokens to Admin Wallet
                   </div>
@@ -3689,8 +3689,8 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
                           right: '8px',
                           top: '50%',
                           transform: 'translateY(-50%)',
-                          background: 'rgba(255, 255, 255, 0.1)',
-                          border: '1px solid rgba(255, 255, 255, 0.2)',
+                          background: 'color-mix(in srgb, var(--tint-ink) 10%, transparent)',
+                          border: '1px solid color-mix(in srgb, var(--tint-ink) 20%, transparent)',
                           color: 'var(--text-3)',
                           fontSize: '0.70rem',
                           fontWeight: 800,
@@ -3723,7 +3723,7 @@ export default function Checker({ isBaseAppMode = false, isProfileMode = false }
                 </div>
 
                 {/* 3. Burn Unclaimed Tokens */}
-                <div style={{ background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.06)', borderRadius: '14px', padding: '18px', marginBottom: '14px' }}>
+                <div style={{ background: 'color-mix(in srgb, var(--tint-ink) 2%, transparent)', border: '1px solid color-mix(in srgb, var(--tint-ink) 6%, transparent)', borderRadius: '14px', padding: '18px', marginBottom: '14px' }}>
                   <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#f8fafc', marginBottom: '12px' }}>
                     3. Burn Unclaimed Tokens (Send to Dead Address)
                   </div>

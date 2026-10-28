@@ -759,7 +759,7 @@ button.admin-action-btn {
 }
 
 .base-app-pixel-theme .profile-achievement-card.locked {
-  border: 1px solid rgba(255, 255, 255, 0.07) !important;
+  border: 1px solid color-mix(in srgb, var(--tint-ink) 7%, transparent) !important;
   background: color-mix(in srgb, var(--bg) 70%, transparent) !important;
 }
 
@@ -798,7 +798,7 @@ button.admin-action-btn {
 }
 
 .base-app-pixel-theme .profile-achievement-card.locked .profile-achievement-img-box {
-  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid color-mix(in srgb, var(--tint-ink) 5%, transparent) !important;
 }
 
 .base-app-pixel-theme .profile-achievement-claim-btn {
@@ -3719,7 +3719,7 @@ button.admin-action-btn {
   position: absolute !important;
   top: 16px !important;
   right: 16px !important;
-  background: rgba(255, 255, 255, 0.08) !important;
+  background: color-mix(in srgb, var(--tint-ink) 8%, transparent) !important;
   border: 1px solid rgba(255, 255, 255, 0.25) !important;
   border-radius: 50% !important;
   width: 34px !important;
@@ -3736,7 +3736,7 @@ button.admin-action-btn {
 
 .base-app-pixel-theme .claim-share-modal-close:hover,
 .claim-share-modal-close:hover {
-  background: rgba(255, 255, 255, 0.2) !important;
+  background: color-mix(in srgb, var(--tint-ink) 20%, transparent) !important;
   border-color: var(--accent) !important;
   color: var(--accent) !important;
   transform: scale(1.1) !important;
@@ -3846,14 +3846,14 @@ button.admin-action-btn {
 
 .base-app-pixel-theme .claim-share-modal-btn.save-btn,
 .claim-share-modal-btn.save-btn {
-  background: rgba(255, 255, 255, 0.08) !important;
+  background: color-mix(in srgb, var(--tint-ink) 8%, transparent) !important;
   border: 1.5px solid rgba(255, 255, 255, 0.35) !important;
   color: var(--text) !important;
 }
 
 .base-app-pixel-theme .claim-share-modal-btn.save-btn:hover,
 .claim-share-modal-btn.save-btn:hover {
-  background: rgba(255, 255, 255, 0.16) !important;
+  background: color-mix(in srgb, var(--tint-ink) 16%, transparent) !important;
   border-color: var(--border-strong) !important;
   transform: translateY(-2px) !important;
   

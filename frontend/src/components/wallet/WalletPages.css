@@ -1,4 +1,4 @@
-/* Wallet and Account pages. One layout, two palettes: .vwp-o1 maps onto the o1 tokens, .vwp-pixel onto the pixel theme. */
+/* Wallet, Account and Settings pages. The .vwp-o1 palette maps onto the theme tokens (o1 and Based). */
 .vwp-o1 {
   --vwp-surface: var(--surface);
   --vwp-surface-2: var(--surface-2);
@@ -20,26 +20,7 @@
   --vwp-shadow: none;
 }
 
-.vwp-pixel {
-  --vwp-surface: linear-gradient(180deg, rgba(6, 26, 60, 0.95) 0%, rgba(2, 11, 26, 0.98) 100%);
-  --vwp-surface-2: rgba(0, 245, 255, 0.06);
-  --vwp-border: rgba(0, 245, 255, 0.35);
-  --vwp-text: #ffffff;
-  --vwp-text-2: #cbd5e1;
-  --vwp-text-3: #88aacc;
-  --vwp-accent: #00f5ff;
-  --vwp-accent-soft: rgba(0, 245, 255, 0.12);
-  --vwp-on-accent: #020b1a;
-  --vwp-green: #00ff88;
-  --vwp-red: #ff4d6d;
-  --vwp-radius: 18px;
-  --vwp-radius-sm: 12px;
-  --vwp-font: 'Inter', sans-serif;
-  --vwp-mono: ui-monospace, 'SFMono-Regular', Menlo, monospace;
-  --vwp-title-font: 'Press Start 2P', monospace;
-  --vwp-title-size: 10px;
-  --vwp-shadow: 0 8px 32px rgba(0, 0, 0, 0.8), 0 0 16px rgba(0, 245, 255, 0.15);
-}
+
 
 .vwp {
   max-width: 560px;
@@ -70,9 +51,7 @@
   min-width: 0;
 }
 
-.vwp-pixel .vwp-card {
-  border-width: 1.5px;
-}
+
 
 .vwp-empty {
   text-align: center;
@@ -103,12 +82,7 @@
   margin-top: -6px;
 }
 
-.vwp-pixel .vwp-total {
-  font-family: 'Press Start 2P', monospace;
-  font-size: 22px;
-  letter-spacing: 0;
-  margin-top: 0;
-}
+
 
 .vwp-section-label {
   font-size: 12px;
@@ -312,9 +286,7 @@
   transition: filter 0.15s ease, background 0.15s ease, border-color 0.15s ease;
 }
 
-.vwp-pixel .vwp-btn {
-  background: rgba(0, 245, 255, 0.06);
-}
+
 
 .vwp-btn:hover:not(:disabled) {
   border-color: var(--vwp-accent);
@@ -325,8 +297,7 @@
   background: var(--vwp-accent-soft);
 }
 
-.vwp-btn-primary,
-.vwp-pixel .vwp-btn-primary {
+.vwp-btn-primary {
   background: var(--vwp-accent);
   border-color: var(--vwp-accent);
   color: var(--vwp-on-accent);
@@ -514,15 +485,12 @@
   gap: 2px;
   border-radius: 12px;
   border: 1px solid var(--vwp-border);
-  background: var(--vwp-menu-bg, #16191e);
+  background: var(--vwp-menu-bg, var(--surface-2));
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
   font-family: var(--vwp-font);
 }
 
-.vwp-pixel .vwp-menu {
-  --vwp-menu-bg: #041430;
-  border-width: 1.5px;
-}
+
 
 .vwp-menu-up {
   left: 0;
@@ -614,9 +582,7 @@
   animation: vwp-pop 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.vwp-pixel .vwp-modal {
-  --vwp-modal-bg: linear-gradient(180deg, #061a3c 0%, #020b1a 100%);
-}
+
 
 .vwp-modal-head {
   display: flex;
@@ -738,13 +704,11 @@
   gap: 2px;
   border-radius: 12px;
   border: 1px solid var(--vwp-border);
-  background: var(--vwp-menu-bg, #16191e);
+  background: var(--vwp-menu-bg, var(--surface-2));
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
 }
 
-.vwp-pixel .vwp-select-menu {
-  --vwp-menu-bg: #041430;
-}
+
 
 .vwp-select-item {
   display: flex;
@@ -884,11 +848,6 @@
   white-space: nowrap;
 }
 
-.vwp-pixel.vwt-md {
-  border-width: 1.5px;
-  border-radius: 18px;
-}
-
 /* phones: icons only in the header switch */
 @media (max-width: 640px) {
   .vwt-sm .vwt-text {
@@ -898,27 +857,6 @@
   .vwt-sm .vwt-switch button {
     padding: 0 9px;
   }
-}
-
-/* pixel font runs wide: smaller sizes so the swap bar fits a phone */
-.vwp-pixel.vwt-md .vwt-info {
-  flex: 1;
-}
-
-.vwp-pixel.vwt-md .vwt-label,
-.vwp-pixel.vwt-md .vwt-address {
-  font-size: 8px;
-  line-height: 1.5;
-}
-
-.vwp-pixel.vwt-md .vwt-switch button {
-  height: 30px;
-  padding: 0 10px;
-  font-size: 9px;
-}
-
-.vwp-pixel.vwt-sm .vwt-switch button {
-  font-size: 8px;
 }
 
 /* Settings page */
@@ -1077,7 +1015,7 @@
   border-radius: var(--vwp-radius);
   border: 1px solid var(--vwp-border);
   background:
-    radial-gradient(70% 120% at 100% 0%, rgba(46, 230, 207, 0.14), transparent 65%),
+    radial-gradient(70% 120% at 100% 0%, color-mix(in srgb, var(--agent) 14%, transparent), transparent 65%),
     radial-gradient(60% 100% at 0% 100%, var(--vwp-accent-soft), transparent 70%),
     var(--vwp-surface);
   overflow: hidden;
@@ -1088,8 +1026,8 @@
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    linear-gradient(color-mix(in srgb, var(--tint-ink) 3%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--tint-ink) 3%, transparent) 1px, transparent 1px);
   background-size: 28px 28px;
   mask-image: linear-gradient(270deg, #000, transparent 70%);
   -webkit-mask-image: linear-gradient(270deg, #000, transparent 70%);
@@ -1120,10 +1058,10 @@
 }
 
 .vwp-agent-avatar.on {
-  background: #2EE6CF;
+  background: var(--agent);
   border-color: transparent;
-  color: #04201C;
-  box-shadow: 0 0 28px rgba(46, 230, 207, 0.35);
+  color: var(--on-agent);
+  box-shadow: 0 0 28px color-mix(in srgb, var(--agent) 35%, transparent);
 }
 
 .vwp-agent-avatar.on::after {
@@ -1131,7 +1069,7 @@
   position: absolute;
   inset: -1px;
   border-radius: 18px;
-  border: 1px solid rgba(46, 230, 207, 0.7);
+  border: 1px solid color-mix(in srgb, var(--agent) 70%, transparent);
   animation: vwp-agent-pulse 2.4s ease-out infinite;
 }
 
@@ -1179,14 +1117,14 @@
 }
 
 .vwp-agent-status.on {
-  border-color: rgba(46, 230, 207, 0.4);
-  background: rgba(46, 230, 207, 0.1);
-  color: #2EE6CF;
+  border-color: color-mix(in srgb, var(--agent) 40%, transparent);
+  background: color-mix(in srgb, var(--agent) 10%, transparent);
+  color: var(--agent);
 }
 
 .vwp-agent-status.on i {
-  background: #2EE6CF;
-  box-shadow: 0 0 8px #2EE6CF;
+  background: var(--agent);
+  box-shadow: 0 0 8px var(--agent);
 }
 
 .vwp-agent-stats {
@@ -1202,7 +1140,7 @@
   padding: 12px 14px;
   border-radius: var(--vwp-radius-sm);
   border: 1px solid var(--vwp-border);
-  background: rgba(255, 255, 255, 0.02);
+  background: color-mix(in srgb, var(--tint-ink) 2%, transparent);
 }
 
 .vwp-agent-stats span {
@@ -1243,8 +1181,8 @@
   flex-shrink: 0;
   border: 0;
   border-radius: 999px;
-  background: #2EE6CF;
-  color: #04201C;
+  background: var(--agent);
+  color: var(--on-agent);
   font-family: inherit;
   font-size: 13px;
   font-weight: 700;
@@ -1253,8 +1191,8 @@
 }
 
 .vwp-agent-cta:hover {
-  background: #5FF0DD;
-  box-shadow: 0 0 18px rgba(46, 230, 207, 0.45);
+  background: var(--agent-hover);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--agent) 45%, transparent);
 }
 
 @media (max-width: 560px) {

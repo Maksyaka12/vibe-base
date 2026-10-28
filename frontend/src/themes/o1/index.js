@@ -12,5 +12,6 @@ import './styles/o1-nft.css';
 import './styles/o1-tokenomics.css';
 import './styles/o1-contracts.css';
 import './styles/o1-admin.css';
+import './styles/based.css';
 
 export default App;

@@ -30,6 +30,16 @@
   /* Chain brand (chain dot only) */
   --base-blue: #0052FF;
 
+  /* Agent (Agent Zone, Settings, Skill) */
+  --agent:       #2EE6CF;
+  --agent-hover: #5FF0DD;
+  --on-agent:    #04201C;
+
+  /* Raised tiles, code blocks, and the ink of subtle overlays (white on dark) */
+  --tile:     #15181D;
+  --code-bg:  #0D0F13;
+  --tint-ink: #FFFFFF;
+
   /* Semantic */
   --green: #2FD08A; --green-bg: rgba(47, 208, 138, 0.12); --green-bd: rgba(47, 208, 138, 0.28);
   --red:   #FF5A5F; --red-bg:   rgba(255, 90, 95, 0.12);  --red-bd:   rgba(255, 90, 95, 0.28);

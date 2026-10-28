@@ -1,5 +1,5 @@
 .agp {
-  --agp-teal: #2EE6CF;
+  --agp-teal: var(--agent);
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -25,7 +25,7 @@
   border-radius: 20px;
   border: 1px solid var(--vwp-border);
   background:
-    radial-gradient(60% 90% at 85% 50%, rgba(46, 230, 207, 0.14), transparent 70%),
+    radial-gradient(60% 90% at 85% 50%, color-mix(in srgb, var(--agent) 14%, transparent), transparent 70%),
     radial-gradient(70% 120% at 0% 0%, var(--vwp-accent-soft), transparent 60%),
     var(--vwp-surface);
   overflow: hidden;
@@ -36,8 +36,8 @@
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    linear-gradient(color-mix(in srgb, var(--tint-ink) 3%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--tint-ink) 3%, transparent) 1px, transparent 1px);
   background-size: 32px 32px;
   mask-image: linear-gradient(90deg, transparent, #000 60%);
   -webkit-mask-image: linear-gradient(90deg, transparent, #000 60%);
@@ -60,7 +60,7 @@
   padding: 5px 11px;
   border-radius: 999px;
   background: var(--agp-teal);
-  color: #04201C;
+  color: var(--on-agent);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.02em;
@@ -102,7 +102,7 @@
   padding: 6px 11px;
   border-radius: 999px;
   border: 1px solid var(--vwp-border);
-  background: rgba(255, 255, 255, 0.03);
+  background: color-mix(in srgb, var(--tint-ink) 3%, transparent);
   color: var(--vwp-text-2);
   font-size: 12.5px;
 }
@@ -123,13 +123,13 @@
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  border: 1px dashed rgba(46, 230, 207, 0.35);
+  border: 1px dashed color-mix(in srgb, var(--agent) 35%, transparent);
 }
 
 .agp-orbit-ring-2 {
   inset: 50px;
   border-style: solid;
-  border-color: rgba(102, 190, 255, 0.18);
+  border-color: color-mix(in srgb, var(--accent) 18%, transparent);
   animation: agp-pulse 3s ease-out infinite;
 }
 
@@ -150,7 +150,7 @@
   place-items: center;
   border-radius: 14px;
   border: 1px solid var(--vwp-border);
-  background: #15181D;
+  background: var(--tile);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
   transform: rotate(calc(var(--i) * 90deg)) translateY(-120px) rotate(calc(var(--i) * -90deg));
 }
@@ -170,7 +170,7 @@
   height: 84px;
   margin: -42px 0 0 -42px;
   border-radius: 50%;
-  box-shadow: 0 0 0 6px rgba(46, 230, 207, 0.12), 0 0 40px rgba(46, 230, 207, 0.35);
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--agent) 12%, transparent), 0 0 40px color-mix(in srgb, var(--agent) 35%, transparent);
   animation: agp-float 5s ease-in-out infinite;
 }
 
@@ -209,7 +209,7 @@
   flex-shrink: 0;
   border-radius: 10px;
   background: var(--agp-teal);
-  color: #04201C;
+  color: var(--on-agent);
   font-size: 14px;
   font-weight: 800;
 }
@@ -303,7 +303,7 @@
 }
 
 .agp-client:hover {
-  border-color: rgba(46, 230, 207, 0.45);
+  border-color: color-mix(in srgb, var(--agent) 45%, transparent);
   transform: translateY(-2px);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
 }
@@ -316,7 +316,7 @@
   flex-shrink: 0;
   border-radius: 16px;
   border: 1px solid var(--vwp-border);
-  background: #15181D;
+  background: var(--tile);
   color: var(--vwp-text);
 }
 
@@ -383,19 +383,19 @@
 
 .agp-btn:hover {
   color: var(--vwp-text);
-  border-color: rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.04);
+  border-color: color-mix(in srgb, var(--tint-ink) 20%, transparent);
+  background: color-mix(in srgb, var(--tint-ink) 4%, transparent);
 }
 
 .agp-btn-main {
   border-color: transparent;
   background: var(--agp-teal);
-  color: #04201C;
+  color: var(--on-agent);
 }
 
 .agp-btn-main:hover {
-  background: #5FF0DD;
-  color: #04201C;
+  background: var(--agent-hover);
+  color: var(--on-agent);
   border-color: transparent;
 }
 
@@ -416,8 +416,8 @@
 .agp-example {
   padding: 9px 14px;
   border-radius: 14px 14px 14px 4px;
-  border: 1px solid rgba(46, 230, 207, 0.25);
-  background: rgba(46, 230, 207, 0.06);
+  border: 1px solid color-mix(in srgb, var(--agent) 25%, transparent);
+  background: color-mix(in srgb, var(--agent) 6%, transparent);
   color: var(--vwp-text);
   font-size: 13.5px;
 }
@@ -544,8 +544,8 @@
   gap: 7px;
   border: 0;
   border-radius: 999px;
-  background: #2EE6CF;
-  color: #04201C;
+  background: var(--agent);
+  color: var(--on-agent);
   font-family: 'Inter', sans-serif;
   font-size: 13px;
   font-weight: 700;
@@ -556,16 +556,12 @@
 
 .agb:hover,
 .agb.on {
-  background: #5FF0DD;
-  box-shadow: 0 0 18px rgba(46, 230, 207, 0.45);
+  background: var(--agent-hover);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--agent) 45%, transparent);
 }
 
 .agb:hover {
   transform: translateY(-1px);
-}
-
-.agb-pixel {
-  border-radius: 10px;
 }
 
 @media (max-width: 640px) {

@@ -218,7 +218,7 @@ export function BaseAppView({ RewardsComponent }) {
           />
 
           {/* View Content: Buy, Claim, Profile, Vibe Club, Tokenomics, Contracts, Rewards Hub */}
-          <main style={{ flex: 1, paddingBottom: isDesktop ? '40px' : '90px' }}>
+          <main key={activeTab} style={{ flex: 1, paddingBottom: isDesktop ? '40px' : '90px' }}>
             {activeTab === 'buy' ? (
               <section style={{ padding: '24px 0 60px 0' }}>
                 <div style={{ maxWidth: '480px', margin: '0 auto', padding: '0 14px' }}>

@@ -233,9 +233,9 @@
 .o1-nft-modal-content {
   /* explicit colours: --surface-1 / --border-hover / --shadow-lg are not defined in this theme */
   background:
-    radial-gradient(120% 60% at 50% 0%, rgba(102, 190, 255, 0.16), transparent 60%),
-    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px) 0 0 / 22px 22px,
-    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px) 0 0 / 22px 22px,
+    radial-gradient(120% 60% at 50% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 60%),
+    linear-gradient(color-mix(in srgb, var(--tint-ink) 2.5%, transparent) 1px, transparent 1px) 0 0 / 22px 22px,
+    linear-gradient(90deg, color-mix(in srgb, var(--tint-ink) 2.5%, transparent) 1px, transparent 1px) 0 0 / 22px 22px,
     var(--surface);
   border: 1px solid var(--accent-border);
   border-radius: var(--r-xl);
@@ -247,7 +247,7 @@
   flex-direction: column;
   gap: 16px;
   text-align: center;
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4), 0 30px 80px rgba(0, 0, 0, 0.65), 0 0 60px rgba(102, 190, 255, 0.10);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4), 0 30px 80px rgba(0, 0, 0, 0.65), 0 0 60px color-mix(in srgb, var(--accent) 10%, transparent);
   animation: o1-mint-card-in 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
@@ -314,8 +314,8 @@
   margin: 0 auto;
   padding: 3px;
   border-radius: calc(var(--r-lg) + 3px);
-  background: linear-gradient(140deg, var(--accent), rgba(102, 190, 255, 0.15) 45%, var(--base-blue));
-  box-shadow: 0 12px 40px rgba(0, 82, 255, 0.28), 0 0 32px rgba(102, 190, 255, 0.18);
+  background: linear-gradient(140deg, var(--accent), color-mix(in srgb, var(--accent) 15%, transparent) 45%, var(--base-blue));
+  box-shadow: 0 12px 40px rgba(0, 82, 255, 0.28), 0 0 32px color-mix(in srgb, var(--accent) 18%, transparent);
 }
 
 .o1-nft-modal-preview {
@@ -375,7 +375,7 @@
   gap: 3px;
   padding: 9px 6px;
   border-radius: var(--r-md);
-  background: rgba(255, 255, 255, 0.03);
+  background: color-mix(in srgb, var(--tint-ink) 3%, transparent);
   border: 1px solid var(--border);
 }
 

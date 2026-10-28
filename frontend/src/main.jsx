@@ -14,7 +14,7 @@ document.head.appendChild(fonts);
 
 const loadTheme = {
   o1: () => import('./themes/o1'),
-  pixel: () => import('./themes/pixel'),
+  based: () => import('./themes/o1'),
 };
 
 // Themes read the schedule only while rendering, so it just has to be applied before the first render.
