@@ -13,11 +13,13 @@ export const API_URL = `${ORIGIN}/skills/API.md`;
 export const AGENT_PROMPT = `Set up the Vibe Hub skill: read ${SKILL_URL} and follow it. You will run Vibe Hub for me from my Vibe Agent Wallet on Base. I will paste my agent key in the next message: keep it private.`;
 export const BANKR_PROMPT = `Install the Vibe Hub skill from ${BANKR_SKILL_URL}, then show my Vibe Hub status.`;
 
+// Each tile: a main action (Install opens the app, the prompt is copied too) and a second line, either
+// "Copy prompt" or a short note.
 const CLIENTS = [
-  { name: 'Claude', sub: 'claude.ai', logo: '/brands/claude.svg', href: `https://claude.ai/new?q=${encodeURIComponent(AGENT_PROMPT)}` },
-  { name: 'ChatGPT', sub: 'chatgpt.com', logo: '/brands/openai.svg', href: `https://chatgpt.com/?q=${encodeURIComponent(AGENT_PROMPT)}` },
-  { name: 'Cursor', sub: 'Cursor app', logo: '/brands/cursor.svg', href: `https://cursor.com/link/prompt?text=${encodeURIComponent(AGENT_PROMPT)}`, full: true },
-  { name: 'Any agent', sub: 'Claude Code, Codex, OpenClaw…', icon: Terminal },
+  { name: 'Claude', sub: 'claude.ai', logo: '/brands/claude.svg', href: `https://claude.ai/new?q=${encodeURIComponent(AGENT_PROMPT)}`, prompt: AGENT_PROMPT },
+  { name: 'ChatGPT', sub: 'chatgpt.com', logo: '/brands/openai.svg', href: `https://chatgpt.com/?q=${encodeURIComponent(AGENT_PROMPT)}`, prompt: AGENT_PROMPT },
+  { name: 'Bankr', sub: 'Its own wallet on Base', logo: '/brands/bankr.png', full: true, href: 'https://bankr.bot', prompt: BANKR_PROMPT, note: 'No keys needed' },
+  { name: 'Any agent', sub: 'Claude Code, Codex, OpenClaw…', icon: Terminal, prompt: AGENT_PROMPT, note: 'Just send it to your agent' },
 ];
 
 export function useCopy() {
@@ -37,7 +39,7 @@ export function InstallTiles() {
   return (
     <>
       <div className="agp-clients">
-        {CLIENTS.map(({ name, sub, logo, icon: Icon, href, full }) => (
+        {CLIENTS.map(({ name, sub, logo, icon: Icon, href, full, prompt, note }) => (
           <div key={name} className="agp-client">
             <span className={`agp-logo ${full ? 'full' : ''}`}>
               {logo ? <img src={logo} alt={name} /> : <Icon size={24} />}
@@ -46,16 +48,18 @@ export function InstallTiles() {
             <div className="agp-client-sub">{sub}</div>
             <div className="agp-client-actions">
               {href ? (
-                <a className="agp-btn agp-btn-main" href={href} target="_blank" rel="noopener noreferrer" onClick={() => copy(`${name}-open`, AGENT_PROMPT)}>
+                <a className="agp-btn agp-btn-main" href={href} target="_blank" rel="noopener noreferrer" onClick={() => copy(`${name}-open`, prompt)}>
                   Install <ArrowUpRight size={15} />
                 </a>
               ) : (
-                <button type="button" className="agp-btn agp-btn-main" onClick={() => copy(name, AGENT_PROMPT)}>
+                <button type="button" className="agp-btn agp-btn-main" onClick={() => copy(name, prompt)}>
                   {copied === name ? <><Check size={15} /> Copied</> : <><Copy size={15} /> Copy prompt</>}
                 </button>
               )}
-              {href && (
-                <button type="button" className="agp-btn" onClick={() => copy(name, AGENT_PROMPT)}>
+              {note ? (
+                <span className="agp-btn-note">{note}</span>
+              ) : (
+                <button type="button" className="agp-btn" onClick={() => copy(name, prompt)}>
                   {copied === name ? <><Check size={14} /> Copied</> : <><Copy size={14} /> Copy prompt</>}
                 </button>
               )}
