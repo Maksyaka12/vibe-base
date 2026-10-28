@@ -429,14 +429,15 @@
   gap: 24px;
   align-items: center;
   background:
-    radial-gradient(80% 120% at 0% 0%, rgba(245, 184, 61, 0.08), transparent 60%),
+    radial-gradient(80% 120% at 0% 0%, color-mix(in srgb, var(--amber) 8%, transparent), transparent 60%),
+    radial-gradient(70% 100% at 100% 100%, color-mix(in srgb, var(--agent) 8%, transparent), transparent 60%),
     var(--vwp-surface);
 }
 
 .agp-bankr-info {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
 }
 
 .agp-bankr-title {
@@ -460,10 +461,34 @@
 
 .agp-bankr-steps {
   margin: 0;
-  padding-left: 88px;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   color: var(--vwp-text-2);
   font-size: 13.5px;
-  line-height: 1.8;
+}
+
+.agp-bankr-steps li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.agp-bankr-num {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  border-radius: 7px;
+  border: 1px solid color-mix(in srgb, var(--agent) 35%, transparent);
+  background: color-mix(in srgb, var(--agent) 10%, transparent);
+  color: var(--agp-teal);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 12px;
+  font-weight: 600;
 }
 
 .agp-bankr-action {
@@ -472,20 +497,108 @@
   gap: 12px;
 }
 
-.agp-bankr-action .agp-btn {
-  flex: 1;
+.agp-bankr-open {
+  width: 100%;
+  height: 42px;
 }
 
-.agp-prompt {
-  padding: 12px 14px;
-  border-radius: 12px;
-  border: 1px dashed var(--vwp-border);
-  background: var(--vwp-surface-2);
+/* Mini Bankr chat: the messages appear one by one, then the loop restarts */
+.agp-bankr-chat {
+  border-radius: 14px;
+  border: 1px solid var(--vwp-border);
+  background: var(--code-bg);
+  overflow: hidden;
+}
+
+.agp-bankr-chat-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--vwp-border);
+  background: color-mix(in srgb, var(--tint-ink) 2%, transparent);
+  font-size: 13px;
+  color: var(--vwp-text);
+}
+
+.agp-bankr-chat-head img {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+}
+
+.agp-bankr-chat-head b {
+  font-weight: 600;
+}
+
+.agp-bankr-live {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-family: var(--font-mono, ui-monospace, monospace);
-  font-size: 12.5px;
-  line-height: 1.5;
-  color: var(--vwp-text-2);
-  word-break: break-word;
+  font-size: 11.5px;
+  color: var(--vwp-text-3);
+}
+
+.agp-bankr-live i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 0 3px var(--green-bg);
+}
+
+.agp-bankr-chat-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 14px;
+  min-height: 168px;
+}
+
+.agp-bankr-msg {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 85%;
+  padding: 8px 12px;
+  border-radius: 12px 12px 12px 4px;
+  border: 1px solid var(--vwp-border);
+  background: var(--vwp-surface);
+  color: var(--vwp-text);
+  font-size: 13px;
+  animation: agp-bankr-msg-0 8s ease infinite both;
+}
+
+.agp-bankr-msg:nth-child(2) { animation-name: agp-bankr-msg-1; }
+.agp-bankr-msg:nth-child(3) { animation-name: agp-bankr-msg-2; }
+.agp-bankr-msg:nth-child(4) { animation-name: agp-bankr-msg-3; }
+
+.agp-bankr-msg svg {
+  color: var(--green);
+  flex-shrink: 0;
+}
+
+.agp-bankr-msg.me {
+  align-self: flex-end;
+  border-radius: 12px 12px 4px 12px;
+  border-color: transparent;
+  background: var(--agp-teal);
+  color: var(--on-agent);
+}
+
+/* each message appears in turn, all of them fade out together before the loop restarts */
+@keyframes agp-bankr-msg-0 { 0% { opacity: 0; transform: translateY(6px); } 4%, 86% { opacity: 1; transform: none; } 94%, 100% { opacity: 0; } }
+@keyframes agp-bankr-msg-1 { 0%, 12% { opacity: 0; transform: translateY(6px); } 16%, 86% { opacity: 1; transform: none; } 94%, 100% { opacity: 0; } }
+@keyframes agp-bankr-msg-2 { 0%, 26% { opacity: 0; transform: translateY(6px); } 30%, 86% { opacity: 1; transform: none; } 94%, 100% { opacity: 0; } }
+@keyframes agp-bankr-msg-3 { 0%, 38% { opacity: 0; transform: translateY(6px); } 42%, 86% { opacity: 1; transform: none; } 94%, 100% { opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .agp-bankr-msg {
+    animation: none;
+  }
 }
 
 @media (max-width: 900px) {
@@ -512,10 +625,6 @@
   .agp-safety,
   .agp-examples {
     padding-left: 0;
-  }
-
-  .agp-bankr-steps {
-    padding-left: 20px;
   }
 }
 

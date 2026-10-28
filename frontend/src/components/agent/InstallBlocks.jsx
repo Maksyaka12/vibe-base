@@ -74,8 +74,16 @@ export function InstallTiles() {
   );
 }
 
+// A short Bankr chat that plays on a loop: install the skill, then just ask.
+const BANKR_CHAT = [
+  { me: true, text: 'Install the Vibe skill' },
+  { text: 'Done. Vibe Hub skill installed', ok: true },
+  { me: true, text: 'Do my vibe check-in' },
+  { text: 'Checked in on Base', ok: true },
+];
+
 export function BankrCard() {
-  const [copied, copy] = useCopy();
+  const [, copy] = useCopy();
   return (
     <section className="agp-panel agp-bankr">
       <div className="agp-bankr-info">
@@ -83,25 +91,34 @@ export function BankrCard() {
           <span className="agp-logo full"><img src="/brands/bankr.png" alt="Bankr" /></span>
           <div>
             <h2>Using Bankr? No keys needed</h2>
-            <p>Bankr has its own wallet. Install the skill and it acts from your Bankr wallet.</p>
+            <p>Bankr has its own wallet. Just install the skill, and it acts right from the chat.</p>
           </div>
         </div>
         <ol className="agp-bankr-steps">
-          <li>Log in to Bankr: you get a wallet on Base</li>
-          <li>Send it the install prompt</li>
-          <li>Ask: “do my vibe check-in”</li>
+          <li><span className="agp-bankr-num">1</span>Log in to Bankr: you get a wallet on Base</li>
+          <li><span className="agp-bankr-num">2</span>Install the Vibe skill for your Bankr agent</li>
+          <li><span className="agp-bankr-num">3</span>Just ask your agent in the chat</li>
         </ol>
       </div>
       <div className="agp-bankr-action">
-        <div className="agp-prompt">{BANKR_PROMPT}</div>
-        <div className="agp-client-actions">
-          <a className="agp-btn agp-btn-main" href="https://bankr.bot" target="_blank" rel="noopener noreferrer" onClick={() => copy('bankr-open', BANKR_PROMPT)}>
-            Open Bankr <ArrowUpRight size={15} />
-          </a>
-          <button type="button" className="agp-btn" onClick={() => copy('bankr', BANKR_PROMPT)}>
-            {copied === 'bankr' ? <><Check size={14} /> Copied</> : <><Copy size={14} /> Copy prompt</>}
-          </button>
+        <div className="agp-bankr-chat" aria-hidden="true">
+          <div className="agp-bankr-chat-head">
+            <img src="/brands/bankr.png" alt="" />
+            <b>Bankr</b>
+            <span className="agp-bankr-live"><i />Base</span>
+          </div>
+          <div className="agp-bankr-chat-body">
+            {BANKR_CHAT.map(({ me, text, ok }) => (
+              <span key={text} className={`agp-bankr-msg ${me ? 'me' : ''}`}>
+                {ok && <Check size={13} />}
+                {text}
+              </span>
+            ))}
+          </div>
         </div>
+        <a className="agp-btn agp-btn-main agp-bankr-open" href="https://bankr.bot" target="_blank" rel="noopener noreferrer" onClick={() => copy('bankr-open', BANKR_PROMPT)}>
+          Open Bankr <ArrowUpRight size={15} />
+        </a>
       </div>
     </section>
   );
