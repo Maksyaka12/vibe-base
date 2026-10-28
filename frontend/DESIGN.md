@@ -32,6 +32,9 @@ values (`THEME_IDS` in `vite.config.js`).
 6. **Motion.** UI feedback 120–240 ms. Based uses the Base curve `cubic-bezier(0.4, 0, 0.2, 1)` everywhere:
    pages slide in, page titles reveal with a Base Blue square wipe. No motion blur, no 3D. Always respect
    `prefers-reduced-motion`.
-7. **Shared components** (`src/components/wallet`, `src/components/agent`) read the same tokens through their
+7. **Background.** Based shows the Base brand texture (fine vertical lines and dot-matrix clusters) in the free
+   space of the page. Every card, panel and table must have its own background (`var(--surface)`), never rely on
+   the page colour, or the texture shows through it.
+8. **Shared components** (`src/components/wallet`, `src/components/agent`) read the same tokens through their
    own aliases (`--vwp-*`, `--agp-*`), so they follow the theme automatically.
-8. **Check both themes** (desktop and 375 px) before shipping a UI change: `?theme=o1` / `?theme=based`.
+9. **Check both themes** (desktop and 375 px) before shipping a UI change: `?theme=o1` / `?theme=based`.
