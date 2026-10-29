@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
 import {
-  Bot, Copy, Check, CalendarCheck, Gift, Award, Layers, ArrowLeftRight, Send,
+  Bot, Copy, Check, CalendarCheck, Gift, Award, Layers, ArrowLeftRight,
   ShieldCheck, KeyRound, Wallet, Lock, Gauge, Crown, Fuel, ArrowDownToLine, Gem,
 } from 'lucide-react';
 import { useVibeWallets } from '../../hooks/useVibeWallets';
@@ -20,10 +20,9 @@ const ABILITIES = [
   { icon: Gift, text: 'Rewards & royalties' },
   { icon: Award, text: 'Achievements' },
   { icon: Layers, text: 'Staking' },
-  { icon: ArrowLeftRight, text: 'Swaps' },
-  { icon: Send, text: 'Transfers' },
-  { icon: Gem, text: 'NFT mint with ETH' },
-  { icon: Crown, text: 'Claims for your main wallet' },
+  { icon: ArrowLeftRight, text: 'Swaps & transfers' },
+  { icon: Gem, text: 'Mint NFT' },
+  { icon: Crown, text: 'Main wallet claims' },
 ];
 
 const ORBIT = ['/brands/claude.svg', '/brands/openai.svg', '/brands/cursor.svg', '/brands/bankr.png'];
@@ -70,6 +69,7 @@ export default function AgentsPage({ theme = 'o1' }) {
             {ABILITIES.map(({ icon: Icon, text }) => (
               <span key={text} className="agp-ability"><Icon size={14} /> {text}</span>
             ))}
+            <span className="agp-ability agp-ability-more">and more</span>
           </div>
         </div>
         <div className="agp-orbit" aria-hidden="true">

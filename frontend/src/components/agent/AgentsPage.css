@@ -17,7 +17,7 @@
 .agp-hero {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) 260px;
   align-items: center;
   gap: 24px;
   min-height: 300px;
@@ -91,7 +91,7 @@
 .agp-abilities {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px;
   margin-top: 4px;
 }
 
@@ -99,16 +99,34 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 11px;
+  padding: 5px 10px;
   border-radius: 999px;
   border: 1px solid var(--vwp-border);
   background: color-mix(in srgb, var(--tint-ink) 3%, transparent);
   color: var(--vwp-text-2);
-  font-size: 12.5px;
+  font-size: 12px;
 }
 
 .agp-ability svg {
   color: var(--agp-teal);
+}
+
+.agp-ability-more {
+  border-style: dashed;
+  border-color: var(--border-strong);
+  background: transparent;
+  color: var(--vwp-text-3);
+}
+
+/* The ability chips keep to two rows: where the text column gets too narrow for that, the orbit gives way */
+@media (max-width: 1180px) {
+  .agp-hero {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .agp-orbit {
+    display: none;
+  }
 }
 
 /* Orbit visual */
