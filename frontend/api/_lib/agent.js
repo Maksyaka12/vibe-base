@@ -28,6 +28,7 @@ const BUILT_IN = {
     3: require('../../src/data/royalty_3_proofs.json'),
     4: require('../../src/data/royalty_4_proofs.json'),
     5: require('../../src/data/royalty_5_proofs.json'),
+    6: require('../../src/data/royalty_6_proofs.json'),
   },
 };
 

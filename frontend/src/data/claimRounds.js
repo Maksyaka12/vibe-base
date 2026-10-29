@@ -7,10 +7,11 @@ import royalty2Data from './royalty_2_proofs.json';
 import royalty3Data from './royalty_3_proofs.json';
 import royalty4Data from './royalty_4_proofs.json';
 import royalty5Data from './royalty_5_proofs.json';
+import royalty6Data from './royalty_6_proofs.json';
 
 const BUILT_IN = {
   holder: { 1: round1Data, 2: round2Data },
-  royalty: { 1: royalty1Data, 2: royalty2Data, 3: royalty3Data, 4: royalty4Data, 5: royalty5Data },
+  royalty: { 1: royalty1Data, 2: royalty2Data, 3: royalty3Data, 4: royalty4Data, 5: royalty5Data, 6: royalty6Data },
 };
 const published = { holder: {}, royalty: {} };
 
