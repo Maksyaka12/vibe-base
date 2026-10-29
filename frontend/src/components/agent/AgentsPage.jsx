@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
 import {
-  Bot, Copy, Check, CalendarCheck, Gift, Award, Layers, ArrowLeftRight,
+  Bot, Copy, Check, CalendarCheck, Gift, Award, Layers, ArrowLeftRight, Send,
   ShieldCheck, KeyRound, Wallet, Lock, Gauge, Crown, Fuel, ArrowDownToLine, Gem,
 } from 'lucide-react';
 import { useVibeWallets } from '../../hooks/useVibeWallets';
@@ -20,9 +20,10 @@ const ABILITIES = [
   { icon: Gift, text: 'Rewards & royalties' },
   { icon: Award, text: 'Achievements' },
   { icon: Layers, text: 'Staking' },
-  { icon: ArrowLeftRight, text: 'Swaps & transfers' },
+  { icon: ArrowLeftRight, text: 'Swaps' },
+  { icon: Send, text: 'Transfers' },
   { icon: Gem, text: 'Mint NFT' },
-  { icon: Crown, text: 'Main wallet claims' },
+  { icon: Crown, text: 'Claims for your main wallet' },
 ];
 
 const ORBIT = ['/brands/claude.svg', '/brands/openai.svg', '/brands/cursor.svg', '/brands/bankr.png'];
