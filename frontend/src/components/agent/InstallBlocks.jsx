@@ -45,8 +45,7 @@ export function InstallTiles() {
     <>
       <div className="agp-clients">
         {CLIENTS.map(({ name, sub, logo, icon: Icon, href, full, prompt, note, soon }) => (
-          <div key={name} className={`agp-client ${soon ? 'is-soon' : ''}`}>
-            {soon && <SoonBadge />}
+          <div key={name} className="agp-client">
             <span className={`agp-logo ${full ? 'full' : ''}`}>
               {logo ? <img src={logo} alt={name} /> : <Icon size={24} />}
             </span>
@@ -54,9 +53,7 @@ export function InstallTiles() {
             <div className="agp-client-sub">{sub}</div>
             <div className="agp-client-actions">
               {soon ? (
-                <span className="agp-btn agp-btn-main agp-btn-off" aria-disabled="true">
-                  <Clock size={15} /> Coming soon
-                </span>
+                <span className="agp-soon-slot"><SoonBadge /></span>
               ) : href ? (
                 <a className="agp-btn agp-btn-main" href={href} target="_blank" rel="noopener noreferrer" onClick={() => copy(`${name}-open`, prompt)}>
                   Install <ArrowUpRight size={15} />
@@ -95,11 +92,12 @@ const BANKR_CHAT = [
 export function BankrCard() {
   return (
     <section className="agp-panel agp-bankr is-soon">
+      <SoonBadge />
       <div className="agp-bankr-info">
         <div className="agp-bankr-title">
           <span className="agp-logo full"><img src="/brands/bankr.png" alt="Bankr" /></span>
           <div>
-            <h2>Using Bankr? No keys needed <SoonBadge /></h2>
+            <h2>Using Bankr? No keys needed</h2>
             <p>Bankr has its own wallet. Just install the skill, then just ask.</p>
           </div>
         </div>

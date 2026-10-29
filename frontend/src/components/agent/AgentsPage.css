@@ -807,28 +807,36 @@
   50% { opacity: 0.6; box-shadow: 0 0 0 4px transparent; }
 }
 
-.agp-client.is-soon {
+/* in a tile the badge takes the place of the Install button, at the same height */
+.agp-soon-slot {
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.agp-soon-slot .agp-soon {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+.agp-bankr.is-soon {
   position: relative;
 }
 
-.agp-client.is-soon > .agp-soon {
+.agp-bankr.is-soon > .agp-soon {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 14px;
+  left: 14px;
 }
 
-.agp-client.is-soon:hover {
-  transform: none;
-}
-
-.agp-client.is-soon .agp-logo,
-.agp-bankr.is-soon .agp-bankr-chat {
-  opacity: 0.7;
-  filter: saturate(0.6);
-}
-
-.agp-bankr-title h2 .agp-soon {
-  margin-left: 8px;
+/* one column on phones: no free corner, so the badge sits on its own line above the title */
+@media (max-width: 760px) {
+  .agp-bankr.is-soon > .agp-soon {
+    position: static;
+    justify-self: start;
+    margin-bottom: -8px;
+  }
 }
 
 .agp-btn-off,
