@@ -34,4 +34,4 @@ export const C = {
 };
 
 export const FPS = 30;
-export const DOMAIN = 'vibeverse.dog';
+export const DOMAIN = 'vibehome.dog';

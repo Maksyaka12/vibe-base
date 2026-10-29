@@ -7,7 +7,9 @@
     "studio": "remotion studio src/index.jsx",
     "capture": "node scripts/capture.mjs && node scripts/capture-tabs.mjs && node scripts/capture-profile.mjs",
     "music": "node scripts/music.mjs",
-    "render": "remotion render src/index.jsx VibeHubPromo out/vibe-hub-promo.mp4 --codec h264 --crf 16 --audio-bitrate 256k"
+    "music:launch": "node scripts/music-launch.mjs",
+    "render": "remotion render src/index.jsx VibeHubPromo out/vibe-hub-promo.mp4 --codec h264 --crf 16 --audio-bitrate 256k",
+    "render:launch": "remotion render src/index.jsx VibeHubLaunch out/vibe-hub-launch.mp4 --codec h264 --crf 16 --audio-bitrate 256k"
   },
   "dependencies": {
     "@remotion/cli": "4.0.300",
