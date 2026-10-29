@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Terminal, Copy, Check, ArrowUpRight } from 'lucide-react';
+import { Terminal, Copy, Check, ArrowUpRight, Clock } from 'lucide-react';
 import './AgentsPage.css';
 
 // Install blocks shared by Agent Zone and the Skill page: one-click tiles for AI apps (they open with the setup
@@ -18,9 +18,14 @@ export const BANKR_PROMPT = `Install the Vibe Hub skill from ${BANKR_SKILL_URL},
 const CLIENTS = [
   { name: 'Claude', sub: 'claude.ai', logo: '/brands/claude.svg', href: `https://claude.ai/new?q=${encodeURIComponent(AGENT_PROMPT)}`, prompt: AGENT_PROMPT },
   { name: 'ChatGPT', sub: 'chatgpt.com', logo: '/brands/openai.svg', href: `https://chatgpt.com/?q=${encodeURIComponent(AGENT_PROMPT)}`, prompt: AGENT_PROMPT },
-  { name: 'Bankr', sub: 'Its own wallet on Base', logo: '/brands/bankr.png', full: true, href: 'https://bankr.bot', prompt: BANKR_PROMPT, note: 'No keys needed' },
+  { name: 'Bankr', sub: 'Its own wallet on Base', logo: '/brands/bankr.png', full: true, href: 'https://bankr.bot', prompt: BANKR_PROMPT, note: 'No keys needed', soon: true },
   { name: 'Any agent', sub: 'Claude Code, Codex, OpenClaw…', icon: Terminal, prompt: AGENT_PROMPT, note: 'Just send it to your agent' },
 ];
+
+// Bankr is not live yet: its tile and card carry this badge and their buttons stay off until launch.
+export function SoonBadge() {
+  return <span className="agp-soon"><i />In progress</span>;
+}
 
 export function useCopy() {
   const [copied, setCopied] = useState('');
@@ -39,15 +44,20 @@ export function InstallTiles() {
   return (
     <>
       <div className="agp-clients">
-        {CLIENTS.map(({ name, sub, logo, icon: Icon, href, full, prompt, note }) => (
-          <div key={name} className="agp-client">
+        {CLIENTS.map(({ name, sub, logo, icon: Icon, href, full, prompt, note, soon }) => (
+          <div key={name} className={`agp-client ${soon ? 'is-soon' : ''}`}>
+            {soon && <SoonBadge />}
             <span className={`agp-logo ${full ? 'full' : ''}`}>
               {logo ? <img src={logo} alt={name} /> : <Icon size={24} />}
             </span>
             <div className="agp-client-name">{name}</div>
             <div className="agp-client-sub">{sub}</div>
             <div className="agp-client-actions">
-              {href ? (
+              {soon ? (
+                <span className="agp-btn agp-btn-main agp-btn-off" aria-disabled="true">
+                  <Clock size={15} /> Coming soon
+                </span>
+              ) : href ? (
                 <a className="agp-btn agp-btn-main" href={href} target="_blank" rel="noopener noreferrer" onClick={() => copy(`${name}-open`, prompt)}>
                   Install <ArrowUpRight size={15} />
                 </a>
@@ -83,14 +93,13 @@ const BANKR_CHAT = [
 ];
 
 export function BankrCard() {
-  const [, copy] = useCopy();
   return (
-    <section className="agp-panel agp-bankr">
+    <section className="agp-panel agp-bankr is-soon">
       <div className="agp-bankr-info">
         <div className="agp-bankr-title">
           <span className="agp-logo full"><img src="/brands/bankr.png" alt="Bankr" /></span>
           <div>
-            <h2>Using Bankr? No keys needed</h2>
+            <h2>Using Bankr? No keys needed <SoonBadge /></h2>
             <p>Bankr has its own wallet. Just install the skill, then just ask.</p>
           </div>
         </div>
@@ -116,9 +125,9 @@ export function BankrCard() {
             ))}
           </div>
         </div>
-        <a className="agp-btn agp-btn-main agp-bankr-open" href="https://bankr.bot" target="_blank" rel="noopener noreferrer" onClick={() => copy('bankr-open', BANKR_PROMPT)}>
-          Open Bankr <ArrowUpRight size={15} />
-        </a>
+        <span className="agp-btn agp-btn-main agp-bankr-open agp-btn-off" aria-disabled="true">
+          <Clock size={15} /> Coming soon
+        </span>
       </div>
     </section>
   );

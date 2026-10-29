@@ -776,3 +776,73 @@
   font-size: 12.5px;
   color: var(--vwp-text-3);
 }
+
+/* Bankr is not live yet: an "In progress" badge and buttons that stay off */
+.agp-soon {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--amber-bd);
+  background: var(--amber-bg);
+  color: var(--amber);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.agp-soon i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: agp-soon-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes agp-soon-pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 color-mix(in srgb, var(--amber) 50%, transparent); }
+  50% { opacity: 0.6; box-shadow: 0 0 0 4px transparent; }
+}
+
+.agp-client.is-soon {
+  position: relative;
+}
+
+.agp-client.is-soon > .agp-soon {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.agp-client.is-soon:hover {
+  transform: none;
+}
+
+.agp-client.is-soon .agp-logo,
+.agp-bankr.is-soon .agp-bankr-chat {
+  opacity: 0.7;
+  filter: saturate(0.6);
+}
+
+.agp-bankr-title h2 .agp-soon {
+  margin-left: 8px;
+}
+
+.agp-btn-off,
+.agp-btn-off:hover {
+  border-color: var(--vwp-border);
+  border-style: dashed;
+  background: transparent;
+  color: var(--vwp-text-3);
+  cursor: default;
+  box-shadow: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .agp-soon i {
+    animation: none;
+  }
+}
