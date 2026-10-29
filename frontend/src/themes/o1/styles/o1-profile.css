@@ -1,0 +1,593 @@
+/* ── Profile page styles per o1-dark-ui-design & vibe-hub-redesign §5.1 ── */
+
+.o1-profile-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+/* Left card stretches to the height of the dashboard + check-in column, so both end on one line. */
+.o1-profile-layout {
+  display: grid;
+  grid-template-columns: minmax(340px, 400px) 1fr;
+  gap: 24px;
+  align-items: stretch;
+}
+
+@media (max-width: 960px) {
+  .o1-profile-layout {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+/* ── Left Column: Identity / NFT Card ── */
+.o1-profile-left {
+  display: flex;
+  min-width: 0;
+}
+
+.o1-nft-card {
+  flex: 1;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.o1-nft-frame {
+  position: relative;
+  flex: 1;
+  min-height: 220px;
+  width: 100%;
+  border-radius: var(--r-md);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.o1-nft-img {
+  /* absolute, so the picture fills the frame without pushing the card taller */
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+@media (max-width: 960px) {
+  .o1-nft-frame {
+    flex: none;
+    min-height: 0;
+    aspect-ratio: 1 / 1;
+  }
+}
+
+.o1-nft-img.non-member {
+  filter: grayscale(1) brightness(0.65);
+}
+
+.o1-nft-badge-overlay {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 2;
+}
+
+.o1-nft-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.o1-nft-title-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.o1-nft-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.o1-nft-id {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--text-3);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+.o1-nft-cta-box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 4px;
+  border-top: 1px solid var(--border);
+}
+
+.o1-nft-cta-text {
+  font-size: 12px;
+  color: var(--text-3);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ── Right Column: Stacked Sections ── */
+.o1-profile-right {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
+}
+
+/* ── Reward Dashboard 2x2 Grid ── */
+.o1-reward-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+@media (max-width: 540px) {
+  .o1-reward-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+}
+
+.o1-reward-tile {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 96px;
+  transition: border-color var(--ease-fast);
+}
+
+.o1-reward-tile.is-link {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  border-color: var(--accent-border);
+  background: color-mix(in srgb, var(--accent) 6%, var(--surface));
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+}
+
+.o1-reward-tile.is-link:hover {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface));
+  transform: translateY(-1px);
+}
+
+.o1-reward-tile-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.o1-reward-tile:hover {
+  border-color: var(--border-hover);
+}
+
+.o1-reward-tile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.o1-reward-tile-label {
+  font-size: 13px;
+  color: var(--text-3);
+  font-weight: 500;
+}
+
+.o1-reward-tile-value {
+  font-family: var(--mono);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
+.o1-reward-tile-value.positive {
+  color: var(--green);
+}
+
+.o1-reward-tile-value.accent {
+  color: var(--accent);
+}
+
+.o1-reward-tile-value.danger {
+  color: var(--red);
+}
+
+.o1-reward-tile-value.neutral {
+  color: var(--text);
+}
+
+.o1-reward-tile-sub {
+  font-size: 12px;
+  color: var(--text-3);
+  line-height: 1.3;
+}
+
+/* ── Daily Check-in Card ── */
+.o1-checkin-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 20px;
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+}
+
+@media (max-width: 640px) {
+  .o1-checkin-card {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+    padding: 16px;
+  }
+}
+
+.o1-checkin-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.o1-checkin-icon-box {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.o1-checkin-streak-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.o1-checkin-streak-label {
+  font-size: 12px;
+  color: var(--text-3);
+  font-weight: 500;
+}
+
+.o1-checkin-streak-val-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.o1-checkin-streak-num {
+  font-family: var(--mono);
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.o1-checkin-streak-unit {
+  font-size: 13px;
+  color: var(--text-3);
+  font-weight: 500;
+}
+
+.o1-checkin-sub {
+  font-size: 12px;
+  color: var(--text-3);
+  margin-top: 2px;
+}
+
+.o1-checkin-right {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+@media (max-width: 640px) {
+  .o1-checkin-right {
+    width: 100%;
+  }
+  .o1-checkin-right > * {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ── Achievements Section ── */
+.o1-achievements-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 32px;
+}
+
+.o1-achievements-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.o1-achievements-progress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.o1-achievements-progress-bar {
+  width: 160px;
+  height: 6px;
+  border-radius: var(--r-full);
+  background: var(--surface-3);
+  overflow: hidden;
+}
+
+.o1-achievements-progress-bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--accent), var(--green));
+  transition: width 0.4s ease;
+}
+
+/* Groups as a board: two side by side, the five-tile group across the full width. */
+.o1-achievements-board {
+  display: grid;
+  grid-template-columns: 2fr 3fr;
+  gap: 16px;
+}
+
+.o1-achievements-group.wide {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 860px) {
+  .o1-achievements-board {
+    grid-template-columns: 1fr;
+  }
+  .o1-achievements-progress-bar {
+    width: 100px;
+  }
+}
+
+.o1-achievements-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 14px;
+}
+
+.o1-achievements-group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.o1-achievements-group-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+.o1-achievements-group-count {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.o1-achievements-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.o1-achievements-grid-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.o1-achievements-grid-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.o1-achievements-grid-5 {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+@media (max-width: 768px) {
+  .o1-achievements-grid-5 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 540px) {
+  .o1-achievements-grid-2,
+  .o1-achievements-grid-3,
+  .o1-achievements-grid-5 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.o1-achievement-tile {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center; /* tiles in a row share the tallest height (Claim SBT button) */
+  text-align: center;
+  gap: 8px;
+  position: relative;
+  transition: border-color var(--ease-normal), background var(--ease-normal);
+}
+
+.o1-achievement-tile.unlocked {
+  border-color: color-mix(in srgb, var(--green) 35%, transparent);
+}
+
+.o1-achievement-tile.claimable {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface-2));
+}
+
+/* Only the artwork and name fade, so the info popover inside a locked tile stays fully readable. */
+.o1-achievement-tile.locked .o1-achievement-thumb,
+.o1-achievement-tile.locked .o1-achievement-name {
+  opacity: 0.45;
+  filter: grayscale(1);
+}
+
+.o1-achievement-tile.locked {
+  background: color-mix(in srgb, var(--surface-2) 60%, transparent);
+}
+
+.o1-achievement-info-trigger {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--r-sm);
+  background: transparent;
+  border: none;
+  color: var(--text-3);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: color var(--ease-fast);
+  z-index: 3;
+}
+
+.o1-achievement-info-trigger:hover {
+  color: var(--text);
+}
+
+.o1-achievement-thumb {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--surface-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.o1-achievement-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.o1-achievement-lock {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  background: rgba(0, 0, 0, 0.75);
+  border-radius: 4px;
+  padding: 2px;
+  color: var(--text-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.o1-achievement-name {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.o1-achievement-claim-btn {
+  width: 100%;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: var(--r-sm);
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  transition: opacity var(--ease-fast);
+}
+
+.o1-achievement-claim-btn:hover {
+  opacity: 0.9;
+}
+
+.o1-achievement-popover {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  background: var(--surface-3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-sm);
+  padding: 8px 10px;
+  z-index: 30;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  text-align: left;
+}
+
+.o1-achievement-popover-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.o1-achievement-popover-desc {
+  font-size: 11px;
+  color: var(--text-2);
+  line-height: 1.35;
+}

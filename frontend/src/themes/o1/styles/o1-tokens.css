@@ -1,0 +1,99 @@
+/* ================================================================
+   o1 dark UI tokens - single source of truth (o1-dark-ui-design 1.1)
+   Change ONLY --accent* / --on-accent to re-theme. Never add a 2nd accent.
+   ================================================================ */
+:root {
+  /* Surfaces (flat, stepped) */
+  --bg:          #090A0C;
+  --bg-bar:      #0B0C0F;
+  --surface:     #111317;
+  --surface-2:   #16191E;
+  --surface-3:   #1D2128;
+
+  /* Borders */
+  --border:        rgba(255, 255, 255, 0.07);
+  --border-strong: rgba(255, 255, 255, 0.12);
+
+  /* Text */
+  --text:   #F5F7FA;
+  --text-2: #A3A9B3;
+  --text-3: #6C727D;
+
+  /* Accent (the ONLY brand colour) */
+  --accent:        #66BEFF;
+  --accent-hover:  #82CBFF;
+  --accent-press:  #4FADF2;
+  --on-accent:     #06121F;
+  --accent-soft:   rgba(102, 190, 255, 0.14);
+  --accent-border: rgba(102, 190, 255, 0.30);
+
+  /* Chain brand (chain dot only) */
+  --base-blue: #0052FF;
+
+  /* Agent (Agent Zone, Settings, Skill) */
+  --agent:       #2EE6CF;
+  --agent-hover: #5FF0DD;
+  --on-agent:    #04201C;
+
+  /* Raised tiles, code blocks, and the ink of subtle overlays (white on dark) */
+  --tile:     #15181D;
+  --code-bg:  #0D0F13;
+  --tint-ink: #FFFFFF;
+
+  /* Semantic */
+  --green: #2FD08A; --green-bg: rgba(47, 208, 138, 0.12); --green-bd: rgba(47, 208, 138, 0.28);
+  --red:   #FF5A5F; --red-bg:   rgba(255, 90, 95, 0.12);  --red-bd:   rgba(255, 90, 95, 0.28);
+  --amber: #F5B83D; --amber-hover: #F8C762;--amber-bg: rgba(245, 184, 61, 0.12); --amber-bd: rgba(245, 184, 61, 0.28);
+
+  /* Radii */
+  --r-sm: 8px; --r-md: 12px; --r-lg: 16px; --r-xl: 20px; --r-full: 999px;
+
+  /* Spacing (4px base) */
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 20px; --s6: 24px; --s8: 32px; --s10: 40px; --s12: 48px; --s16: 64px;
+
+  /* Type */
+  --font-sans:  "Inter", "Geist", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono:  "JetBrains Mono", "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --font-brand: var(--font-sans);
+  --mono:       var(--font-mono);
+
+  /* Legacy aliases - keep old components working while they are migrated.
+     Remove once nothing references them. */
+  --ink: var(--text);
+  --ink2: var(--text-2);
+  --muted: var(--text-3);
+  --blue: var(--accent);
+  --blue-h: var(--accent-hover);
+  --blue-d: var(--accent-soft);
+  --blue-b: var(--accent-border);
+  --bg2: var(--bg-bar);
+  --bg3: var(--surface);
+  --borderf: var(--border-strong);
+  --font: var(--font-sans);
+}
+
+html {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+body { background: var(--bg); color: var(--text); font-family: var(--font-sans); }
+#root { background: var(--bg); }
+
+.num, .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+
+/* Thin neutral scrollbar */
+* { scrollbar-width: thin; scrollbar-color: var(--surface-3) transparent; }
+*::-webkit-scrollbar { width: 8px; height: 8px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb { background: var(--surface-3); border-radius: 999px; }
+
+/* Focus ring - never removed */
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}

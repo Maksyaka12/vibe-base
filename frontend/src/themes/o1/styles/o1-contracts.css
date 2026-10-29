@@ -1,0 +1,69 @@
+/* ── Official Addresses styles per o1-dark-ui-design & vibe-hub-redesign §5.4 ── */
+
+.o1-contracts-container {
+  width: 100%;
+  max-width: 1040px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-sizing: border-box;
+}
+
+.o1-contract-card {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  transition: border-color 0.15s ease;
+}
+
+.o1-contract-card:hover {
+  border-color: var(--border-hover);
+}
+
+.o1-contract-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
+}
+
+.o1-contract-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.o1-contract-address {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--text-3);
+  word-break: break-all;
+}
+
+.o1-contract-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .o1-contract-card {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 14px 16px;
+    gap: 12px;
+  }
+
+  .o1-contract-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}

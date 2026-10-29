@@ -1,0 +1,274 @@
+.skp-cta {
+  margin-top: 6px;
+  height: 42px;
+  padding: 0 18px;
+  border-radius: 999px;
+  font-size: 14px;
+}
+
+/* Hero: a SKILL.md "file" */
+.skp-file {
+  position: relative;
+  justify-self: center;
+  width: 100%;
+  max-width: 300px;
+  border-radius: 14px;
+  border: 1px solid var(--vwp-border);
+  background: var(--code-bg);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45), 0 0 40px color-mix(in srgb, var(--agent) 12%, transparent);
+  overflow: hidden;
+  transform: rotate(2deg);
+  animation: agp-float 6s ease-in-out infinite;
+}
+
+.skp-file-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--vwp-border);
+  background: color-mix(in srgb, var(--tint-ink) 2%, transparent);
+}
+
+.skp-file-head span {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--tint-ink) 12%, transparent);
+}
+
+.skp-file-head b {
+  margin-left: 8px;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--vwp-text-2);
+}
+
+.skp-file pre {
+  margin: 0;
+  padding: 14px 16px 18px;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 12.5px;
+  line-height: 1.65;
+  color: var(--vwp-text);
+  white-space: pre;
+}
+
+.skp-file pre i {
+  font-style: normal;
+  color: var(--vwp-text-3);
+}
+
+.skp-file pre em {
+  font-style: normal;
+  color: var(--vwp-accent);
+}
+
+.skp-file pre strong {
+  color: var(--agp-teal);
+}
+
+.skp-caret {
+  display: inline-block;
+  width: 7px;
+  height: 14px;
+  margin-left: 2px;
+  vertical-align: -2px;
+  background: var(--agp-teal);
+  animation: skp-blink 1s steps(1) infinite;
+}
+
+@keyframes skp-blink {
+  50% { opacity: 0; }
+}
+
+.skp-title {
+  font-size: 18px;
+  font-weight: 650;
+  color: var(--vwp-text);
+}
+
+.skp-sub {
+  margin-top: 4px !important;
+  color: var(--vwp-text-2);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* What it can do */
+.skp-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.skp-cap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid var(--vwp-border);
+  background: var(--vwp-surface-2);
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.skp-cap:hover {
+  border-color: color-mix(in srgb, var(--agent) 40%, transparent);
+  transform: translateY(-2px);
+}
+
+.skp-cap b {
+  margin-top: 6px;
+  font-size: 14px;
+  font-weight: 650;
+  color: var(--vwp-text);
+}
+
+.skp-cap > span:last-child {
+  font-size: 12.5px;
+  color: var(--vwp-text-3);
+}
+
+.skp-cap-icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--agent) 10%, transparent);
+  color: var(--agp-teal);
+}
+
+/* How it works */
+.skp-how {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.skp-how-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 20px;
+  border-radius: 18px;
+  border: 1px solid var(--vwp-border);
+  background:
+    radial-gradient(90% 80% at 100% 0%, color-mix(in srgb, var(--agent) 8%, transparent), transparent 60%),
+    var(--vwp-surface);
+}
+
+.skp-how-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.skp-how-icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: var(--agp-teal);
+  color: var(--on-agent);
+}
+
+.skp-how-num {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 13px;
+  color: var(--vwp-text-3);
+}
+
+.skp-how-card b {
+  font-size: 16px;
+  font-weight: 650;
+  color: var(--vwp-text);
+}
+
+.skp-how-card p {
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--vwp-text-2);
+}
+
+/* Install */
+.skp-install-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.skp-key-btn {
+  flex-shrink: 0;
+}
+
+/* Files */
+.skp-files {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.skp-file-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid var(--vwp-border);
+  background: var(--vwp-surface-2);
+  color: var(--vwp-text-3);
+  text-decoration: none;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.skp-file-link:hover {
+  border-color: color-mix(in srgb, var(--agent) 40%, transparent);
+  color: var(--agp-teal);
+}
+
+.skp-file-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.skp-file-text b {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 13.5px;
+  color: var(--vwp-text);
+}
+
+.skp-file-text span {
+  font-size: 12px;
+  color: var(--vwp-text-3);
+}
+
+@media (max-width: 900px) {
+  .skp-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .skp-how,
+  .skp-files {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .skp-file {
+    display: none;
+  }
+
+  .skp-install-head {
+    flex-direction: column;
+  }
+}

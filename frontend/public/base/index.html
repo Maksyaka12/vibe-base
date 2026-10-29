@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en" style="background-color: #020b1a;">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>$VIBE HUB — Launching in Base App...</title>
+  
+  <link rel="icon" type="image/png" href="/new-logo.png" />
+  <link rel="apple-touch-icon" href="/new-logo.png" />
+  <meta name="theme-color" content="#020b1a" />
+  <meta name="base:app_id" content="6a709302a8c4f2b6db3b3ed5" />
+
+  <!-- Social Preview Metadata (Twitter / Telegram / OpenGraph) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="$VIBE on Base" />
+  <meta property="og:url" content="https://vibehome.dog/r" />
+  <meta property="og:title" content="$VIBE — The Base Dog 🐶" />
+  <meta property="og:description" content="Official $VIBE Hub on Base. Check rewards, claim holder & royalty distributions, explore tokenomics, and ride the vibe!" />
+  <meta property="og:image" content="https://vibehome.dog/x-banner.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="$VIBE — The Base Dog" />
+  
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@vibeB20" />
+  <meta name="twitter:creator" content="@vibeB20" />
+  <meta name="twitter:url" content="https://vibehome.dog/r" />
+  <meta name="twitter:title" content="$VIBE — The Base Dog 🐶" />
+  <meta name="twitter:description" content="Official $VIBE Hub on Base. Check rewards, claim holder & royalty distributions, explore tokenomics, and ride the vibe!" />
+  <meta name="twitter:image" content="https://vibehome.dog/x-banner.png" />
+  <meta name="twitter:image:alt" content="$VIBE — The Base Dog" />
+
+  <!-- Base / Farcaster Compatibility -->
+  <meta name="fc:frame" content="vNext" />
+  <meta name="fc:frame:image" content="https://vibehome.dog/x-banner.png" />
+  <meta name="fc:frame:button:1" content="Launch $VIBE App" />
+  <meta name="fc:frame:post_url" content="https://vibehome.dog/r" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      background: #020b1a;
+      background-image: radial-gradient(circle at 50% 20%, rgba(0, 245, 255, 0.12) 0%, transparent 60%);
+      font-family: 'Press Start 2P', monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 24px;
+      color: #ffffff;
+      text-align: center;
+    }
+    .vibe-card {
+      background: rgba(6, 26, 60, 0.85);
+      border: 1.5px solid rgba(0, 245, 255, 0.35);
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.8), 0 0 24px rgba(0, 245, 255, 0.2);
+      border-radius: 20px;
+      padding: 32px 24px;
+      max-width: 420px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .logo-img {
+      width: 58px;
+      height: 58px;
+      border-radius: 14px;
+      border: 2px solid #00f5ff;
+      box-shadow: 0 0 20px rgba(0, 245, 255, 0.45);
+      margin-bottom: 20px;
+      object-fit: cover;
+    }
+    .loader {
+      border: 3px solid rgba(0, 245, 255, 0.15);
+      border-top: 3px solid #00f5ff;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 18px;
+      box-shadow: 0 0 12px rgba(0, 245, 255, 0.3);
+    }
+    .status-txt {
+      font-size: 10px;
+      color: #00f5ff;
+      letter-spacing: 0.5px;
+      margin: 0 0 12px 0;
+      line-height: 1.5;
+    }
+    .sub-txt {
+      font-size: 7px;
+      color: #88aacc;
+      line-height: 1.6;
+      margin: 0 0 22px 0;
+    }
+    .action-btn {
+      background: linear-gradient(135deg, #00f5ff 0%, #00b8ff 100%);
+      color: #020b1a;
+      border: 1.5px solid #00f5ff;
+      border-radius: 10px;
+      padding: 12px 20px;
+      font-size: 8.5px;
+      font-weight: 900;
+      text-decoration: none;
+      font-family: 'Press Start 2P', monospace;
+      box-shadow: 0 0 16px rgba(0, 245, 255, 0.45);
+      transition: all 0.2s ease;
+      display: inline-block;
+      width: 100%;
+    }
+    .action-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 22px rgba(0, 245, 255, 0.65);
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="vibe-card">
+    <img src="/new-logo.png" alt="VIBE" class="logo-img" />
+    <div class="loader"></div>
+    <p id="status" class="status-txt">LAUNCHING $VIBE HUB...</p>
+    <p class="sub-txt">Opening inside Base App / Coinbase Wallet</p>
+    <a id="fallback-link" class="action-btn" href="#">OPEN MANUALLY ↗</a>
+  </div>
+
+  <script>
+    (function() {
+      const appDomain = "vibehome.dog";
+      const query = window.location.search;
+      const appUrl = "https://" + appDomain + "/" + query;
+      
+      // Official Coinbase Wallet / Base App Bridge (best for Desktop with QR code)
+      const bridgeUrl = "https://wallet.coinbase.com/app/https://" + appDomain + query;
+      
+      // Direct Deep Link (best for Mobile to directly launch Coinbase Wallet)
+      const deepLink = "cbwallet://dapp?url=" + encodeURIComponent(appUrl);
+
+      const fallbackLink = document.getElementById('fallback-link');
+      fallbackLink.href = bridgeUrl;
+
+      // Detect mobile device
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+      if (isMobile) {
+        // Try direct open into Coinbase Wallet / Base App
+        window.location.href = deepLink;
+        
+        // After 1.8 seconds fallback to Base App bridge (which shows App Store / Google Play fallback)
+        setTimeout(function() {
+          window.location.href = bridgeUrl;
+        }, 1800);
+      } else {
+        // Desktop: Go straight to the bridge (shows QR code for mobile scanning)
+        window.location.href = bridgeUrl;
+      }
+    })();
+  </script>
+</body>
+</html>

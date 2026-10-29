@@ -9,13 +9,21 @@
         { "key": "Content-Type", "value": "application/json" },
         { "key": "Access-Control-Allow-Origin", "value": "*" }
       ]
+    },
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET, HEAD, OPTIONS" },
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
     }
   ],
   "rewrites": [
-    { "source": "/r", "destination": "/index.html" },
-    { "source": "/r/", "destination": "/index.html" },
-    { "source": "/docs", "destination": "/index.html" },
-    { "source": "/docs/(.*)", "destination": "/index.html" },
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/api/:route(claims|status|staking|swap|rounds|history)", "destination": "/api/agent?route=:route" },
+    { "source": "/api/agent/:route(act|token|settings)", "destination": "/api/agent?route=:route" },
+    { "source": "/r", "destination": "/r/index.html" },
+    { "source": "/r/", "destination": "/r/index.html" },
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
 }

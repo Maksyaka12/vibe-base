@@ -74,7 +74,7 @@ export function useUserBalances(address) {
         rawVibe: vibeBalance
       });
     } catch (err) {
-      console.error('Error fetching on-chain balances:', err);
+      console.error('Error fetching onchain balances:', err);
       setBalances((prev) => ({ ...prev, loading: false }));
     }
   }, [address]);

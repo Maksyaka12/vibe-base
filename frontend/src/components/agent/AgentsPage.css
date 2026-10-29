@@ -1,0 +1,858 @@
+.agp {
+  --agp-teal: var(--agent);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  color: var(--vwp-text);
+  font-family: var(--vwp-font);
+}
+
+.agp h1,
+.agp h2,
+.agp p {
+  margin: 0;
+}
+
+/* Hero */
+.agp-hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 24px;
+  min-height: 300px;
+  padding: 36px 40px;
+  border-radius: 20px;
+  border: 1px solid var(--vwp-border);
+  background:
+    radial-gradient(60% 90% at 85% 50%, color-mix(in srgb, var(--agent) 14%, transparent), transparent 70%),
+    radial-gradient(70% 120% at 0% 0%, var(--vwp-accent-soft), transparent 60%),
+    var(--vwp-surface);
+  overflow: hidden;
+}
+
+.agp-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--tint-ink) 3%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--tint-ink) 3%, transparent) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: linear-gradient(90deg, transparent, #000 60%);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 60%);
+  pointer-events: none;
+}
+
+.agp-hero-text {
+  position: relative;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.agp-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: var(--agp-teal);
+  color: var(--on-agent);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.agp-hero h1 {
+  white-space: normal;
+  text-wrap: balance;
+  font-size: clamp(28px, 4.2vw, 42px);
+  font-weight: 750;
+  letter-spacing: -0.03em;
+  line-height: 1.08;
+  color: var(--vwp-text);
+}
+
+.agp-hero h1 span {
+  background: linear-gradient(90deg, var(--vwp-accent), var(--agp-teal));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.agp-hero p {
+  color: var(--vwp-text-2);
+  font-size: 16px;
+}
+
+.agp-abilities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.agp-ability {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 11px;
+  border-radius: 999px;
+  border: 1px solid var(--vwp-border);
+  background: color-mix(in srgb, var(--tint-ink) 3%, transparent);
+  color: var(--vwp-text-2);
+  font-size: 12.5px;
+}
+
+.agp-ability svg {
+  color: var(--agp-teal);
+}
+
+.agp-ability-more {
+  border-style: dashed;
+  border-color: var(--border-strong);
+  background: transparent;
+  color: var(--vwp-text-3);
+}
+
+/* Orbit visual */
+.agp-orbit {
+  position: relative;
+  justify-self: center;
+  width: 240px;
+  height: 240px;
+}
+
+.agp-orbit-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px dashed color-mix(in srgb, var(--agent) 35%, transparent);
+}
+
+.agp-orbit-ring-2 {
+  inset: 50px;
+  border-style: solid;
+  border-color: color-mix(in srgb, var(--accent) 18%, transparent);
+  animation: agp-pulse 3s ease-out infinite;
+}
+
+.agp-orbit-spin {
+  position: absolute;
+  inset: 0;
+  animation: agp-spin 28s linear infinite;
+}
+
+.agp-orbit-item {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 46px;
+  height: 46px;
+  margin: -23px 0 0 -23px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  border: 1px solid var(--vwp-border);
+  background: var(--tile);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  transform: rotate(calc(var(--i) * 90deg)) translateY(-120px) rotate(calc(var(--i) * -90deg));
+}
+
+.agp-orbit-item img {
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  animation: agp-spin 28s linear infinite reverse;
+}
+
+.agp-orbit-core {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 84px;
+  height: 84px;
+  margin: -42px 0 0 -42px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--agent) 12%, transparent), 0 0 40px color-mix(in srgb, var(--agent) 35%, transparent);
+  animation: agp-float 5s ease-in-out infinite;
+}
+
+.agp-orbit-core img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+
+@keyframes agp-spin { to { transform: rotate(360deg); } }
+@keyframes agp-pulse { from { opacity: 1; transform: scale(0.9); } to { opacity: 0; transform: scale(1.5); } }
+@keyframes agp-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+
+/* Panels and step heads */
+.agp-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 24px;
+  border-radius: 18px;
+  border: 1px solid var(--vwp-border);
+  background: var(--vwp-surface);
+}
+
+.agp-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.agp-num {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: var(--agp-teal);
+  color: var(--on-agent);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.agp-head h2 {
+  font-size: 18px;
+  font-weight: 650;
+  line-height: 30px;
+  color: var(--vwp-text);
+}
+
+.agp-head p {
+  margin-top: 2px;
+  color: var(--vwp-text-2);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Step 1 */
+.agp-enable {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.agp-enable-info {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.agp-safety {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0 0 0 44px;
+  list-style: none;
+}
+
+.agp-safety li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--vwp-text-2);
+  font-size: 13.5px;
+}
+
+.agp-safety svg {
+  flex-shrink: 0;
+  color: var(--agp-teal);
+}
+
+.agp-enable-action {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.agp-enable-action .vwp-card {
+  background: var(--vwp-surface-2);
+}
+
+.agp-link {
+  align-self: flex-start;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--vwp-accent);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+/* Step 2: client tiles */
+.agp-clients {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.agp-client {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 22px 14px 14px;
+  border-radius: 16px;
+  border: 1px solid var(--vwp-border);
+  background: var(--vwp-surface-2);
+  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.agp-client:hover {
+  border-color: color-mix(in srgb, var(--agent) 45%, transparent);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+.agp-logo {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  border-radius: 16px;
+  border: 1px solid var(--vwp-border);
+  background: var(--tile);
+  color: var(--vwp-text);
+}
+
+.agp-logo img {
+  width: 30px;
+  height: 30px;
+}
+
+.agp-logo.full {
+  overflow: hidden;
+  border: 0;
+}
+
+.agp-logo.full img {
+  width: 100%;
+  height: 100%;
+}
+
+.agp-client-name {
+  margin-top: 12px;
+  font-size: 16px;
+  font-weight: 650;
+  color: var(--vwp-text);
+}
+
+.agp-client-sub {
+  margin-top: 2px;
+  min-height: 18px;
+  font-size: 12.5px;
+  color: var(--vwp-text-3);
+}
+
+.agp-client-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.agp-client .agp-client-actions {
+  width: 100%;
+  flex-direction: column;
+  margin-top: auto;
+  padding-top: 16px;
+}
+
+.agp-btn {
+  height: 38px;
+  padding: 0 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 10px;
+  border: 1px solid var(--vwp-border);
+  background: transparent;
+  color: var(--vwp-text-2);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.agp-btn:hover {
+  color: var(--vwp-text);
+  border-color: color-mix(in srgb, var(--tint-ink) 20%, transparent);
+  background: color-mix(in srgb, var(--tint-ink) 4%, transparent);
+}
+
+.agp-btn-main {
+  border-color: transparent;
+  background: var(--agp-teal);
+  color: var(--on-agent);
+}
+
+.agp-btn-main:hover {
+  background: var(--agent-hover);
+  color: var(--on-agent);
+  border-color: transparent;
+}
+
+.agp-foot {
+  color: var(--vwp-text-3);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+/* Step 3 */
+.agp-examples {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-left: 44px;
+}
+
+.agp-example {
+  padding: 9px 14px;
+  border-radius: 14px 14px 14px 4px;
+  border: 1px solid color-mix(in srgb, var(--agent) 25%, transparent);
+  background: color-mix(in srgb, var(--agent) 6%, transparent);
+  color: var(--vwp-text);
+  font-size: 13.5px;
+}
+
+/* Bankr */
+.agp-bankr {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: center;
+  background:
+    radial-gradient(80% 120% at 0% 0%, color-mix(in srgb, var(--amber) 8%, transparent), transparent 60%),
+    radial-gradient(70% 100% at 100% 100%, color-mix(in srgb, var(--agent) 8%, transparent), transparent 60%),
+    var(--vwp-surface);
+}
+
+.agp-bankr-info {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.agp-bankr-title {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.agp-bankr-title h2 {
+  font-size: 18px;
+  font-weight: 650;
+  color: var(--vwp-text);
+}
+
+.agp-bankr-title p {
+  margin-top: 2px;
+  color: var(--vwp-text-2);
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+
+.agp-bankr-steps {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: var(--vwp-text-2);
+  font-size: 13.5px;
+}
+
+.agp-bankr-steps li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.agp-bankr-num {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  border-radius: 7px;
+  border: 1px solid color-mix(in srgb, var(--agent) 35%, transparent);
+  background: color-mix(in srgb, var(--agent) 10%, transparent);
+  color: var(--agp-teal);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.agp-bankr-action {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.agp-bankr-open {
+  width: 100%;
+  height: 42px;
+}
+
+/* Mini Bankr chat: the messages appear one by one, then the loop restarts */
+.agp-bankr-chat {
+  border-radius: 14px;
+  border: 1px solid var(--vwp-border);
+  background: var(--code-bg);
+  overflow: hidden;
+}
+
+.agp-bankr-chat-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--vwp-border);
+  background: color-mix(in srgb, var(--tint-ink) 2%, transparent);
+  font-size: 13px;
+  color: var(--vwp-text);
+}
+
+.agp-bankr-chat-head img {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+}
+
+.agp-bankr-chat-head b {
+  font-weight: 600;
+}
+
+.agp-bankr-live {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 11.5px;
+  color: var(--vwp-text-3);
+}
+
+.agp-bankr-live i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 0 3px var(--green-bg);
+}
+
+.agp-bankr-chat-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 14px;
+  min-height: 168px;
+}
+
+.agp-bankr-msg {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 85%;
+  padding: 8px 12px;
+  border-radius: 12px 12px 12px 4px;
+  border: 1px solid var(--vwp-border);
+  background: var(--vwp-surface);
+  color: var(--vwp-text);
+  font-size: 13px;
+  animation: agp-bankr-msg-0 8s ease infinite both;
+}
+
+.agp-bankr-msg:nth-child(2) { animation-name: agp-bankr-msg-1; }
+.agp-bankr-msg:nth-child(3) { animation-name: agp-bankr-msg-2; }
+.agp-bankr-msg:nth-child(4) { animation-name: agp-bankr-msg-3; }
+
+.agp-bankr-msg svg {
+  color: var(--green);
+  flex-shrink: 0;
+}
+
+.agp-bankr-msg.me {
+  align-self: flex-end;
+  border-radius: 12px 12px 4px 12px;
+  border-color: transparent;
+  background: var(--agp-teal);
+  color: var(--on-agent);
+}
+
+/* each message appears in turn, all of them fade out together before the loop restarts */
+@keyframes agp-bankr-msg-0 { 0% { opacity: 0; transform: translateY(6px); } 4%, 86% { opacity: 1; transform: none; } 94%, 100% { opacity: 0; } }
+@keyframes agp-bankr-msg-1 { 0%, 12% { opacity: 0; transform: translateY(6px); } 16%, 86% { opacity: 1; transform: none; } 94%, 100% { opacity: 0; } }
+@keyframes agp-bankr-msg-2 { 0%, 26% { opacity: 0; transform: translateY(6px); } 30%, 86% { opacity: 1; transform: none; } 94%, 100% { opacity: 0; } }
+@keyframes agp-bankr-msg-3 { 0%, 38% { opacity: 0; transform: translateY(6px); } 42%, 86% { opacity: 1; transform: none; } 94%, 100% { opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .agp-bankr-msg {
+    animation: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .agp-clients {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 760px) {
+  .agp-hero {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 28px 22px;
+  }
+
+  .agp-orbit {
+    display: none;
+  }
+
+  .agp-enable,
+  .agp-bankr {
+    grid-template-columns: 1fr;
+  }
+
+  .agp-safety,
+  .agp-examples {
+    padding-left: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .agp-panel {
+    padding: 18px;
+  }
+
+  .agp-clients {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .agp * {
+    animation: none !important;
+  }
+}
+
+/* Header button: Agent Zone */
+.agb {
+  height: 36px;
+  padding: 0 14px 0 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--agent);
+  color: var(--on-agent);
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.15s ease;
+}
+
+.agb:hover,
+.agb.on {
+  background: var(--agent-hover);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--agent) 45%, transparent);
+}
+
+.agb:hover {
+  transform: translateY(-1px);
+}
+
+@media (max-width: 640px) {
+  .agb {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .agb-text {
+    display: none;
+  }
+}
+
+.agp-hero p b {
+  color: var(--vwp-text);
+  font-weight: 650;
+}
+
+/* Step 2: top up */
+.agp-topup {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.agp-topup-action {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.agp-address {
+  height: 38px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 10px;
+  border: 1px dashed var(--vwp-border);
+  background: var(--vwp-surface-2);
+  color: var(--vwp-text-2);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.agp-address svg:first-child {
+  color: var(--agp-teal);
+}
+
+@media (max-width: 760px) {
+  .agp-topup {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .agp-topup-action {
+    padding-left: 44px;
+    flex-wrap: wrap;
+  }
+}
+
+/* "Typing…" bubble after the examples */
+.agp-typing {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 9px 16px;
+}
+
+.agp-typing i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--agp-teal);
+  animation: agp-typing 1.2s ease-in-out infinite;
+}
+
+.agp-typing i:nth-child(2) { animation-delay: 0.15s; }
+.agp-typing i:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes agp-typing {
+  0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
+  30% { opacity: 1; transform: translateY(-3px); }
+}
+
+/* Second line of a tile when it is a note instead of a button: same height, so the main buttons line up */
+.agp-btn-note {
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12.5px;
+  color: var(--vwp-text-3);
+}
+
+/* Bankr is not live yet: an "In progress" badge and buttons that stay off */
+.agp-soon {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--amber-bd);
+  background: var(--amber-bg);
+  color: var(--amber);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.agp-soon i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: agp-soon-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes agp-soon-pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 color-mix(in srgb, var(--amber) 50%, transparent); }
+  50% { opacity: 0.6; box-shadow: 0 0 0 4px transparent; }
+}
+
+/* in a tile the badge takes the place of the Install button, at the same height */
+.agp-soon-slot {
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.agp-soon-slot .agp-soon {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+.agp-bankr.is-soon {
+  position: relative;
+}
+
+.agp-bankr.is-soon > .agp-soon {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+}
+
+/* one column on phones: no free corner, so the badge sits on its own line above the title */
+@media (max-width: 760px) {
+  .agp-bankr.is-soon > .agp-soon {
+    position: static;
+    justify-self: start;
+    margin-bottom: -8px;
+  }
+}
+
+.agp-btn-off,
+.agp-btn-off:hover {
+  border-color: var(--vwp-border);
+  border-style: dashed;
+  background: transparent;
+  color: var(--vwp-text-3);
+  cursor: default;
+  box-shadow: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .agp-soon i {
+    animation: none;
+  }
+}

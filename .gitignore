@@ -22,3 +22,6 @@ Thumbs.db
 database/
 backend/
 
+
+# Local dev store for /api/schedule
+frontend/.data/

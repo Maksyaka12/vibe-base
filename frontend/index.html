@@ -1,14 +1,29 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" style="background-color: var(--boot-bg, #020b1a); margin: 0; padding: 0;">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/vibe-logo-nobg.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="/vibe-logo-nobg.png" />
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/new-logo.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/new-logo.png" />
+    <link rel="icon" type="image/png" href="/new-logo.png" />
+    <link rel="icon" type="image/x-icon" href="/new-logo.png" />
+    <link rel="apple-touch-icon" href="/new-logo.png" />
+    <link rel="shortcut icon" href="/new-logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <title>$VIBE — The Base Dog | Official Website</title>
+    <meta name="theme-color" content="#020b1a" />
+    <script>
+      // Based is a light theme: paint the loading screen white before the app arrives (theme.js has the full logic).
+      try {
+        var t = new URLSearchParams(location.search).get("theme") || localStorage.getItem("vibe_theme");
+        if (t === "based" || t === "pixel") {
+          document.documentElement.style.setProperty("--boot-bg", "#ffffff");
+          document.querySelector("meta[name=theme-color]").content = "#ffffff";
+        }
+      } catch (e) {}
+    </script>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <title>Vibe Hub</title>
     <meta
       name="base:app_id"
       content="6a709302a8c4f2b6db3b3ed5"
@@ -40,7 +55,6 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;0,14..32,900;1,14..32,400&family=Press+Start+2P&family=Syne:wght@700;800&display=swap" rel="stylesheet">
     <style>
       @keyframes spin {
         from {
@@ -56,8 +70,8 @@
       }
     </style>
   </head>
-  <body>
-    <div id="root"></div>
+  <body style="background-color: var(--boot-bg, #020b1a); margin: 0; padding: 0; width: 100%; min-height: 100vh; overflow-x: hidden;">
+    <div id="root" style="background-color: var(--boot-bg, #020b1a); margin: 0; padding: 0; width: 100%; min-height: 100vh;"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

@@ -2,12 +2,17 @@ import { useState, useEffect, useCallback } from 'react';
 import { usePrivy, useWallets } from '@privy-io/react-auth';
 import { parseEther, formatEther, encodeFunctionData, parseAbi } from 'viem';
 import { publicClient } from '../config/rpc';
+import { findOwnedVibeClubNfts } from '../data/vibeClubNft';
+
+// User pressed reject / cancel in the wallet (EIP-1193 code 4001, or the wallet's own wording).
+const isWalletRejection = (e) => e?.code === 4001 || e?.cause?.code === 4001 || /reject|denied|cancel/i.test(e?.message || '');
 
 export const NFT_CONTRACT_ADDRESS = '0x9E92307Dbec2d0aE4BBF14cA93E1cA00edC4b886';
 export const OPENSEA_COLLECTION_URL = 'https://opensea.io/collection/vibeclubnft';
 export const VIBE_TOKEN_ADDRESS = '0xb200000000000000000000df24ecb8bf51100a01';
 export const ADMIN_ADDRESS = '0x4C91d3beD372c11795b9cE9A9017Dfe447Bf050A';
 import { BUILDER_CODE, DATA_SUFFIX, BUILDER_CODE_HEX, appendBuilderSuffix } from '../config/builderCode';
+import { useVibeWallets } from './useVibeWallets';
 export { BUILDER_CODE, DATA_SUFFIX, BUILDER_CODE_HEX };
 
 const withBuilderCode = appendBuilderSuffix;
@@ -34,6 +39,8 @@ const NFT_ABI = parseAbi([
   'function adminMint(address to, uint256 tokenId) external',
   'function adminSwapAndBurn(uint256 ethAmount, bytes customSwapCalldata) external',
   'function setAggregatorRouter(address _newAggregator) external',
+  'function setOverridePrices(uint256 _ethPrice, uint256 _vibePrice) external',
+  'function overrideEthPrice() view returns (uint256)',
   'function withdrawETH() external',
   'function withdrawVIBE() external',
   'function withdrawERC20(address token) external',
@@ -51,7 +58,8 @@ const ERC20_ABI = parseAbi([
 export function useVibeNftContract() {
   const { authenticated, user, login } = usePrivy();
   const { wallets } = useWallets();
-  const walletAddress = user?.wallet?.address;
+  const { activeAddress: vibeActiveAddress } = useVibeWallets();
+  const walletAddress = vibeActiveAddress;
 
   const [totalMinted, setTotalMinted] = useState(0);
   const [remainingTokens, setRemainingTokens] = useState(333);
@@ -111,17 +119,25 @@ export function useVibeNftContract() {
     return '0x';
   };
 
-  // Fetch On-Chain State
+  const readMintCount = async () => Number(await publicClient.readContract({
+    address: NFT_CONTRACT_ADDRESS,
+    abi: NFT_ABI,
+    functionName: 'walletMintCount',
+    args: [walletAddress]
+  }));
+
+  // Fetch Onchain State
   const fetchContractState = useCallback(async () => {
     try {
-      const [minted, remaining, supply, live, ethBal, contractVibeBal, aggRouter] = await Promise.all([
+      const [minted, remaining, supply, live, ethBal, contractVibeBal, aggRouter, onChainEthPrice] = await Promise.all([
         publicClient.readContract({ address: NFT_CONTRACT_ADDRESS, abi: NFT_ABI, functionName: 'totalMintedCount' }).catch(() => 0),
         publicClient.readContract({ address: NFT_CONTRACT_ADDRESS, abi: NFT_ABI, functionName: 'getRemainingTokens' }).catch(() => 333),
         publicClient.readContract({ address: NFT_CONTRACT_ADDRESS, abi: NFT_ABI, functionName: 'MAX_SUPPLY' }).catch(() => 333),
         publicClient.readContract({ address: NFT_CONTRACT_ADDRESS, abi: NFT_ABI, functionName: 'mintLive' }).catch(() => true),
         publicClient.getBalance({ address: NFT_CONTRACT_ADDRESS }).catch(() => BigInt(0)),
         publicClient.readContract({ address: VIBE_TOKEN_ADDRESS, abi: ERC20_ABI, functionName: 'balanceOf', args: [NFT_CONTRACT_ADDRESS] }).catch(() => BigInt(0)),
-        publicClient.readContract({ address: NFT_CONTRACT_ADDRESS, abi: NFT_ABI, functionName: 'aggregatorRouter' }).catch(() => '')
+        publicClient.readContract({ address: NFT_CONTRACT_ADDRESS, abi: NFT_ABI, functionName: 'aggregatorRouter' }).catch(() => ''),
+        publicClient.readContract({ address: NFT_CONTRACT_ADDRESS, abi: NFT_ABI, functionName: 'getCurrentEthPrice' }).catch(() => parseEther('0.005'))
       ]);
 
       const mintedNum = Number(minted);
@@ -133,28 +149,31 @@ export function useVibeNftContract() {
       setContractVibeBalance(formatEther(contractVibeBal));
       setAggregatorRouterAddress(aggRouter);
 
-      // Exact on-chain burned $VIBE: 80% burned to dead address, 20% kept on contract rewards pool => burned = contractVibe * 4
+      // Exact onchain burned $VIBE: 80% burned to dead address, 20% kept on contract rewards pool => burned = contractVibe * 4
       const burnedWei = BigInt(contractVibeBal) * 4n;
       setTotalOnChainVibeBurned(Number(formatEther(burnedWei)));
 
       // Automated phase calculation
       let phase = 1;
-      let price = parseEther('0.005');
+      let calculatedPhasePrice = parseEther('0.005');
       if (mintedNum < 103) {
         phase = 1;
-        price = parseEther('0.005');
+        calculatedPhasePrice = parseEther('0.005');
       } else if (mintedNum < 203) {
         phase = 2;
-        price = parseEther('0.015');
+        calculatedPhasePrice = parseEther('0.015');
       } else if (mintedNum < 303) {
         phase = 3;
-        price = parseEther('0.05');
+        calculatedPhasePrice = parseEther('0.05');
       } else {
         phase = 4;
-        price = parseEther('0.1');
+        calculatedPhasePrice = parseEther('0.1');
       }
       setCurrentPhase(phase);
-      setEthPriceWei(price);
+
+      // Set actual onchain price (or fallback to calculated phase price)
+      const finalPrice = (onChainEthPrice && BigInt(onChainEthPrice) > 0n) ? BigInt(onChainEthPrice) : calculatedPhasePrice;
+      setEthPriceWei(finalPrice);
 
       if (walletAddress) {
         const userCount = await publicClient.readContract({
@@ -177,7 +196,10 @@ export function useVibeNftContract() {
     return () => clearInterval(interval);
   }, [fetchContractState]);
 
-  // Web3 Transaction Dispatcher with Official ERC-8021 Base Builder Code support (Smart Wallets + EOA + Base App)
+  // Web3 Transaction Dispatcher with Official ERC-8021 Base Builder Code support (Smart Wallets + EOA + Base App).
+  // Returns the tx hash, or null when the wallet accepted the call but never reported a hash (see waitForTx).
+  // A rejection in the wallet throws right away; only an unsupported wallet_sendCalls falls back to
+  // eth_sendTransaction, so a rejected mint never asks twice.
   const sendWeb3Transaction = async (to, valueBigInt, dataHex, customGas = '0x7A120') => {
     const connectedWallet = wallets.find(
       (w) => w.address?.toLowerCase() === walletAddress?.toLowerCase()
@@ -193,8 +215,9 @@ export function useVibeNftContract() {
     const calldataWithSuffix = withBuilderCode(dataHex);
 
     // 1. Try EIP-5792 wallet_sendCalls for Base Smart Wallet / Coinbase Smart Wallet / Base App / Mobile
+    let callsResponse;
     try {
-      const callsResponse = await provider.request({
+      callsResponse = await provider.request({
         method: 'wallet_sendCalls',
         params: [{
           version: '1.0',
@@ -213,48 +236,55 @@ export function useVibeNftContract() {
           }
         }]
       });
-
-      if (callsResponse) {
-        if (typeof callsResponse === 'string' && callsResponse.startsWith('0x') && callsResponse.length === 66) {
-          return callsResponse;
-        }
-        const callId = typeof callsResponse === 'object' ? (callsResponse.id || callsResponse) : callsResponse;
-        for (let i = 0; i < 30; i++) {
-          await new Promise((r) => setTimeout(r, 1000));
-          try {
-            const status = await provider.request({
-              method: 'wallet_getCallsStatus',
-              params: [callId]
-            });
-            if (status?.receipts?.[0]?.transactionHash) {
-              return status.receipts[0].transactionHash;
-            }
-            if (status?.status === 'CONFIRMED' || status?.status === 'SUCCESS') {
-              if (status.receipts?.[0]?.transactionHash) return status.receipts[0].transactionHash;
-              return callId;
-            }
-          } catch (err) {
-            // Ignore polling errors
-          }
-        }
-        return callId;
-      }
     } catch (e) {
+      if (isWalletRejection(e)) throw e;
       console.log('wallet_sendCalls not supported, falling back to eth_sendTransaction:', e?.message || e);
+      // 2. Fallback to standard eth_sendTransaction with data suffix for EOA (MetaMask, Rabby, etc.)
+      return provider.request({
+        method: 'eth_sendTransaction',
+        params: [{
+          from: walletAddress,
+          to,
+          value: valueHex,
+          data: calldataWithSuffix,
+          gas: customGas
+        }]
+      });
     }
 
-    // 2. Fallback to standard eth_sendTransaction with data suffix for EOA (MetaMask, Rabby, etc.)
-    const hash = await provider.request({
-      method: 'eth_sendTransaction',
-      params: [{
-        from: walletAddress,
-        to,
-        value: valueHex,
-        data: calldataWithSuffix,
-        gas: customGas
-      }]
-    });
-    return hash;
+    if (typeof callsResponse === 'string' && callsResponse.startsWith('0x') && callsResponse.length === 66) {
+      return callsResponse;
+    }
+    const callId = typeof callsResponse === 'object' ? (callsResponse?.id || callsResponse) : callsResponse;
+    for (let i = 0; i < 30; i++) {
+      await new Promise((r) => setTimeout(r, 1000));
+      let status;
+      try {
+        status = await provider.request({ method: 'wallet_getCallsStatus', params: [callId] });
+      } catch (err) {
+        continue;
+      }
+      const receipt = status?.receipts?.[0];
+      if (receipt?.transactionHash) {
+        if (receipt.status === '0x0' || receipt.status === 0) throw new Error('Transaction reverted on Base');
+        return receipt.transactionHash;
+      }
+      // EIP-5792: 400+ means the batch was rejected or failed
+      if (typeof status?.status === 'number' && status.status >= 400) throw new Error('Transaction was rejected or failed');
+    }
+    return null;
+  };
+
+  // Waits for a transaction from sendWeb3Transaction. Without a hash, confirm() is polled onchain
+  // (e.g. walletMintCount went up); callers without confirm() get a clear error instead of a hang.
+  const waitForTx = async (hash, confirm) => {
+    if (hash) return publicClient.waitForTransactionReceipt({ hash });
+    if (!confirm) throw new Error('The wallet did not report a transaction hash, check the result in your wallet');
+    for (let i = 0; i < 30; i++) {
+      if (await confirm().catch(() => false)) return { status: 'success', logs: [] };
+      await new Promise((r) => setTimeout(r, 2000));
+    }
+    throw new Error('The transaction was not confirmed onchain');
   };
 
   // 1. Mint with ETH & Automatic DEX Swap + 80% Burn
@@ -268,6 +298,10 @@ export function useVibeNftContract() {
     setIsMintingEth(true);
 
     try {
+      const ethBalance = await publicClient.getBalance({ address: walletAddress });
+      if (ethBalance < ethPriceWei) throw new Error(`Not enough ETH: the mint costs ${formatEther(ethPriceWei)} ETH plus gas`);
+      const mintsBefore = await readMintCount();
+
       // 1. Fetch optimal dynamic DEX swap route (exact same engine as O1 Exchange on VibeVerse)
       const swapData = await getKyberSwapCalldata(ethPriceWei);
       let dataHex;
@@ -286,9 +320,9 @@ export function useVibeNftContract() {
       }
 
       const hash = await sendWeb3Transaction(NFT_CONTRACT_ADDRESS, ethPriceWei, withBuilderCode(dataHex), '0xF4240');
-      setTxHash(hash);
+      setTxHash(hash || '');
 
-      const receipt = await publicClient.waitForTransactionReceipt({ hash });
+      const receipt = await waitForTx(hash, async () => (await readMintCount()) > mintsBefore);
       if (receipt.status === 'success') {
         let mintedId = null;
         if (receipt.logs) {
@@ -301,7 +335,7 @@ export function useVibeNftContract() {
           }
         }
         if (!mintedId) {
-          mintedId = (totalMinted || 0) + 1;
+          mintedId = (await findOwnedVibeClubNfts(publicClient, walletAddress).catch(() => null))?.[0] || null;
         }
         setLastMintedId(mintedId);
         setMintSuccess(true);
@@ -330,6 +364,17 @@ export function useVibeNftContract() {
     const amountToSend = customVibeAmountWei || vibePriceWei;
 
     try {
+      const vibeBalance = await publicClient.readContract({
+        address: VIBE_TOKEN_ADDRESS,
+        abi: ERC20_ABI,
+        functionName: 'balanceOf',
+        args: [walletAddress]
+      });
+      if (vibeBalance < amountToSend) {
+        throw new Error(`Not enough $VIBE: the mint costs ${Math.ceil(Number(formatEther(amountToSend))).toLocaleString('en-US')} $VIBE`);
+      }
+      const mintsBefore = await readMintCount();
+
       // Check ERC20 allowance
       const currentAllowance = await publicClient.readContract({
         address: VIBE_TOKEN_ADDRESS,
@@ -343,11 +388,16 @@ export function useVibeNftContract() {
         const approveData = encodeFunctionData({
           abi: ERC20_ABI,
           functionName: 'approve',
-          args: [NFT_CONTRACT_ADDRESS, BigInt('115792089237316195423570985008687907853269984665640564039457584007913129639935')]
+          args: [NFT_CONTRACT_ADDRESS, amountToSend] // exactly this mint, not an unlimited allowance
         });
 
         const approveHash = await sendWeb3Transaction(VIBE_TOKEN_ADDRESS, BigInt(0), withBuilderCode(approveData));
-        await publicClient.waitForTransactionReceipt({ hash: approveHash });
+        await waitForTx(approveHash, async () => (await publicClient.readContract({
+          address: VIBE_TOKEN_ADDRESS,
+          abi: ERC20_ABI,
+          functionName: 'allowance',
+          args: [walletAddress, NFT_CONTRACT_ADDRESS]
+        })) >= amountToSend);
         setIsApprovingVibe(false);
       }
 
@@ -361,9 +411,9 @@ export function useVibeNftContract() {
       });
 
       const hash = await sendWeb3Transaction(NFT_CONTRACT_ADDRESS, BigInt(0), withBuilderCode(mintData));
-      setTxHash(hash);
+      setTxHash(hash || '');
 
-      const receipt = await publicClient.waitForTransactionReceipt({ hash });
+      const receipt = await waitForTx(hash, async () => (await readMintCount()) > mintsBefore);
       if (receipt.status === 'success') {
         let mintedId = null;
         if (receipt.logs) {
@@ -376,7 +426,7 @@ export function useVibeNftContract() {
           }
         }
         if (!mintedId) {
-          mintedId = (totalMinted || 0) + 1;
+          mintedId = (await findOwnedVibeClubNfts(publicClient, walletAddress).catch(() => null))?.[0] || null;
         }
         setLastMintedId(mintedId);
         setMintSuccess(true);
@@ -417,7 +467,7 @@ export function useVibeNftContract() {
       const hash = await sendWeb3Transaction(NFT_CONTRACT_ADDRESS, BigInt(0), withBuilderCode(dataHex), '0xF4240');
       setAdminTxHash(hash);
 
-      const receipt = await publicClient.waitForTransactionReceipt({ hash });
+      const receipt = await waitForTx(hash);
       if (receipt.status === 'success') {
         setAdminSwapSuccess(true);
         await fetchContractState();
@@ -454,7 +504,7 @@ export function useVibeNftContract() {
       const hash = await sendWeb3Transaction(NFT_CONTRACT_ADDRESS, BigInt(0), withBuilderCode(dataHex), '0x7A120');
       setAdminTxHash(hash);
 
-      const receipt = await publicClient.waitForTransactionReceipt({ hash });
+      const receipt = await waitForTx(hash);
       if (receipt.status === 'success') {
         setSetRouterSuccess(true);
         await fetchContractState();
@@ -492,7 +542,7 @@ export function useVibeNftContract() {
       const hash = await sendWeb3Transaction(NFT_CONTRACT_ADDRESS, BigInt(0), withBuilderCode(dataHex), '0x7A120');
       setAdminTxHash(hash);
 
-      const receipt = await publicClient.waitForTransactionReceipt({ hash });
+      const receipt = await waitForTx(hash);
       if (receipt.status === 'success') {
         setWithdrawSuccess(true);
         await fetchContractState();
@@ -535,7 +585,7 @@ export function useVibeNftContract() {
       const hash = await sendWeb3Transaction(NFT_CONTRACT_ADDRESS, BigInt(0), withBuilderCode(dataHex), '0x7A120');
       setAdminTxHash(hash);
 
-      const receipt = await publicClient.waitForTransactionReceipt({ hash });
+      const receipt = await waitForTx(hash);
       if (receipt.status === 'success') {
         setAdminMintedTokenId(Number(tId));
         setAdminMintSuccess(true);
@@ -575,7 +625,7 @@ export function useVibeNftContract() {
       const hash = await sendWeb3Transaction(NFT_CONTRACT_ADDRESS, BigInt(0), withBuilderCode(dataHex), '0x7A120');
       setAdminTxHash(hash);
 
-      const receipt = await publicClient.waitForTransactionReceipt({ hash });
+      const receipt = await waitForTx(hash);
       if (receipt.status === 'success') {
         setWithdrawVibeSuccess(true);
         await fetchContractState();
@@ -623,7 +673,7 @@ export function useVibeNftContract() {
       const hash = await sendWeb3Transaction(VIBE_TOKEN_ADDRESS, BigInt(0), withBuilderCode(dataHex), '0x7A120');
       setAdminTxHash(hash);
 
-      const receipt = await publicClient.waitForTransactionReceipt({ hash });
+      const receipt = await waitForTx(hash);
       if (receipt.status === 'success') {
         setSendVibeSuccess(true);
         await fetchContractState();
@@ -679,7 +729,7 @@ export function useVibeNftContract() {
       const hash = await sendWeb3Transaction(NFT_CONTRACT_ADDRESS, ethAmountWei, withBuilderCode(dataHex), '0xF4240');
       setAdminTxHash(hash);
 
-      const receipt = await publicClient.waitForTransactionReceipt({ hash });
+      const receipt = await waitForTx(hash);
       if (receipt.status !== 'success') {
         throw new Error('Mint with ETH reverted on Base');
       }
@@ -710,7 +760,7 @@ export function useVibeNftContract() {
         });
         const transferHash = await sendWeb3Transaction(NFT_CONTRACT_ADDRESS, BigInt(0), withBuilderCode(transferDataHex), '0x7A120');
         setAdminTxHash(transferHash);
-        await publicClient.waitForTransactionReceipt({ hash: transferHash });
+        await waitForTx(transferHash);
       } else {
         setAdminPaidRecipient(walletAddress);
       }
@@ -757,7 +807,7 @@ export function useVibeNftContract() {
           args: [NFT_CONTRACT_ADDRESS, BigInt('115792089237316195423570985008687907853269984665640564039457584007913129639935')]
         });
         const approveHash = await sendWeb3Transaction(VIBE_TOKEN_ADDRESS, BigInt(0), withBuilderCode(approveData));
-        await publicClient.waitForTransactionReceipt({ hash: approveHash });
+        await waitForTx(approveHash);
         setIsApprovingVibe(false);
       }
 
@@ -770,7 +820,7 @@ export function useVibeNftContract() {
       const hash = await sendWeb3Transaction(NFT_CONTRACT_ADDRESS, BigInt(0), withBuilderCode(mintData));
       setAdminTxHash(hash);
 
-      const receipt = await publicClient.waitForTransactionReceipt({ hash });
+      const receipt = await waitForTx(hash);
       if (receipt.status !== 'success') {
         throw new Error('Mint with VIBE reverted on Base');
       }
@@ -801,7 +851,7 @@ export function useVibeNftContract() {
         });
         const transferHash = await sendWeb3Transaction(NFT_CONTRACT_ADDRESS, BigInt(0), withBuilderCode(transferDataHex), '0x7A120');
         setAdminTxHash(transferHash);
-        await publicClient.waitForTransactionReceipt({ hash: transferHash });
+        await waitForTx(transferHash);
       } else {
         setAdminPaidRecipient(walletAddress);
       }
@@ -814,6 +864,48 @@ export function useVibeNftContract() {
     } finally {
       setIsApprovingVibe(false);
       setIsAdminPaidMinting(false);
+    }
+  };
+
+  // 12. Admin Set Override Prices (ETH and VIBE)
+  const [isSettingOverridePrices, setIsSettingOverridePrices] = useState(false);
+  const [setOverridePricesSuccess, setSetOverridePricesSuccess] = useState(false);
+
+  const executeSetOverridePrices = async (newEthPriceEth, newVibePriceVibe = '0') => {
+    if (!authenticated || !walletAddress) {
+      login();
+      return;
+    }
+    setErrorMessage('');
+    setSetOverridePricesSuccess(false);
+    setIsSettingOverridePrices(true);
+    setAdminTxHash('');
+
+    try {
+      const ethWei = parseEther(String(newEthPriceEth));
+      const vibeWei = parseEther(String(newVibePriceVibe));
+
+      const dataHex = encodeFunctionData({
+        abi: NFT_ABI,
+        functionName: 'setOverridePrices',
+        args: [ethWei, vibeWei]
+      });
+
+      const hash = await sendWeb3Transaction(NFT_CONTRACT_ADDRESS, BigInt(0), withBuilderCode(dataHex), '0x7A120');
+      setAdminTxHash(hash);
+
+      const receipt = await waitForTx(hash);
+      if (receipt.status === 'success') {
+        setSetOverridePricesSuccess(true);
+        await fetchContractState();
+      } else {
+        throw new Error('Set Override Prices reverted on Base');
+      }
+    } catch (e) {
+      console.error('Set Override Prices failed:', e);
+      setErrorMessage(e?.shortMessage || e?.message || 'Set Override Prices failed');
+    } finally {
+      setIsSettingOverridePrices(false);
     }
   };
 
@@ -840,6 +932,8 @@ export function useVibeNftContract() {
     adminTxHash,
     isSettingRouter,
     setRouterSuccess,
+    isSettingOverridePrices,
+    setOverridePricesSuccess,
     isWithdrawingEth,
     withdrawSuccess,
     isWithdrawingVibe,
@@ -861,6 +955,7 @@ export function useVibeNftContract() {
     mintWithVIBE,
     executeAdminSwapAndBurn,
     executeSetAggregatorRouter,
+    executeSetOverridePrices,
     executeWithdrawEth,
     executeWithdrawVibe,
     executeSendVibeToWallet,
