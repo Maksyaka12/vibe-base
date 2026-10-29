@@ -93,7 +93,7 @@ export default function AgentsPage({ theme = 'o1' }) {
           <ul className="agp-safety">
             <li><ShieldCheck size={15} /> Your main wallet is never touched</li>
             <li><Lock size={15} /> Only Vibe Hub contracts are allowed</li>
-            <li><Gauge size={15} /> Transfers to other addresses are capped per day</li>
+            <li><Gauge size={15} /> Set daily limits in Settings</li>
             <li><KeyRound size={15} /> Revoke the key any time</li>
           </ul>
         </div>
