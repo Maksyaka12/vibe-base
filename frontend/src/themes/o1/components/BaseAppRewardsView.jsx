@@ -1,10 +1,37 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { usePrivy } from '@privy-io/react-auth';
 import { Coins, ArrowUpRight, ArrowRight, ChevronDown, Info, Clock, ExternalLink } from 'lucide-react';
 import { roundProofs } from '../../../data/claimRounds';
 import { Button, Card, Tile, Badge, StatusPill, PageHeader, SectionTitle, Alert } from './ui';
 import { useVibeWallets } from '../../../hooks/useVibeWallets';
+
+// Previous rounds list: shows up to 5 rows, the rest scroll. The height is measured because rows differ
+// in height (buttons, mobile layout).
+const PREVIOUS_VISIBLE = 5;
+
+function PreviousRows({ children }) {
+  const ref = useRef(null);
+  const [maxHeight, setMaxHeight] = useState();
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return undefined;
+    const measure = () => {
+      const rows = el.children;
+      if (rows.length <= PREVIOUS_VISIBLE) return setMaxHeight(undefined);
+      const last = rows[PREVIOUS_VISIBLE - 1];
+      setMaxHeight(last.offsetTop + last.offsetHeight - rows[0].offsetTop);
+    };
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, [children]);
+  return (
+    <div ref={ref} className="o1-schedule-scroll" style={{ maxHeight }}>
+      {children}
+    </div>
+  );
+}
 
 function formatClaimCountdown(targetDate) {
   if (!targetDate) return '';
@@ -375,16 +402,18 @@ export default function BaseAppRewardsView({
                   <div>Allocation</div>
                   <div>Status</div>
                 </div>
-                {otherEndedHolders.map((u, idx) => (
-                  <div key={idx} className="o1-schedule-row">
-                    <div className="o1-schedule-col-name">{u.unlock}</div>
-                    <div className="o1-schedule-col-date">{stripYear(u.unlockDate)}</div>
-                    <div className="o1-schedule-col-amount">{formatPool(u.poolAmount)}</div>
-                    <div className="o1-schedule-col-status">
-                      <StatusPill status="Completed" tone="success" />
+                <PreviousRows>
+                  {[...otherEndedHolders].reverse().map((u, idx) => (
+                    <div key={idx} className="o1-schedule-row">
+                      <div className="o1-schedule-col-name">{u.unlock}</div>
+                      <div className="o1-schedule-col-date">{stripYear(u.unlockDate)}</div>
+                      <div className="o1-schedule-col-amount">{formatPool(u.poolAmount)}</div>
+                      <div className="o1-schedule-col-status">
+                        <StatusPill status="Completed" tone="success" />
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </PreviousRows>
               </div>
             </div>
           )}
@@ -529,16 +558,18 @@ export default function BaseAppRewardsView({
                   <div>Allocation</div>
                   <div>Status</div>
                 </div>
-                {otherEndedVibeClubs.map((u, idx) => (
-                  <div key={idx} className="o1-schedule-row">
-                    <div className="o1-schedule-col-name">{u.epoch}</div>
-                    <div className="o1-schedule-col-date">{stripYear(u.claimDate)}</div>
-                    <div className="o1-schedule-col-amount">{formatPool(u.poolAmount)}</div>
-                    <div className="o1-schedule-col-status">
-                      <StatusPill status="Completed" tone="success" />
+                <PreviousRows>
+                  {[...otherEndedVibeClubs].reverse().map((u, idx) => (
+                    <div key={idx} className="o1-schedule-row">
+                      <div className="o1-schedule-col-name">{u.epoch}</div>
+                      <div className="o1-schedule-col-date">{stripYear(u.claimDate)}</div>
+                      <div className="o1-schedule-col-amount">{formatPool(u.poolAmount)}</div>
+                      <div className="o1-schedule-col-status">
+                        <StatusPill status="Completed" tone="success" />
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </PreviousRows>
               </div>
             </div>
           )}
@@ -688,26 +719,28 @@ export default function BaseAppRewardsView({
                   <div>Rewards</div>
                   <div>Vault</div>
                 </div>
-                {otherEndedStakings.map((e, idx) => (
-                  <div key={idx} className="o1-schedule-row">
-                    <div className="o1-schedule-col-name">{e.epoch}</div>
-                    <div className="o1-schedule-col-date">{formatStakingDates(e)}</div>
-                    <div className="o1-schedule-col-amount">{formatPool(e.poolAmount)}</div>
-                    <div className="o1-schedule-col-status">
-                      <Button
-                        as="a"
-                        href={e.link || O1_STAKING_VAULT}
-                        target="_blank"
-                        rel="noreferrer"
-                        variant="secondary"
-                        size="sm"
-                      >
-                        Withdraw &amp; claim
-                        <ArrowUpRight size={14} />
-                      </Button>
+                <PreviousRows>
+                  {[...otherEndedStakings].reverse().map((e, idx) => (
+                    <div key={idx} className="o1-schedule-row">
+                      <div className="o1-schedule-col-name">{e.epoch}</div>
+                      <div className="o1-schedule-col-date">{formatStakingDates(e)}</div>
+                      <div className="o1-schedule-col-amount">{formatPool(e.poolAmount)}</div>
+                      <div className="o1-schedule-col-status">
+                        <Button
+                          as="a"
+                          href={e.link || O1_STAKING_VAULT}
+                          target="_blank"
+                          rel="noreferrer"
+                          variant="secondary"
+                          size="sm"
+                        >
+                          Withdraw &amp; claim
+                          <ArrowUpRight size={14} />
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </PreviousRows>
               </div>
             </div>
           )}

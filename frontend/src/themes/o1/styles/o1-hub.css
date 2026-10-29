@@ -185,6 +185,23 @@
   overflow: hidden;
 }
 
+/* Previous rounds: up to 5 rows visible (max-height set by PreviousRows), the rest scroll */
+.o1-schedule-scroll {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+.o1-schedule-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.o1-schedule-scroll::-webkit-scrollbar-thumb {
+  border-radius: 3px;
+  background: var(--border-strong);
+}
+
 .o1-schedule-head {
   display: grid;
   grid-template-columns: 1.5fr 1.5fr 1.5fr 1fr;

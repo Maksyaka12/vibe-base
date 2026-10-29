@@ -91,7 +91,7 @@ export function BankrCard() {
           <span className="agp-logo full"><img src="/brands/bankr.png" alt="Bankr" /></span>
           <div>
             <h2>Using Bankr? No keys needed</h2>
-            <p>Bankr has its own wallet. Just install the skill, and it acts right from the chat.</p>
+            <p>Bankr has its own wallet. Just install the skill, then just ask.</p>
           </div>
         </div>
         <ol className="agp-bankr-steps">
