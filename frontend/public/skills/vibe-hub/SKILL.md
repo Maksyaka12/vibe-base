@@ -1,6 +1,6 @@
 ---
 name: vibe-hub
-description: Run Vibe Hub ($VIBE on Base, vibehome.dog) for the user from their Vibe Agent Wallet - daily check-in, claim holder rewards, Vibe Club royalties and achievement SBTs, stake $VIBE, swap ETH <-> $VIBE, send funds, and answer questions about rounds, eligibility and payouts. Use for vibe hub, vibehome, $VIBE, vibe check-in, vibe rewards, vibe staking.
+description: Run Vibe Hub ($VIBE on Base, vibehome.dog) for the user from their Vibe Agent Wallet - daily check-in, claim holder rewards, Vibe Club royalties and achievement SBTs, stake $VIBE, swap ETH <-> $VIBE, mint a Vibe Club NFT with ETH, send funds, and answer questions about rounds, eligibility and payouts. Use for vibe hub, vibehome, $VIBE, vibe check-in, vibe rewards, vibe staking.
 version: 1
 ---
 
@@ -31,6 +31,7 @@ Content-Type: application/json
 | `{"action":"swap","side":"buy","amount":"0.01"}` | Buys $VIBE for 0.01 ETH (best route, server-built) |
 | `{"action":"swap","side":"sell","amount":"1000000"}` | Sells 1M $VIBE for ETH |
 | `{"action":"transfer","token":"ETH","to":"0x...","amount":"0.01"}` | Sends ETH, VIBE or USDC |
+| `{"action":"mint"}` | Mints one Vibe Club NFT with ETH at the contract price (server-built) |
 
 The response is `{ "from": "<agent wallet>", "hashes": ["0x..."] }`. Reply with what was done and `https://basescan.org/tx/<hash>`.
 
@@ -45,16 +46,19 @@ The response is `{ "from": "<agent wallet>", "hashes": ["0x..."] }`. Reply with 
 | "claim staking rewards", "withdraw" | `GET /api/staking?address=A`; act with the non-null `vaults[].txs.*` |
 | "buy / sell VIBE" | confirm, then `{"action":"swap",...}` |
 | "send N TOKEN to 0x..." | confirm recipient and amount, then `{"action":"transfer",...}` |
+| "mint a Vibe Club NFT" | `GET /api/status?address=A`; if `vibeClub.mint.canMint`, confirm the price (`vibeClub.mint.priceEth` ETH + gas), then `{"action":"mint"}` |
+| "mint with VIBE" | not available to agents: tell the user to mint with $VIBE by hand at https://vibehome.dog/nft from the agent wallet |
 | "when is the next unlock", "am I eligible", "what did I earn" | `/api/rounds`, `/api/status`, `/api/history` |
 
 `A` = the agent wallet address.
 
 ## Rules
 
-- **Confirm before** staking, swapping or sending. Check-ins and claims need no confirmation.
+- **Confirm before** staking, swapping, minting or sending. Check-ins and claims need no confirmation.
 - Never build calldata yourself; use what the API returns.
-- Transfers to the user's main wallet are unlimited; to other addresses they are capped per day (the API says how much is left). The user sets the caps and can turn swaps, staking and transfers to other addresses off in Vibe Hub → Settings; a `403` naming a setting means it is off there.
+- Transfers to the user's main wallet are unlimited; to other addresses they are capped per day (the API says how much is left). The user sets the caps and can turn swaps, staking, NFT mint and transfers to other addresses off in Vibe Hub → Settings; a `403` naming a setting means it is off there.
 - Only Vibe Hub contracts are allowed; the server refuses anything else.
+- Mint only with ETH, never with $VIBE: the price is set by the contract (`priceEth`), one NFT per wallet.
 - The user's main wallet is never touched. Achievement and v2 reward claims can be sent for the main wallet (`address=<main>`, txs with `sender: "any"`) only when the user explicitly asks.
 - Errors come as `{ "error": "..." }`: relay them. `401` = the key was revoked; ask the user for a new one.
 - Gas is paid in ETH from the agent wallet. If it has none, ask the user to top it up from https://vibehome.dog/wallet

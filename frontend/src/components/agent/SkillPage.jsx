@@ -1,5 +1,5 @@
 import {
-  Puzzle, Bot, Wallet, Zap, ShieldCheck, CalendarCheck, Gift, Award, Layers, ArrowLeftRight, Send, Crown, BarChart3,
+  Puzzle, Bot, Wallet, Zap, ShieldCheck, CalendarCheck, Gift, Award, Layers, ArrowLeftRight, Gem, Crown, BarChart3,
   FileText, ArrowUpRight, KeyRound,
 } from 'lucide-react';
 import { InstallTiles, BankrCard, SKILL_URL, BANKR_SKILL_URL, API_URL } from './InstallBlocks';
@@ -14,8 +14,8 @@ const CAN_DO = [
   { icon: Gift, title: 'Rewards & royalties', text: 'Claims every open round' },
   { icon: Award, title: 'Achievements', text: 'Claims soulbound SBTs' },
   { icon: Layers, title: 'Staking', text: 'Stakes, claims, withdraws' },
-  { icon: ArrowLeftRight, title: 'Swaps', text: 'ETH ↔ $VIBE, best route' },
-  { icon: Send, title: 'Transfers', text: 'ETH, $VIBE, USDC' },
+  { icon: ArrowLeftRight, title: 'Swaps & transfers', text: 'ETH ↔ $VIBE, sends funds' },
+  { icon: Gem, title: 'NFT mint', text: 'Mints Vibe Club with ETH' },
   { icon: Crown, title: 'Main wallet claims', text: 'Rewards straight to your wallet' },
   { icon: BarChart3, title: 'Answers', text: 'Schedule, eligibility, earnings' },
 ];

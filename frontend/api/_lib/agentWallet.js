@@ -9,10 +9,11 @@
 // - the txs our read endpoints return: check-in, achievements, reward claims, staking deposit / claim / withdraw
 //   (staking payouts only to the wallet itself), $VIBE approvals for staking;
 // - swaps ETH <-> $VIBE (the server builds the route, the output always comes back to the wallet);
-// - transfers of ETH / $VIBE / USDC: unlimited to the user's own main wallet, daily-capped to anyone else.
-// The user can lower or raise the daily caps and turn swaps, staking and transfers to other addresses off
+// - transfers of ETH / $VIBE / USDC: unlimited to the user's own main wallet, daily-capped to anyone else;
+// - minting one Vibe Club NFT with ETH at the contract price (the server builds the tx).
+// The user can lower or raise the daily caps and turn swaps, staking, NFT mint and transfers to other addresses off
 // (GET / PUT /api/agent/settings); the checks below read those settings.
-// Minting is not offered to agents.
+// Minting with $VIBE is not offered to agents: the mint contract takes any $VIBE amount, so that is left to the site.
 //
 // Env: PRIVY_APP_SECRET, PRIVY_AUTHORIZATION_KEY (private key of the key quorum), optional PRIVY_APP_ID,
 // PRIVY_SIGNER_ID, AGENT_DAILY_LIMIT_ETH / _VIBE / _USDC.
@@ -23,8 +24,8 @@ import { json, store, env } from './common.js';
 import { publicClient } from '../../src/config/rpc.js';
 import { appendBuilderSuffix } from '../../src/config/builderCode.js';
 import { distributorAddresses } from '../../src/config/distributors.js';
-import { VIBE_TOKEN } from '../../src/data/snapshot/constants.js';
-import { handleSwap } from './agent.js';
+import { VIBE_TOKEN, VIBE_CLUB_NFT } from '../../src/data/snapshot/constants.js';
+import { handleSwap, buildEthMint } from './agent.js';
 
 export const PRIVY_APP_ID = env('PRIVY_APP_ID') || 'cmrugdvds02q60cl7tegmrnx7';
 export const AGENT_SIGNER_ID = env('PRIVY_SIGNER_ID') || 'y71vnth4hmzgtq71ehfipceq';
@@ -45,7 +46,7 @@ const TOKENS = {
 const MAX_LIMITS = { ETH: '10', VIBE: '1000000000', USDC: '100000' };
 const DEFAULT_SETTINGS = {
   limits: Object.fromEntries(Object.entries(TOKENS).map(([symbol, t]) => [symbol, t.limit])),
-  allow: { swaps: true, staking: true, transfers: true },
+  allow: { swaps: true, staking: true, mint: true, transfers: true },
 };
 
 const settingsKey = (address) => `agent_settings:${String(address || '').toLowerCase()}`;
@@ -227,6 +228,7 @@ async function recordSpend(agent, symbol, to, amount) {
 
 const STAKING_OFF = 'Staking is turned off in your Vibe Hub settings';
 const SWAPS_OFF = 'Swaps are turned off in your Vibe Hub settings';
+const MINT_OFF = 'NFT mint is turned off in your Vibe Hub settings';
 
 /** Refuses anything outside the agent rules and the user's settings; returns an error message or null. */
 function checkTx(agent, settings, tx) {
@@ -253,6 +255,7 @@ function checkTx(agent, settings, tx) {
     return 'Use {"action":"transfer"} to send tokens';
   }
   if (to === lower(KYBER_ROUTER)) return 'Use {"action":"swap"} for swaps';
+  if (to === lower(VIBE_CLUB_NFT)) return 'Use {"action":"mint"} to mint a Vibe Club NFT with ETH. Minting with $VIBE is done on vibehome.dog/nft';
   return 'This contract is not available to agents';
 }
 
@@ -313,6 +316,21 @@ export async function handleAgentAct({ method, headers = {}, body }) {
       if (quote.status !== 200) return quote;
       const hashes = await sendAll(agent, quote.body.txs);
       return json(200, { action: 'swap', from: agent.address, side: quote.body.side, amountIn: quote.body.amountIn, expectedOut: quote.body.expectedOut, minimumOut: quote.body.minimumOut, hashes });
+    }
+
+    if (req.action === 'mint') {
+      if (!settings.allow.mint) return json(403, { error: MINT_OFF });
+      if (req.currency && String(req.currency).toUpperCase() !== 'ETH') {
+        return json(403, { error: 'Agents mint with ETH only. To mint with $VIBE, use https://vibehome.dog/nft from the agent wallet' });
+      }
+      const mint = await buildEthMint(agent.address);
+      if (mint.error) return json(409, { error: mint.error });
+      const balance = await publicClient.getBalance({ address: agent.address });
+      if (balance < mint.priceWei) {
+        return json(402, { error: `Not enough ETH: the mint costs ${mint.priceEth} ETH plus gas; the agent wallet has ${formatUnits(balance, 18)} ETH` });
+      }
+      const [hash] = await sendAll(agent, [mint.tx]);
+      return json(200, { action: 'mint', from: agent.address, paid: `${mint.priceEth} ETH`, hashes: [hash] });
     }
 
     const txs = Array.isArray(req.txs) ? req.txs : req.tx ? [req.tx] : null;

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
-import { ArrowLeftRight, Layers, Send, Bot, Infinity as InfinityIcon, RotateCcw } from 'lucide-react';
+import { ArrowLeftRight, Layers, Gem, Send, Bot, Infinity as InfinityIcon, RotateCcw } from 'lucide-react';
 import { useVibeWallets } from '../../hooks/useVibeWallets';
 import { TOKENS, tokenAmount, useWalletAssets } from '../../hooks/useWalletAssets';
 import { CopyButton, shortAddr } from './WalletPage';
@@ -12,6 +12,7 @@ import './WalletPages.css';
 const PERMISSIONS = [
   { key: 'swaps', icon: ArrowLeftRight, title: 'Swaps', text: 'Swap ETH ↔ $VIBE' },
   { key: 'staking', icon: Layers, title: 'Staking', text: 'Stake $VIBE, claim staking rewards, withdraw' },
+  { key: 'mint', icon: Gem, title: 'Vibe Club NFT mint', text: 'Mint one NFT with ETH at the contract price' },
   { key: 'transfers', icon: Send, title: 'Transfers to other addresses', text: 'Within the daily limits below' },
 ];
 

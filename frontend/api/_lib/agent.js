@@ -57,6 +57,10 @@ const NFT = parseAbi([
   'function getCurrentEthPrice() view returns (uint256)',
   'function totalMintedCount() view returns (uint256)',
 ]);
+const NFT_MINT_ABI = parseAbi([
+  'function mintWithETH() payable',
+  'function mintWithETHAndSwap(bytes swapData) payable',
+]);
 const CHECK_IN_ABI = parseAbi([
   'function getCheckInInfo(address) view returns (uint256 currentStreak, uint256 longestStreak, uint256 totalCheckIns, uint256 lastCheckInTimestamp, bool canCheckInToday, uint256 secondsUntilNextCheckIn)',
   'function checkIn()',
@@ -340,7 +344,7 @@ export async function handleAgentIndex({ method }) {
     chain: { name: 'Base', chainId: 8453 },
     howItWorks: 'Read-only, no login. Endpoints return state plus ready transactions { to, data, value, sender } that the agent signs and sends from its own wallet on Base. sender "any" means any wallet may send it (the result still goes to the address in the request).',
     endpoints: {
-      'GET /api/status?address=': 'Wallet overview: $VIBE balance, Vibe Club NFTs, daily check-in (with checkIn tx), achievements with progress (with claimAllFor tx), current staking epoch.',
+      'GET /api/status?address=': 'Wallet overview: $VIBE balance, Vibe Club NFTs and mint (with an ETH mint tx when the wallet can mint), daily check-in (with checkIn tx), achievements with progress (with claimAllFor tx), current staking epoch.',
       'GET /api/claims?address=': 'Holder rewards and Vibe Club royalties: every round with an allocation, its claim window, status and claim tx.',
       'GET /api/staking?address=[&deposit=amount]': 'o1 staking vaults: stake, lots, claimable rewards (claim tx), unlocked lots (withdraw tx), and approve + deposit txs into the open vault.',
       'GET /api/swap?address=&side=buy|sell&amount=[&slippage=1]': 'Swap ETH <-> $VIBE through KyberSwap: quote and ready txs (approve first when selling).',
@@ -354,8 +358,9 @@ export async function handleAgentIndex({ method }) {
         'POST /api/agent/act {"tx":{to,data,value}} or {"txs":[...]}': 'Send txs returned by the read endpoints (built with address=<agent wallet>): check-in, achievements, reward claims, staking deposit/claim/withdraw.',
         'POST /api/agent/act {"action":"swap","side":"buy|sell","amount":"0.01","slippage":1}': 'Swap ETH <-> $VIBE; the output comes back to the agent wallet.',
         'POST /api/agent/act {"action":"transfer","token":"ETH|VIBE|USDC","to":"0x...","amount":"1.5"}': 'Transfer from the agent wallet: unlimited to the owner\'s main wallet, capped per day to other addresses.',
+        'POST /api/agent/act {"action":"mint"}': 'Mints one Vibe Club NFT to the agent wallet with ETH, at the current contract price (one per wallet).',
       },
-      notAvailable: 'Minting Vibe Club NFTs, and any contract not listed above.',
+      notAvailable: 'Minting Vibe Club NFTs with $VIBE (the user does it on vibehome.dog/nft), and any contract not listed above.',
     },
     rules: RULES,
     contracts: {
@@ -577,6 +582,52 @@ export async function handleSwap({ method, query = {} }) {
   }
 }
 
+// ─────────────────────────────── Vibe Club mint (ETH only) ───────────────────────────────
+
+// Agents mint only with ETH, at the price the contract asks. Minting with $VIBE is left to the site.
+/** Builds the ETH mint tx the site sends: mintWithETHAndSwap with a KyberSwap route to $VIBE (80% of it is
+ *  burned by the contract), or plain mintWithETH when no route comes back. Returns { error } when the wallet
+ *  cannot mint now. */
+export async function buildEthMint(account) {
+  const r = await publicClient.multicall({
+    allowFailure: false,
+    contracts: [
+      { address: VIBE_CLUB_NFT, abi: NFT, functionName: 'mintLive' },
+      { address: VIBE_CLUB_NFT, abi: NFT, functionName: 'totalMintedCount' },
+      { address: VIBE_CLUB_NFT, abi: NFT, functionName: 'walletMintCount', args: [account] },
+      { address: VIBE_CLUB_NFT, abi: NFT, functionName: 'getCurrentEthPrice' },
+    ],
+  });
+  const [live, minted, mintedByWallet, price] = r;
+  if (!live) return { error: 'The Vibe Club mint is not live right now' };
+  if (minted >= 333n) return { error: 'Vibe Club is sold out' };
+  if (mintedByWallet > 0n) return { error: 'This wallet has already minted its Vibe Club NFT (one per wallet)' };
+
+  let data = encodeFunctionData({ abi: NFT_MINT_ABI, functionName: 'mintWithETH' });
+  try {
+    const headers = { 'x-client-id': 'vibehub' };
+    const route = await fetch(`${KYBER}/routes?tokenIn=${KYBER_ETH}&tokenOut=${VIBE_TOKEN}&amountIn=${price}`, { headers }).then((res) => res.json());
+    if (route?.code === 0 && route.data?.routeSummary) {
+      const built = await fetch(`${KYBER}/route/build`, {
+        method: 'POST',
+        headers: { ...headers, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          routeSummary: route.data.routeSummary,
+          sender: VIBE_CLUB_NFT,
+          recipient: VIBE_CLUB_NFT,
+          slippageTolerance: 500,
+          deadline: Math.floor(Date.now() / 1000) + 20 * 60,
+        }),
+      }).then((res) => res.json());
+      if (built?.code === 0 && built.data?.data?.length > 20) {
+        data = encodeFunctionData({ abi: NFT_MINT_ABI, functionName: 'mintWithETHAndSwap', args: [built.data.data] });
+      }
+    }
+  } catch {} // no route: the contract swaps the ETH itself
+
+  return { priceWei: price, priceEth: formatEther(price), tx: { to: VIBE_CLUB_NFT, data, value: price.toString(), sender: account } };
+}
+
 // ─────────────────────────────── /api/status ───────────────────────────────
 
 export async function handleStatus({ method, query = {} }) {
@@ -650,6 +701,10 @@ export async function handleStatus({ method, query = {} }) {
       },
     };
 
+    // ready ETH mint tx when this wallet can mint now
+    const canMint = ok(3) === true && ok(2) === 0n && ok(5) !== null && ok(5) < 333n;
+    const mint = canMint ? await buildEthMint(account).catch(() => null) : null;
+
     const now = Date.now();
     const stakingEpoch = schedule.STAKING_EPOCHS.find((e) => now >= e.startDateObj && now < e.endDateObj) || null;
 
@@ -668,7 +723,10 @@ export async function handleStatus({ method, query = {} }) {
           minted: ok(5) !== null ? Number(ok(5)) : null,
           maxSupply: 333,
           contract: VIBE_CLUB_NFT,
-          note: 'One mint per wallet. Mint with ETH (mintWithETHAndSwap with a KyberSwap route to $VIBE, or mintWithETH) or with $VIBE (approve, then mintWithVIBE(amount)).',
+          canMint,
+          // ETH only: agents do not mint with $VIBE (that is done by hand on vibehome.dog/nft)
+          tx: mint?.tx || null,
+          note: 'One mint per wallet. Agents mint with ETH only, at priceEth (the contract price): send tx as is. Minting with $VIBE is done by the user on https://vibehome.dog/nft.',
         },
       },
       checkIn: checkIn && {

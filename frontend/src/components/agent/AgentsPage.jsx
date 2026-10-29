@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
 import {
   Bot, Copy, Check, CalendarCheck, Gift, Award, Layers, ArrowLeftRight, Send,
-  ShieldCheck, KeyRound, Wallet, Lock, Gauge, Crown, Fuel, ArrowDownToLine,
+  ShieldCheck, KeyRound, Wallet, Lock, Gauge, Crown, Fuel, ArrowDownToLine, Gem,
 } from 'lucide-react';
 import { useVibeWallets } from '../../hooks/useVibeWallets';
 import { useWalletAssets } from '../../hooks/useWalletAssets';
@@ -22,6 +22,7 @@ const ABILITIES = [
   { icon: Layers, text: 'Staking' },
   { icon: ArrowLeftRight, text: 'Swaps' },
   { icon: Send, text: 'Transfers' },
+  { icon: Gem, text: 'NFT mint with ETH' },
   { icon: Crown, text: 'Claims for your main wallet' },
 ];
 
@@ -33,6 +34,7 @@ const EXAMPLES = [
   'Claim holder rewards to my main wallet',
   'Stake 90% of my $VIBE',
   'Buy $VIBE for 0.01 ETH',
+  'Mint a Vibe Club NFT',
   'Show the upcoming rewards schedule',
   'When is the next unlock?',
 ];

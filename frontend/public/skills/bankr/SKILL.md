@@ -1,6 +1,6 @@
 ---
 name: vibe-hub
-description: Use Vibe Hub ($VIBE on Base, vibehome.dog) for the user - daily check-in, claim holder rewards and Vibe Club royalties, claim achievement SBTs, stake $VIBE in o1 Exchange vaults, swap and send $VIBE, and answer questions about rounds, eligibility, schedule and payout history. Use for vibe hub, vibehome, $VIBE, vibe check-in, vibe rewards, vibe royalties, vibe club, vibe achievements, vibe staking. Base mainnet only.
+description: Use Vibe Hub ($VIBE on Base, vibehome.dog) for the user - daily check-in, claim holder rewards and Vibe Club royalties, claim achievement SBTs, stake $VIBE in o1 Exchange vaults, mint a Vibe Club NFT with ETH, swap and send $VIBE, and answer questions about rounds, eligibility, schedule and payout history. Use for vibe hub, vibehome, $VIBE, vibe check-in, vibe rewards, vibe royalties, vibe club, vibe achievements, vibe staking. Base mainnet only.
 tags: [vibe, vibehub, base, rewards, staking, check-in, achievements, defi]
 version: 1
 ---
@@ -21,9 +21,9 @@ With this skill the user just tells Bankr what to do ("do my vibe check-in", "cl
    - `"any"` -> anyone may send it; the result (tokens, SBTs) always goes to the wallet in the request. Submit from the Bankr wallet; Bankr only pays gas;
    - any other address -> **do not submit**; that wallet must act itself. Tell the user.
 5. **Order:** when a response has several txs (approve then deposit, approve then swap), submit them one by one in the given order and wait for each to confirm.
-6. **Confirm with the user before** staking, swapping or sending tokens: show amount, token and destination. Check-in and claims need no confirmation.
+6. **Confirm with the user before** staking, swapping, minting or sending tokens: show amount, token and destination. Check-in and claims need no confirmation.
 7. **After submitting:** reply briefly with what was done and the Basescan link `https://basescan.org/tx/<hash>`.
-8. **Not available:** minting Vibe Club NFTs is not done by agents; send the user to https://vibehome.dog/nft.
+8. **Mint with ETH only.** Mint a Vibe Club NFT only with the ready `vibeClub.mint.tx` (ETH, `value` = the contract price). Never mint with $VIBE: if the user asks for that, send them to https://vibehome.dog/nft.
 
 ## What users mean -> what to do
 
@@ -36,6 +36,7 @@ With this skill the user just tells Bankr what to do ("do my vibe check-in", "cl
 | "stake N VIBE", "vibe staking" | `GET /api/staking?address=W&deposit=N` | Show `deposit` (vault, epoch, amount), confirm, submit `deposit.txs` in order. `deposit.error` -> explain (e.g. no vault open now). |
 | "claim staking rewards", "withdraw my stake" | `GET /api/staking?address=W` | Submit `vaults[].txs.claimReward` / `vaults[].txs.withdrawUnlocked` that are not null. |
 | "buy N ETH of VIBE", "sell N VIBE" | Bankr's own swap with token `0xb200000000000000000000df24ecb8bf51100a01` on Base | Fallback: `GET /api/swap?address=W&side=buy|sell&amount=N` and submit `txs` in order. |
+| "mint a Vibe Club NFT", "mint vibe nft" | `GET /api/status?address=W` | `vibeClub.mint.canMint` true -> show the price (`vibeClub.mint.priceEth` ETH + gas), confirm, submit `vibeClub.mint.tx`. Otherwise explain (already minted: one per wallet, sold out, or mint not live). |
 | "send N VIBE to 0x..." | Bankr's own token transfer, token `0xb200000000000000000000df24ecb8bf51100a01` on Base | Confirm recipient and amount first. |
 | "vibe schedule", "when is the next unlock / royalty" | `GET /api/rounds` | Dates, pools, claim windows, current staking epoch. |
 | "what did I earn from vibe" | `GET /api/history?address=W` | Totals and payouts per round with tx links. |
