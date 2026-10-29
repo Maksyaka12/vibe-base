@@ -3936,3 +3936,11 @@ button.admin-action-btn {
 
 
 
+
+/* Narrow phones: header pills a little tighter so everything stays on one line */
+@media (max-width: 380px) {
+  .base-app-header .vh-pill {
+    padding: 0 5px !important;
+    gap: 3px !important;
+  }
+}

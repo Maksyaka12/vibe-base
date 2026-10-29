@@ -1209,3 +1209,10 @@
     justify-content: center;
   }
 }
+
+/* Phone header: the switch is a bit tighter so every header item fits on one line */
+@media (max-width: 480px) {
+  .vwt-sm .vwt-switch button {
+    padding: 0 7px;
+  }
+}

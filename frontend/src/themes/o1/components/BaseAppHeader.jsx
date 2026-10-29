@@ -30,7 +30,7 @@ export function BaseAppHeader({ onOpenSidebar, isDesktop = false }) {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '0 24px',
+        padding: isDesktop ? '0 24px' : '0 8px',
         position: 'sticky',
         top: 0,
         zIndex: 50,
@@ -40,7 +40,7 @@ export function BaseAppHeader({ onOpenSidebar, isDesktop = false }) {
       }}
     >
       {/* Left side: Mobile hamburger menu & logo */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: isDesktop ? '10px' : '4px', flexShrink: 0 }}>
         {!isDesktop && (
           <button
             onClick={onOpenSidebar}
@@ -50,7 +50,7 @@ export function BaseAppHeader({ onOpenSidebar, isDesktop = false }) {
               border: 'none',
               color: 'var(--text-2)',
               cursor: 'pointer',
-              padding: '6px',
+              padding: isDesktop ? '6px' : '4px',
               borderRadius: '8px',
               display: 'flex',
               alignItems: 'center',
@@ -74,49 +74,40 @@ export function BaseAppHeader({ onOpenSidebar, isDesktop = false }) {
                 border: '1px solid var(--border)'
               }}
             />
-            <span
-              className="vh-brand"
-              style={{
-                fontFamily: 'var(--font-sans)',
-                fontSize: '15px',
-                fontWeight: 800,
-                letterSpacing: '-0.02em',
-                color: 'var(--text)'
-              }}
-            >
-              $VIBE HUB
-            </span>
           </div>
         )}
       </div>
 
       {/* Right side: Three pills or Connect Wallet */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: isDesktop ? '8px' : '4px', minWidth: 0 }}>
         <AgentsButton theme="o1" />
         {hasWallet && <WalletToggle theme="o1" size="sm" />}
-        <ThemeSwitcher />
+        {isDesktop && <ThemeSwitcher />}
         {hasWallet ? (
           <>
             {/* 1. Streak Pill */}
             <div
+              className="vh-pill"
               title={`Daily streak: ${streak} ${streak === 1 ? 'day' : 'days'}`}
               style={{
-                height: '36px',
-                padding: '0 12px',
+                height: isDesktop ? '36px' : '32px',
+                padding: isDesktop ? '0 12px' : '0 7px',
                 borderRadius: '999px',
                 background: 'var(--surface)',
                 border: '1px solid var(--border)',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '6px',
+                gap: isDesktop ? '6px' : '4px',
+                flexShrink: 0,
+                whiteSpace: 'nowrap',
                 userSelect: 'none'
               }}
             >
-              <Flame size={16} color="var(--amber)" strokeWidth={1.75} />
+              <Flame size={isDesktop ? 16 : 14} color="var(--amber)" strokeWidth={1.75} />
               <span
                 className="mono"
                 style={{
-                  fontSize: '14px',
+                  fontSize: isDesktop ? '14px' : '13px',
                   fontWeight: 500,
                   color: 'var(--text)',
                   fontFamily: 'var(--font-mono)'
@@ -128,24 +119,27 @@ export function BaseAppHeader({ onOpenSidebar, isDesktop = false }) {
 
             {/* 2. NFT Count Pill */}
             <div
+              className="vh-pill"
               title="Vibe Club NFT balance"
               style={{
-                height: '36px',
-                padding: '0 12px',
+                height: isDesktop ? '36px' : '32px',
+                padding: isDesktop ? '0 12px' : '0 7px',
                 borderRadius: '999px',
                 background: 'var(--surface)',
                 border: '1px solid var(--border)',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '6px',
+                gap: isDesktop ? '6px' : '4px',
+                flexShrink: 0,
+                whiteSpace: 'nowrap',
                 userSelect: 'none'
               }}
             >
-              <Crown size={16} color="var(--text-2)" strokeWidth={1.75} />
+              {isDesktop && <Crown size={16} color="var(--text-2)" strokeWidth={1.75} />}
               <span
                 className="mono"
                 style={{
-                  fontSize: '14px',
+                  fontSize: isDesktop ? '14px' : '13px',
                   fontWeight: 500,
                   color: 'var(--text)',
                   fontFamily: 'var(--font-mono)'
@@ -157,16 +151,19 @@ export function BaseAppHeader({ onOpenSidebar, isDesktop = false }) {
 
             {/* 3. Balance Pill */}
             <div
+              className="vh-pill"
               title="$VIBE token balance"
               style={{
-                height: '36px',
-                padding: '0 12px',
+                height: isDesktop ? '36px' : '32px',
+                padding: isDesktop ? '0 12px' : '0 7px',
                 borderRadius: '999px',
                 background: 'var(--surface)',
                 border: '1px solid var(--border)',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '6px',
+                gap: isDesktop ? '6px' : '4px',
+                flexShrink: 0,
+                whiteSpace: 'nowrap',
                 userSelect: 'none'
               }}
             >
@@ -183,7 +180,7 @@ export function BaseAppHeader({ onOpenSidebar, isDesktop = false }) {
               <span
                 className="mono"
                 style={{
-                  fontSize: '14px',
+                  fontSize: isDesktop ? '14px' : '13px',
                   fontWeight: 500,
                   color: 'var(--text)',
                   fontFamily: 'var(--font-mono)'

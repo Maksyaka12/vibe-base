@@ -7,7 +7,8 @@ import {
   MoreHorizontal,
   Crown,
   TrendingUp,
-  FileCode2,
+  Puzzle,
+  Bot,
   Shield,
   ArrowUpRight,
   X,
@@ -111,10 +112,10 @@ export function BaseAppBottomNav({ activeTab, onSelectTab }) {
             <span style={{ fontSize: '11px', fontWeight: 500 }}>Swap</span>
           </button>
 
-          {/* 3. Center Raised Action: Claim */}
+          {/* 3. Center Raised Action: Rewards Hub */}
           <button
             type="button"
-            onClick={() => handleTabClick('claim')}
+            onClick={() => handleTabClick('hub')}
             style={{
               display: 'flex',
               flexDirection: 'column',
@@ -142,24 +143,25 @@ export function BaseAppBottomNav({ activeTab, onSelectTab }) {
                 transition: 'transform 0.15s ease'
               }}
             >
-              <Coins size={24} strokeWidth={2} />
+              <Gift size={24} strokeWidth={2} />
             </div>
             <span
               style={{
                 fontSize: '11px',
                 fontWeight: 600,
                 color: 'var(--accent)',
-                marginTop: '34px'
+                marginTop: '34px',
+                whiteSpace: 'nowrap'
               }}
             >
-              Claim
+              Rewards Hub
             </span>
           </button>
 
-          {/* 4. Rewards Hub */}
+          {/* 4. Claim */}
           <button
             type="button"
-            onClick={() => handleTabClick('hub')}
+            onClick={() => handleTabClick('claim')}
             style={{
               display: 'flex',
               flexDirection: 'column',
@@ -169,11 +171,11 @@ export function BaseAppBottomNav({ activeTab, onSelectTab }) {
               background: 'transparent',
               border: 'none',
               cursor: 'pointer',
-              color: activeTab === 'hub' ? 'var(--accent)' : 'var(--text-3)'
+              color: activeTab === 'claim' ? 'var(--accent)' : 'var(--text-3)'
             }}
           >
-            <Gift size={22} strokeWidth={1.75} />
-            <span style={{ fontSize: '11px', fontWeight: 500 }}>Rewards</span>
+            <Coins size={22} strokeWidth={1.75} />
+            <span style={{ fontSize: '11px', fontWeight: 500 }}>Claim</span>
           </button>
 
           {/* 5. More */}
@@ -287,7 +289,7 @@ export function BaseAppBottomNav({ activeTab, onSelectTab }) {
               </button>
 
               <button
-                onClick={() => handleTabClick('contracts')}
+                onClick={() => handleTabClick('skill')}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -303,8 +305,30 @@ export function BaseAppBottomNav({ activeTab, onSelectTab }) {
                   textAlign: 'left'
                 }}
               >
-                <FileCode2 size={18} color="var(--accent)" />
-                <span>Official addresses</span>
+                <Puzzle size={18} color="var(--accent)" />
+                <span>Skill</span>
+              </button>
+
+              {/* Agent Zone: in the agent colour, like the header button */}
+              <button
+                onClick={() => handleTabClick('agents')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '12px 14px',
+                  borderRadius: '12px',
+                  background: 'var(--agent)',
+                  border: '1px solid var(--agent)',
+                  color: 'var(--on-agent)',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  textAlign: 'left'
+                }}
+              >
+                <Bot size={18} />
+                <span>Agent Zone</span>
               </button>
 
               {isAdmin && (
