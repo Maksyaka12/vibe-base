@@ -323,7 +323,7 @@ export default function BaseAppRewardsView({
               <div className="o1-hub-tiles-3">
                 <Tile
                   label="Rewards pool"
-                  value={`${featuredHolder.poolAmount} $VIBE`}
+                  value={formatPool(featuredHolder.poolAmount)}
                   sub="Proportionally to holders"
                 />
                 <Tile
@@ -480,7 +480,7 @@ export default function BaseAppRewardsView({
               <div className="o1-hub-tiles-3">
                 <Tile
                   label="Rewards pool"
-                  value={`${featuredVibeClub.poolAmount} $VIBE`}
+                  value={formatPool(featuredVibeClub.poolAmount)}
                   sub="Equally among all NFT holders"
                 />
                 <Tile
