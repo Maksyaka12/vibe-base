@@ -18,10 +18,8 @@ Thumbs.db
 .vscode/
 .idea/
 
-# Supabase database & backend (Edge Functions) - kept strictly local
-database/
-backend/
-
+# Local tool settings
+.claude/
 
 # Local dev store for /api/schedule
 frontend/.data/
