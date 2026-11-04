@@ -957,7 +957,7 @@ export default function Checker({ isProfileMode = false } = {}) {
       if (results[5]?.status === 'success') {
         if (results[5].result === true) {
           setPolledStatus('vibeclub-1', 'claimed');
-          syncRoyaltyClaimHistory(client, address, targetRoyaltyCa, 1, txMap);
+          syncRoyaltyClaimHistory(client, address, ROYALTY_DISTRIBUTOR_CA, 1, txMap);
         } else {
           setPolledStatus('vibeclub-1', 'unclaimed');
           setHistoryFor(address, prev => {
@@ -975,7 +975,7 @@ export default function Checker({ isProfileMode = false } = {}) {
       if (results[6]?.status === 'success') {
         if (results[6].result === true) {
           setPolledStatus('vibeclub-2', 'claimed');
-          syncRoyaltyClaimHistory(client, address, targetRoyaltyCa, 2, txMap);
+          syncRoyaltyClaimHistory(client, address, ROYALTY_DISTRIBUTOR_CA, 2, txMap);
         } else {
           setPolledStatus('vibeclub-2', 'unclaimed');
           setHistoryFor(address, prev => {
@@ -993,7 +993,7 @@ export default function Checker({ isProfileMode = false } = {}) {
       if (results[7]?.status === 'success') {
         if (results[7].result === true) {
           setPolledStatus('vibeclub-3', 'claimed');
-          syncRoyaltyClaimHistory(client, address, targetRoyaltyCa, 3, txMap);
+          syncRoyaltyClaimHistory(client, address, ROYALTY_DISTRIBUTOR_CA, 3, txMap);
         } else {
           setPolledStatus('vibeclub-3', 'unclaimed');
           setHistoryFor(address, prev => {
@@ -1011,7 +1011,7 @@ export default function Checker({ isProfileMode = false } = {}) {
       if (results[8]?.status === 'success') {
         if (results[8].result === true) {
           setPolledStatus('vibeclub-4', 'claimed');
-          syncRoyaltyClaimHistory(client, address, targetRoyaltyCa, 4, txMap);
+          syncRoyaltyClaimHistory(client, address, ROYALTY_DISTRIBUTOR_CA, 4, txMap);
         } else {
           setPolledStatus('vibeclub-4', 'unclaimed');
           setHistoryFor(address, prev => {
@@ -1029,7 +1029,7 @@ export default function Checker({ isProfileMode = false } = {}) {
       if (results[9]?.status === 'success') {
         if (results[9].result === true) {
           setPolledStatus('vibeclub-5', 'claimed');
-          syncRoyaltyClaimHistory(client, address, targetRoyaltyCa, 5, txMap);
+          syncRoyaltyClaimHistory(client, address, ROYALTY_DISTRIBUTOR_CA, 5, txMap);
         } else {
           setPolledStatus('vibeclub-5', 'unclaimed');
           setHistoryFor(address, prev => {
@@ -1051,7 +1051,7 @@ export default function Checker({ isProfileMode = false } = {}) {
         if (res.result === true) {
           setPolledStatus(key, 'claimed');
           if (r.type === 'holder') syncClaimHistory(client, address, r.id, txMap);
-          else syncRoyaltyClaimHistory(client, address, targetRoyaltyCa, r.id, txMap);
+          else syncRoyaltyClaimHistory(client, address, ROYALTY_DISTRIBUTOR_CA, r.id, txMap);
         } else {
           setPolledStatus(key, 'unclaimed');
           setHistoryFor(address, prev => {
