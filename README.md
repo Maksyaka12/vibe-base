@@ -25,7 +25,6 @@ contracts/     Smart contracts (Foundry), see contracts/README.md
 bankr-skill/   Vibe Hub skill package for Bankr
 scripts/       Snapshot generators for holder and royalty rounds
 snapshots/     Published snapshots: Merkle roots, proofs and allocation tables
-promo/         Promo videos (Remotion)
 ```
 
 ## Run locally

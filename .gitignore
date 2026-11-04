@@ -21,5 +21,8 @@ Thumbs.db
 # Local tool settings
 .claude/
 
+# Promo videos, kept on this machine only
+promo/
+
 # Local dev store for /api/schedule
 frontend/.data/
