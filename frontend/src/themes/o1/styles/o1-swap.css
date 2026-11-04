@@ -1,15 +1,5 @@
 /* ── Swap page styles per o1-dark-ui-design & vibe-hub-redesign §5.4 ── */
 
-.o1-swap-container {
-  width: 100%;
-  max-width: 480px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  box-sizing: border-box;
-}
-
 .o1-swap-card {
   background: var(--surface-1);
   border: 1px solid var(--border);

@@ -9,7 +9,7 @@ import AgentsButton from '../../../components/agent/AgentsButton';
 import { useVibeWallets } from '../../../hooks/useVibeWallets';
 
 export function BaseAppHeader({ onOpenSidebar, isDesktop = false }) {
-  const { login, authenticated, user } = usePrivy();
+  const { login, authenticated } = usePrivy();
   const { wallets } = useWallets();
   const { address: wagmiAddress, isConnected: isWagmiConnected } = useAccount();
 
@@ -64,7 +64,7 @@ export function BaseAppHeader({ onOpenSidebar, isDesktop = false }) {
         {!isDesktop && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', userSelect: 'none' }}>
             <img
-              src="/new-logo.png"
+              src="/logo.png"
               alt="VIBE"
               style={{
                 width: '24px',
@@ -168,7 +168,7 @@ export function BaseAppHeader({ onOpenSidebar, isDesktop = false }) {
               }}
             >
               <img
-                src="/new-logo.png"
+                src="/logo.png"
                 alt="$VIBE"
                 style={{
                   width: '16px',

@@ -139,7 +139,7 @@ export default function BaseAppRewardsView({
   O1_STAKING_VAULT = '',
   now = new Date()
 }) {
-  const { authenticated, user } = usePrivy();
+  const { authenticated } = usePrivy();
   const { activeAddress: vibeActiveAddress } = useVibeWallets();
   const address = vibeActiveAddress;
   const userAddress = address ? address.toLowerCase() : null;
@@ -295,7 +295,7 @@ export default function BaseAppRewardsView({
               <div className="o1-hub-featured-head">
                 <div className="o1-hub-featured-title-wrap">
                   <div className="o1-hub-featured-icon">
-                    <img src="/new-logo.png" alt="VIBE" />
+                    <img src="/logo.png" alt="VIBE" />
                   </div>
                   <div>
                     <div className="o1-hub-featured-name">{featuredHolder.unlock}</div>
@@ -452,7 +452,7 @@ export default function BaseAppRewardsView({
               <div className="o1-hub-featured-head">
                 <div className="o1-hub-featured-title-wrap">
                   <div className="o1-hub-featured-icon">
-                    <img src="/new-logo.png" alt="VIBE" />
+                    <img src="/logo.png" alt="VIBE" />
                   </div>
                   <div>
                     <div className="o1-hub-featured-name">{featuredVibeClub.epoch}</div>

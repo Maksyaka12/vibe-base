@@ -112,8 +112,7 @@
   gap: 4px;
   text-align: left;
 }
-.card .tile,
-.tile-inner {
+.card .tile {
   background: var(--surface-2);
   border-color: var(--border);
 }
@@ -244,41 +243,6 @@
 }
 
 /* 5.6 Section Tabs */
-.section-tabs {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-  border-bottom: 1px solid var(--border);
-  padding-bottom: 8px;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-.section-tabs::-webkit-scrollbar {
-  display: none;
-}
-.section-tab {
-  font-size: 24px;
-  font-weight: 600;
-  color: var(--text-3);
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  padding: 4px 0;
-  white-space: nowrap;
-  transition: color 0.15s ease;
-}
-.section-tab:hover {
-  color: var(--text-2);
-}
-.section-tab.active {
-  color: var(--text);
-}
-
-@media (max-width: 768px) {
-  .section-tab {
-    font-size: 20px;
-  }
-}
 
 /* Page Header (Left-aligned, factual) */
 .page-header {
@@ -376,45 +340,8 @@
 }
 
 /* Key-value row */
-.kv-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--border);
-  font-size: 14px;
-}
-.kv-row:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
-}
-.kv-label {
-  color: var(--text-3);
-}
-.kv-value {
-  color: var(--text);
-  font-family: var(--font-mono);
-  font-variant-numeric: tabular-nums;
-  font-weight: 600;
-}
 
 /* Avatar pair overlapping */
-.avatar-pair {
-  display: flex;
-  align-items: center;
-}
-.avatar-pair img,
-.avatar-pair .avatar-circle {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 2px solid var(--surface);
-  box-sizing: border-box;
-  background: var(--surface-2);
-}
-.avatar-pair > :nth-child(2) {
-  margin-left: -12px;
-}
 
 /* Empty State */
 .empty-state {
@@ -440,20 +367,6 @@
 }
 
 /* Skeleton Loading */
-.skeleton {
-  background: var(--surface);
-  border-radius: var(--r-sm);
-  position: relative;
-  overflow: hidden;
-}
-.skeleton::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  transform: translateX(-100%);
-  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--tint-ink) 5%, transparent), transparent);
-  animation: shimmer 1.5s infinite;
-}
 @keyframes shimmer {
   100% {
     transform: translateX(100%);

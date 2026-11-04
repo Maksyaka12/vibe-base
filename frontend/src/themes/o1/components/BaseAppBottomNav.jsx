@@ -14,7 +14,7 @@ import {
   X,
   Palette
 } from 'lucide-react';
-import { usePrivy, useWallets } from '@privy-io/react-auth';
+import { useWallets } from '@privy-io/react-auth';
 import { useAccount } from 'wagmi';
 import { THEMES, getTheme, setTheme } from '../../../theme';
 import { useVibeWallets } from '../../../hooks/useVibeWallets';
@@ -24,7 +24,6 @@ const ADMIN_WALLET = '0x4c91d3bed372c11795b9ce9a9017dfe447bf050a';
 export function BaseAppBottomNav({ activeTab, onSelectTab }) {
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const currentTheme = getTheme();
-  const { user } = usePrivy();
   const { wallets } = useWallets();
   const { address: wagmiAddress } = useAccount();
 

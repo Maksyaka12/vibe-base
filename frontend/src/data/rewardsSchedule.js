@@ -51,10 +51,10 @@ export const DEFAULT_SCHEDULE = {
   // status: 'ongoing' | 'ended'
   giveaways: [
     { id: 5, title: 'Meme & Art', image: '', winners: '6 Winners', prizePool: '$50 in ETH', burnNote: '', status: 'ended', distribution: 'Completed', link: 'https://x.com/noelle_base/status/2094038840927203494' },
-    { id: 4, title: '7 NFTs Vibe Club', image: '/rewards/vibe-club.jfif', winners: '7 Winners', prizePool: '7 NFTs', burnNote: '~3M $VIBE burn', status: 'ended', distribution: 'Completed', link: 'https://x.com/vibeB20/status/2092000984671129772' },
-    { id: 3, title: '1000 Holders', image: '/event3.png', winners: '33 Winners', prizePool: 'TBA', burnNote: '', status: 'ongoing', distribution: 'Not Started', link: 'https://x.com/vibeB20/status/2085778007960977418' },
-    { id: 1, title: '$1M MC', image: '/event1.png', winners: '50 Winners', prizePool: 'TBA', burnNote: '', status: 'ongoing', distribution: 'Not Started', link: 'https://x.com/mksvibe/status/2083993197861073025' },
-    { id: 2, title: 'Base App Welcome Bonus', image: '/event2.png', winners: '350 Winners', prizePool: '1M $VIBE', burnNote: '', status: 'ended', distribution: 'In Progress (92%)', link: 'https://x.com/mksvibe/status/2084601445844689003' },
+    { id: 4, title: '7 NFTs Vibe Club', image: '', winners: '7 Winners', prizePool: '7 NFTs', burnNote: '~3M $VIBE burn', status: 'ended', distribution: 'Completed', link: 'https://x.com/vibeB20/status/2092000984671129772' },
+    { id: 3, title: '1000 Holders', image: '', winners: '33 Winners', prizePool: 'TBA', burnNote: '', status: 'ongoing', distribution: 'Not Started', link: 'https://x.com/vibeB20/status/2085778007960977418' },
+    { id: 1, title: '$1M MC', image: '', winners: '50 Winners', prizePool: 'TBA', burnNote: '', status: 'ongoing', distribution: 'Not Started', link: 'https://x.com/mksvibe/status/2083993197861073025' },
+    { id: 2, title: 'Base App Welcome Bonus', image: '', winners: '350 Winners', prizePool: '1M $VIBE', burnNote: '', status: 'ended', distribution: 'In Progress (92%)', link: 'https://x.com/mksvibe/status/2084601445844689003' },
   ],
 };
 

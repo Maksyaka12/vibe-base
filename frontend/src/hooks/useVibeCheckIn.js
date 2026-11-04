@@ -119,14 +119,7 @@ export function useVibeCheckIn(address) {
       });
 
       if (data) {
-        const [
-          currentStreak,
-          longestStreak,
-          totalCheckIns,
-          lastCheckInTimestamp,
-          canCheckInToday,
-          secondsUntilNextCheckIn
-        ] = data;
+        const [currentStreak, longestStreak, totalCheckIns, lastCheckInTimestamp, canCheckInToday] = data;
 
         const lastCheckInDate = lastCheckInTimestamp > 0n
           ? new Date(Number(lastCheckInTimestamp) * 1000).toISOString()

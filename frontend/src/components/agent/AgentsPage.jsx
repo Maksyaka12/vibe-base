@@ -83,7 +83,7 @@ export default function AgentsPage({ theme = 'o1' }) {
               </span>
             ))}
           </div>
-          <span className="agp-orbit-core"><img src="/new-logo.png" alt="" /></span>
+          <span className="agp-orbit-core"><img src="/logo.png" alt="" /></span>
         </div>
       </section>
 

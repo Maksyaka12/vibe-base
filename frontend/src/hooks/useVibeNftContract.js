@@ -10,7 +10,6 @@ const isWalletRejection = (e) => e?.code === 4001 || e?.cause?.code === 4001 || 
 export const NFT_CONTRACT_ADDRESS = '0x9E92307Dbec2d0aE4BBF14cA93E1cA00edC4b886';
 export const OPENSEA_COLLECTION_URL = 'https://opensea.io/collection/vibeclubnft';
 export const VIBE_TOKEN_ADDRESS = '0xb200000000000000000000df24ecb8bf51100a01';
-export const ADMIN_ADDRESS = '0x4C91d3beD372c11795b9cE9A9017Dfe447Bf050A';
 import { BUILDER_CODE, DATA_SUFFIX, BUILDER_CODE_HEX, appendBuilderSuffix } from '../config/builderCode';
 import { useVibeWallets } from './useVibeWallets';
 export { BUILDER_CODE, DATA_SUFFIX, BUILDER_CODE_HEX };
@@ -56,7 +55,7 @@ const ERC20_ABI = parseAbi([
 ]);
 
 export function useVibeNftContract() {
-  const { authenticated, user, login } = usePrivy();
+  const { authenticated, login } = usePrivy();
   const { wallets } = useWallets();
   const { activeAddress: vibeActiveAddress } = useVibeWallets();
   const walletAddress = vibeActiveAddress;
@@ -66,7 +65,7 @@ export function useVibeNftContract() {
   const [maxSupply, setMaxSupply] = useState(333);
   const [currentPhase, setCurrentPhase] = useState(1);
   const [ethPriceWei, setEthPriceWei] = useState(parseEther('0.005'));
-  const [vibePriceWei, setVibePriceWei] = useState(BigInt('1000000000000000000000000'));
+  const [vibePriceWei] = useState(BigInt('1000000000000000000000000'));
   const [hasMinted, setHasMinted] = useState(false);
   const [mintCount, setMintCount] = useState(0);
   const [mintLive, setMintLive] = useState(true);

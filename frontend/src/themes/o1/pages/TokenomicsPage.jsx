@@ -111,7 +111,7 @@ export function useRevenueStats() {
   return stats;
 }
 
-export default function TokenomicsPage({ isBaseAppMode = false }) {
+export default function TokenomicsPage() {
   const { totalBurned, totalBurnedNum, totalBuybacks, communityRewards, loading } = useRevenueStats();
   
   useEffect(() => {

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { usePrivy, useWallets } from '@privy-io/react-auth';
 import { encodeFunctionData, formatUnits, parseAbi, parseUnits } from 'viem';
 import { publicClient } from '../config/rpc';

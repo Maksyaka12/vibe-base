@@ -287,7 +287,7 @@ export function AdminScheduleEditor({ activeAddress, wallets }) {
                 </Field>
                 <Field label="Distribution"><input className="o1-admin-input" value={r.distribution} onChange={(e) => update(i, { distribution: e.target.value })} /></Field>
                 <Field label="Post link" wide><input className="o1-admin-input" placeholder="https://x.com/…" value={r.link} onChange={(e) => update(i, { link: e.target.value })} /></Field>
-                <Field label="Image (optional)"><input className="o1-admin-input" placeholder="/event1.png" value={r.image} onChange={(e) => update(i, { image: e.target.value })} /></Field>
+                <Field label="Image (optional)"><input className="o1-admin-input" placeholder="/rewards-hub/giveaways.jfif" value={r.image} onChange={(e) => update(i, { image: e.target.value })} /></Field>
                 <Field label="Burn note (optional)"><input className="o1-admin-input" value={r.burnNote} onChange={(e) => update(i, { burnNote: e.target.value })} /></Field>
               </>
             )}
