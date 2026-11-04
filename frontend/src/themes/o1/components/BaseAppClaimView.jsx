@@ -92,12 +92,7 @@ const royaltyRoundOf = (item, fallback = 5) => item?.roundId || Number(item?.id?
 export function BaseAppClaimView(props) {
   const {
     address,
-    ready,
-    authenticated,
-    login,
-    balance,
     nftCount,
-    userNft,
     currentTime,
     claimStatus,
     claimedHistory = [],
@@ -111,20 +106,15 @@ export function BaseAppClaimView(props) {
     activeHolderEpochId,
     activeHolderRound,
     activeHolderAvailable,
-    isVibeClubEligible,
     vibeClubRewardAmount,
     hasConfirmedRoyaltyClaim,
     isVibeClubRoyalty1Available,
     activeRoyaltyEpochId,
     activeRoyaltyRound,
     activeRoyaltyAvailable,
-    royalty2Data,
-    royalty3Data,
-    royalty4Data,
-    royalty5Data,
     totalAvailableCount = 0,
     upcomingHolderRound,
-    upcomingVibeClubRound
+    upcomingVibeClubRound,
   } = props;
 
   // Share Celebration Modal state
@@ -180,7 +170,7 @@ export function BaseAppClaimView(props) {
   };
 
   const handleShareOnX = (item) => {
-    const tweetText = `JUST CLAIMED MY NFT ROYALTIES 🐶💰\n\nHolding Vibe Club NFT unlocks passive $VIBE payouts every 10 days to all Club Members\n\nJoin Club → vibeverse.dog/vibeclub?ref=x`;
+    const tweetText = `JUST CLAIMED MY NFT ROYALTIES 🐶💰\n\nHolding Vibe Club NFT unlocks passive $VIBE payouts every 10 days to all Club Members\n\nJoin Club → vibehome.dog/vibeclub?ref=x`;
 
     const isMobile = typeof navigator !== 'undefined' && (
       /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
@@ -455,8 +445,6 @@ export function BaseAppClaimView(props) {
           {/* Card 2: Vibe Club Royalty */}
           {(() => {
             const isVibeClubSnapshotDone = Boolean(upcomingVibeClubRound?.snapshotIso && (currentTime instanceof Date ? currentTime.getTime() : new Date().getTime()) >= new Date(upcomingVibeClubRound.snapshotIso).getTime());
-            const hasRoyaltyProof = Boolean(hasConfirmedRoyaltyClaim || (royalty5Data?.claims && address && royalty5Data.claims[address.toLowerCase()]) || (royalty4Data?.claims && address && royalty4Data.claims[address.toLowerCase()]) || (royalty3Data?.claims && address && royalty3Data.claims[address.toLowerCase()]) || (royalty2Data?.claims && address && royalty2Data.claims[address.toLowerCase()]));
-            const isRoyaltyEligibleNow = hasRoyaltyProof || hasNft;
             const vibeClubPoolAmount = upcomingVibeClubRound?.pool
               ? (upcomingVibeClubRound.pool.includes('$VIBE') || upcomingVibeClubRound.pool === 'TBA'
                   ? upcomingVibeClubRound.pool

@@ -235,12 +235,10 @@ export function BaseAppAdminView() {
     contractEthBalance,
     contractVibeBalance,
     ethPriceFormatted,
-    vibePriceFormatted,
     aggregatorRouterAddress,
     isAdminSwapping,
     adminSwapSuccess,
     adminTxHash,
-    isSettingRouter,
     setRouterSuccess,
     isWithdrawingEth,
     withdrawSuccess,
@@ -249,15 +247,13 @@ export function BaseAppAdminView() {
     isAdminPaidMinting,
     adminPaidMintSuccess,
     adminPaidMintedTokenId,
-    adminPaidRecipient,
     errorMessage: nftErrorMessage,
     executeAdminSwapAndBurn,
-    executeSetAggregatorRouter,
     executeWithdrawEth,
     executeWithdrawVibe,
     executeAdminPaidMintWithEth,
     executeAdminPaidMintWithVibe,
-    refetch: refetchNftState
+    refetch: refetchNftState,
   } = useVibeNftContract();
 
   const [adminEthInput, setAdminEthInput] = useState('0.005');
@@ -267,7 +263,6 @@ export function BaseAppAdminView() {
   const [customRouterSuccess, setCustomRouterSuccess] = useState(false);
   const [overridePriceInput, setOverridePriceInput] = useState('0.005');
   const [isOverridePriceSaving, setIsOverridePriceSaving] = useState(false);
-  const [overridePriceSuccess, setOverridePriceSuccess] = useState(false);
 
   // Live VIBE ratio
   const [vibePerEthRatio, setVibePerEthRatio] = useState(50000000);
@@ -774,7 +769,6 @@ export function BaseAppAdminView() {
   const handleSetOverrideMintPrice = async (customPrice) => {
     const priceEth = customPrice !== undefined ? customPrice : overridePriceInput;
     setIsOverridePriceSaving(true);
-    setOverridePriceSuccess(false);
     setErrorMessage('');
     setSuccessMessage('');
     setTxHash('');
@@ -789,7 +783,6 @@ export function BaseAppAdminView() {
 
       const hash = await sendAdminTx(NFT_CONTRACT_ADDRESS, dataHex);
       setTxHash(hash);
-      setOverridePriceSuccess(true);
       setSuccessMessage(Number(priceEth) === 0
         ? 'Mint price reset to automated 4-phase calculation'
         : `Mint price set to ${priceEth} ETH successfully`);

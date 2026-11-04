@@ -64,12 +64,6 @@
   }
 }
 
-.o1-admin-form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
 .o1-admin-label {
   font-size: 12px;
   font-weight: 500;

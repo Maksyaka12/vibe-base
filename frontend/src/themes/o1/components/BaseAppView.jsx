@@ -170,7 +170,7 @@ export function BaseAppView({ RewardsComponent }) {
 
   return (
     <BaseAppErrorBoundary>
-      <div className="base-app-pixel-theme" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', width: '100%', maxWidth: '100vw', margin: 0, padding: 0 }}>
+      <div className="base-app-shell" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', width: '100%', maxWidth: '100vw', margin: 0, padding: 0 }}>
         
         {/* Desktop Persistent Left Sidebar */}
         {isDesktop && (
@@ -231,7 +231,7 @@ export function BaseAppView({ RewardsComponent }) {
                 </div>
               </section>
             ) : (activeTab === 'claim' || activeTab === 'profile') ? (
-              <Checker isBaseAppMode={true} isProfileMode={activeTab === 'profile'} />
+              <Checker isProfileMode={activeTab === 'profile'} />
             ) : activeTab === 'vibeclub' ? (
               <section style={{ padding: '24px 0 60px 0' }}>
                 <div style={{ maxWidth: '1040px', margin: '0 auto', padding: '0 14px' }}>
@@ -239,7 +239,7 @@ export function BaseAppView({ RewardsComponent }) {
                     title="Vibe Club NFT"
                     description="Exclusive 333 genesis membership pass with lifetime royalty payouts"
                   />
-                  <NftClubPage isEmbeddedInBaseApp={true} />
+                  <NftClubPage />
                 </div>
               </section>
             ) : activeTab === 'tokenomics' ? (
@@ -249,7 +249,7 @@ export function BaseAppView({ RewardsComponent }) {
                     title="Tokenomics"
                     description="Fair launch with zero team allocations, deflationary buybacks, and community rewards"
                   />
-                  <TokenomicsPage isBaseAppMode={true} />
+                  <TokenomicsPage />
                 </div>
               </section>
             ) : activeTab === 'contracts' ? (
@@ -259,7 +259,7 @@ export function BaseAppView({ RewardsComponent }) {
                     title="Official addresses"
                     description="Verified smart contracts and operational protocol addresses on Base"
                   />
-                  <ContractsPage isBaseAppMode={true} />
+                  <ContractsPage />
                 </div>
               </section>
             ) : activeTab === 'wallet' ? (
@@ -308,11 +308,11 @@ export function BaseAppView({ RewardsComponent }) {
                 </div>
               </section>
             ) : (
-              RewardsComponent ? <RewardsComponent isBaseAppMode={true} /> : null
+              RewardsComponent ? <RewardsComponent /> : null
             )}
           </main>
 
-          {/* Fixed Bottom Pixel Navigation Bar (Mobile Only) */}
+          {/* Fixed Bottom Navigation Bar (Mobile Only) */}
           {!isDesktop && (
             <BaseAppBottomNav
               activeTab={activeTab}

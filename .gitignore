@@ -18,10 +18,11 @@ Thumbs.db
 .vscode/
 .idea/
 
-# Supabase database & backend (Edge Functions) - kept strictly local
-database/
-backend/
+# Local tool settings
+.claude/
 
+# Promo videos, kept on this machine only
+promo/
 
 # Local dev store for /api/schedule
 frontend/.data/

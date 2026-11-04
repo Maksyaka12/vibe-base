@@ -111,8 +111,7 @@ html[data-theme='based'] .agp-hero h1::after {
 }
 
 /* Short display labels in Doto, all caps */
-html[data-theme='based'] .agp-hero-badge,
-html[data-theme='based'] .mt-badge {
+html[data-theme='based'] .agp-hero-badge {
   font-family: var(--font-display);
   font-weight: 800;
   text-transform: uppercase;
@@ -170,7 +169,7 @@ html[data-theme='based'] .vwp-o1 {
 
 /* Background: the Base brand texture - fields of fine vertical lines with dot-matrix clusters, in Gray and
    Base Blue, sitting in the free space around the cards. Fixed to the viewport and drifting slowly. */
-html[data-theme='based'] .base-app-pixel-theme {
+html[data-theme='based'] .base-app-shell {
   position: relative;
   isolation: isolate;
 }
@@ -179,8 +178,8 @@ html[data-theme='based'] main > section {
   background: transparent;
 }
 
-html[data-theme='based'] .base-app-pixel-theme::before,
-html[data-theme='based'] .base-app-pixel-theme::after {
+html[data-theme='based'] .base-app-shell::before,
+html[data-theme='based'] .base-app-shell::after {
   content: '';
   position: fixed;
   inset: 0;
@@ -192,7 +191,7 @@ html[data-theme='based'] .base-app-pixel-theme::after {
 }
 
 /* fine vertical lines (Gray 15) */
-html[data-theme='based'] .base-app-pixel-theme::before {
+html[data-theme='based'] .base-app-shell::before {
   background: repeating-linear-gradient(90deg, #DEE1E7 0 1px, transparent 1px 7px);
   -webkit-mask-image:
     radial-gradient(28% 34% at 24% 22%, #000 0 55%, transparent 72%),
@@ -207,7 +206,7 @@ html[data-theme='based'] .base-app-pixel-theme::before {
 }
 
 /* dot-matrix clusters (Base Blue, with Gray 30 around them) */
-html[data-theme='based'] .base-app-pixel-theme::after {
+html[data-theme='based'] .base-app-shell::after {
   background:
     radial-gradient(circle, #0000FF 0 1.6px, transparent 2.2px) 0 0 / 9px 9px,
     radial-gradient(circle, #B1B7C3 0 1.4px, transparent 2px) 4.5px 4.5px / 9px 9px;
@@ -230,14 +229,14 @@ html[data-theme='based'] .base-app-pixel-theme::after {
 }
 
 @media (max-width: 768px) {
-  html[data-theme='based'] .base-app-pixel-theme::after {
+  html[data-theme='based'] .base-app-shell::after {
     opacity: 0.5;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html[data-theme='based'] .base-app-pixel-theme::before,
-  html[data-theme='based'] .base-app-pixel-theme::after {
+  html[data-theme='based'] .base-app-shell::before,
+  html[data-theme='based'] .base-app-shell::after {
     animation: none;
   }
 }

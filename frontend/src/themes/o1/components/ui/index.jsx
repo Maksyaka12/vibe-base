@@ -193,22 +193,6 @@ export function ProgressBar({ value = 0, max = 100, className = '', style }) {
 }
 
 /**
- * Key-Value Row
- */
-export function KeyValue({ label, value, sub, right, className = '', style }) {
-  return (
-    <div className={`kv-row ${className}`.trim()} style={style}>
-      <div className="kv-label">{label}</div>
-      <div style={{ textAlign: 'right' }}>
-        <div className="kv-value">{value}</div>
-        {sub && <div style={{ fontSize: '12px', color: 'var(--text-3)' }}>{sub}</div>}
-        {right}
-      </div>
-    </div>
-  );
-}
-
-/**
  * EmptyState per o1-dark-ui-design §5.16
  */
 export function EmptyState({ icon, title, description, action, className = '', style }) {

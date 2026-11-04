@@ -86,7 +86,7 @@ export function BaseAppSidebar({
   onToggleCollapse,
   isDesktop = false
 }) {
-  const { login, logout, authenticated, user } = usePrivy();
+  const { login, logout, authenticated } = usePrivy();
   const { wallets } = useWallets();
   const { address: wagmiAddress, isConnected: isWagmiConnected } = useAccount();
   const { disconnect } = useDisconnect();
@@ -202,7 +202,7 @@ export function BaseAppSidebar({
             {isCollapsed ? (
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
                 <img
-                  src="/new-logo.png"
+                  src="/logo.png"
                   alt="VIBE"
                   onClick={() => onSelectTab('hub')}
                   style={{
@@ -244,7 +244,7 @@ export function BaseAppSidebar({
                   style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
                 >
                   <img
-                    src="/new-logo.png"
+                    src="/logo.png"
                     alt="VIBE"
                     style={{
                       width: '28px',

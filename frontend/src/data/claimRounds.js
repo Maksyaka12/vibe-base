@@ -26,10 +26,6 @@ export function roundProofs(type, round) {
   return BUILT_IN[t][Number(round)] || published[t][Number(round)] || null;
 }
 
-export function userClaim(type, round, address) {
-  return (address && roundProofs(type, round)?.claims?.[address.toLowerCase()]) || null;
-}
-
 // Rounds that come from the admin panel rather than bundled files.
 export function publishedRounds() {
   return Object.entries(published).flatMap(([type, rounds]) => Object.entries(rounds).map(([round, data]) => ({ type, round: Number(round), data })));

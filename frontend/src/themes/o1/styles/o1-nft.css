@@ -134,12 +134,6 @@
   color: var(--accent);
 }
 
-.o1-nft-progress-box {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
 .o1-nft-mint-actions {
   display: flex;
   flex-direction: column;

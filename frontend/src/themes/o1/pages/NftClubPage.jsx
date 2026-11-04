@@ -13,58 +13,32 @@ import { useVibeWallets } from '../../../hooks/useVibeWallets';
 // NFT Deck strictly from #5 to #35 (31 NFTs)
 const NFT_DECK = Array.from({ length: 31 }, (_, i) => i + 5);
 
-export default function NftClubPage({ isEmbeddedInBaseApp = false } = {}) {
-  const { login, logout, authenticated, user } = usePrivy();
+export default function NftClubPage() {
+  const { login, authenticated } = usePrivy();
   const { activeAddress: vibeActiveAddress } = useVibeWallets();
   const walletAddress = vibeActiveAddress;
   const balances = useUserBalances(walletAddress);
 
   const {
     totalMinted,
-    remainingTokens,
     maxSupply,
-    currentPhase,
     ethPriceFormatted,
-    contractEthBalance,
-    totalOnChainVibeBurned,
     hasMinted,
     isMintingEth,
     isMintingVibe,
     isApprovingVibe,
-    isAdminSwapping,
-    adminSwapSuccess,
-    adminTxHash,
-    aggregatorRouterAddress,
-    isSettingRouter,
-    setRouterSuccess,
-    isWithdrawingEth,
-    withdrawSuccess,
-    isWithdrawingVibe,
-    withdrawVibeSuccess,
     contractVibeBalance,
-    isAdminPaidMinting,
-    adminPaidMintSuccess,
-    adminPaidMintedTokenId,
-    adminPaidRecipient,
     txHash,
     lastMintedId,
     errorMessage,
     mintSuccess,
     mintWithETH,
     mintWithVIBE,
-    executeAdminSwapAndBurn,
-    executeSetAggregatorRouter,
-    executeWithdrawEth,
-    executeWithdrawVibe,
-    executeAdminPaidMintWithEth,
-    executeAdminPaidMintWithVibe
   } = useVibeNftContract();
 
   const [deckIndex, setDeckIndex] = useState(0);
   const [vibePerEthRatio, setVibePerEthRatio] = useState(null); // $VIBE per 1 ETH, null until the pool price loads
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [adminEthInput, setAdminEthInput] = useState('0.005');
-  const [adminGiveawayRecipient, setAdminGiveawayRecipient] = useState('');
 
   const isAdmin = walletAddress?.toLowerCase() === '0x4c91d3bed372c11795b9ce9a9017dfe447bf050a';
 
@@ -133,7 +107,6 @@ export default function NftClubPage({ isEmbeddedInBaseApp = false } = {}) {
   const rawCharacterName = nftNames[currentNftId] || 'Maltipoo';
   const cleanCharacterName = rawCharacterName.replace(/^#\d+\s*/, '').replace(/#\d+/, '').trim() || 'VIBE';
 
-  const [testMintedId, setTestMintedId] = useState(null);
 
   // Details for Minted NFT Modal
   // The NFT on the mint card: the one minted in this session, else the one this wallet minted earlier
@@ -156,7 +129,7 @@ export default function NftClubPage({ isEmbeddedInBaseApp = false } = {}) {
     if (mintSuccess && lastMintedId) rememberMintedVibeClubNft(walletAddress, lastMintedId);
   }, [mintSuccess, lastMintedId, walletAddress]);
 
-  const modalNftId = testMintedId || lastMintedId || knownMintedId;
+  const modalNftId = lastMintedId || knownMintedId;
   const modalRawName = nftNames[modalNftId] || 'Maltipoo';
   const modalCleanName = modalRawName.replace(/^#\d+\s*/, '').replace(/#\d+/, '').trim() || 'VIBE';
 
@@ -203,7 +176,7 @@ export default function NftClubPage({ isEmbeddedInBaseApp = false } = {}) {
 
   // Share on X (Twitter Intent)
   const handleShareOnX = () => {
-    const tweetText = `I joined 333 Vibe Club\n\nMember #${modalNftId} ${modalCleanName}\nEligible for lifetime royalties distributed every 10 days\n\nJoin club: https://vibeverse.dog/vibeclub`;
+    const tweetText = `I joined 333 Vibe Club\n\nMember #${modalNftId} ${modalCleanName}\nEligible for lifetime royalties distributed every 10 days\n\nJoin club: https://vibehome.dog/vibeclub`;
     const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
     window.open(shareUrl, '_blank', 'noopener,noreferrer');
   };

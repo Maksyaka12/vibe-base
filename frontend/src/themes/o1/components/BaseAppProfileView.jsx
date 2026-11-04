@@ -59,28 +59,7 @@ function saveParticipatedVaults(addr, roundIds) {
   } catch (e) {}
 }
 
-function getMilestoneLatched(addr, achId) {
-  if (!addr || !achId) return false;
-  try {
-    if (addr.toLowerCase() === ADMIN_WALLET.toLowerCase()) {
-      if (['novice-staker', 'confident-banker', 'wolf-of-wall-street', 'rich-dog', 'bank-founder'].includes(achId)) {
-        return true;
-      }
-    }
-    const key = `vibe_ach_milestone_${achId}_${addr.toLowerCase()}`;
-    return localStorage.getItem(key) === 'true';
-  } catch (e) {
-    return false;
-  }
-}
 
-function latchMilestone(addr, achId) {
-  if (!addr || !achId) return;
-  try {
-    const key = `vibe_ach_milestone_${achId}_${addr.toLowerCase()}`;
-    localStorage.setItem(key, 'true');
-  } catch (e) {}
-}
 
 export function BaseAppProfileView(props) {
   const {
@@ -99,11 +78,10 @@ export function BaseAppProfileView(props) {
   const [stakingStats, setStakingStats] = useState({ participationByVault: [], loading: false });
   const {
     streak,
-    longestStreak,
     hasCheckedInToday,
     isCheckingIn,
     timeUntilNext,
-    performCheckIn
+    performCheckIn,
   } = useVibeCheckIn(address);
 
   useEffect(() => {
@@ -161,7 +139,6 @@ export function BaseAppProfileView(props) {
     return () => { isMounted = false; };
   }, [address]);
 
-  const isAdmin = address && address.toLowerCase() === ADMIN_WALLET.toLowerCase();
   // After a wallet switch the previous wallet's vault reads are still in state until the new ones arrive.
   const ownStakingStats = address && stakingStats.owner === address.toLowerCase() ? stakingStats : { participationByVault: [] };
 
@@ -182,7 +159,6 @@ export function BaseAppProfileView(props) {
   const totalStakingEpochs = STAKING_VAULTS_INFO.filter(v => allParticipatedRoundIds.has(v.roundId)).length || allParticipatedRoundIds.size;
 
   // Effective streak
-  const effectiveMaxStreak = Math.max(Number(streak) || 0, Number(longestStreak) || 0);
 
   // Portal claims (Holder rewards + royalties)
   const portalClaims = (claimedHistory || []).filter(c => c && c.type !== 'staking' && !c.id?.startsWith('staking-'));
@@ -428,7 +404,7 @@ export function BaseAppProfileView(props) {
           <Card className="o1-nft-card">
             <div className="o1-nft-frame">
               <img
-                src={hasNft ? (userNft?.image || '/nft/images/5.png') : (address ? '/nft/images/5.png' : '/new-logo.png')}
+                src={hasNft ? (userNft?.image || '/nft/images/5.png') : (address ? '/nft/images/5.png' : '/logo.png')}
                 alt={nftDisplayName}
                 className={`o1-nft-img ${hasNft ? '' : 'non-member'}`}
               />

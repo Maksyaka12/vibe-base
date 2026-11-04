@@ -108,7 +108,7 @@ function ContractItemCard({ item }) {
   );
 }
 
-export default function ContractsPage({ isBaseAppMode = false } = {}) {
+export default function ContractsPage() {
   return (
     <div className="o1-contracts-container">
       {CONTRACTS.map((item) => (

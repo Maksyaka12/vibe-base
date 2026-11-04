@@ -280,16 +280,6 @@
   background: var(--vwp-surface-2);
 }
 
-.agp-link {
-  align-self: flex-start;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--vwp-accent);
-  font-size: 13px;
-  cursor: pointer;
-}
-
 /* Step 2: client tiles */
 .agp-clients {
   display: grid;
