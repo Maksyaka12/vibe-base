@@ -107,7 +107,7 @@ export default function App() {
         appearance: {
           theme: 'dark',
           accentColor: '#66BEFF',
-          logo: '/logo.png',
+          logo: 'https://vibehome.dog/logo.png', // absolute: wallet popups resolve it on their own domain
           showWalletLoginFirst: true,
         },
         embeddedWallets: {
