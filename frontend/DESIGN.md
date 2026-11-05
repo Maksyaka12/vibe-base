@@ -417,6 +417,8 @@ Icons take a colour from their text or a token.
 | Asset | Path | Shape |
 |---|---|---|
 | Logo | `/logo.png` | Always this file |
+| Site icons | `/favicon.ico`, `/icon-192.png`, `/apple-touch-icon.png` | Made from the logo |
+| Link preview card | `/x-banner.png` | 1200×630, O1 look |
 | NFT art | `/nft/images/{id}.png` | 1:1 |
 | Campaign art | `/rewards-hub/*.jfif` | 16:9, `object-fit: cover` |
 | Royalty banners | `/vibe-club-royalties-*` | 16:9 |
