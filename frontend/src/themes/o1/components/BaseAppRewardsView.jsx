@@ -648,9 +648,9 @@ export default function BaseAppRewardsView({
                   label="Your stake"
                   value={
                     yourVaultStake === null ? '—' : (
-                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                      <span className="mono o1-stake-value">
                         {yourVaultStake.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        <img src="/new-logo.png" alt="" style={{ width: '18px', height: '18px', borderRadius: '50%', objectFit: 'cover' }} />
+                        <img src="/logo.png" alt="" />
                         $VIBE
                       </span>
                     )
