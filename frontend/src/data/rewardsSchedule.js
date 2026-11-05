@@ -122,6 +122,7 @@ function derive(schedule) {
       endTime: withTime(dayMonth(e.end, true), e.end),
       startDateObj: new Date(e.start),
       endDateObj: new Date(e.end),
+      vaultId: e.vaultId || '',
       link: e.vaultId ? stakingVaultLink(e.vaultId) : O1_STAKING_VAULT,
     })),
     STAKING_VAULTS_INFO: staking

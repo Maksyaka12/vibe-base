@@ -5,6 +5,7 @@ import { Coins, ArrowUpRight, ArrowRight, ChevronDown, Info, Clock, ExternalLink
 import { roundProofs } from '../../../data/claimRounds';
 import { Button, Card, Tile, Badge, StatusPill, PageHeader, SectionTitle, Alert } from './ui';
 import { useVibeWallets } from '../../../hooks/useVibeWallets';
+import { useVaultStake } from '../../../hooks/useVaultStake';
 
 // Previous rounds list: shows up to 5 rows, the rest scroll. The height is measured because rows differ
 // in height (buttons, mobile layout).
@@ -210,6 +211,7 @@ export default function BaseAppRewardsView({
 
   const featuredStaking = activeStakings[activeStakings.length - 1] || upcomingStakings[0] || endedStakings[endedStakings.length - 1] || STAKING_EPOCHS[0];
   const featuredStakingStatus = featuredStaking ? getEpochStatus(featuredStaking, now) : 'upcoming';
+  const yourVaultStake = useVaultStake(featuredStaking?.vaultId, address);
   const otherEndedStakings = endedStakings.filter(e => e.epoch !== featuredStaking?.epoch);
   const currentStakings = upcomingStakings.filter(e => e !== featuredStaking);
 
@@ -643,9 +645,17 @@ export default function BaseAppRewardsView({
                   sub="Epoch locking period"
                 />
                 <Tile
-                  label="Platform"
-                  value="o1 Exchange"
-                  sub="Verified staking vaults"
+                  label="Your stake"
+                  value={
+                    yourVaultStake === null ? '—' : (
+                      <span className="mono o1-stake-value">
+                        {yourVaultStake.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        <img src="/logo.png" alt="" />
+                        $VIBE
+                      </span>
+                    )
+                  }
+                  sub="Staked in this vault"
                 />
               </div>
 

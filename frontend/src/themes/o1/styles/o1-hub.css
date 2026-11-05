@@ -371,3 +371,18 @@
     font-size: 15px;
   }
 }
+
+/* Staking: the wallet's live stake in the vault, amount + token logo + $VIBE */
+.o1-stake-value {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.o1-stake-value img {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  object-fit: cover;
+}
