@@ -21,6 +21,13 @@ import { useVibeWallets } from '../../../hooks/useVibeWallets';
 
 const ADMIN_WALLET = '0x4c91d3bed372c11795b9ce9a9017dfe447bf050a';
 
+const NAV_TABS = [
+  { id: 'profile', label: 'Profile', Icon: User },
+  { id: 'buy', label: 'Swap', Icon: ArrowLeftRight },
+  { id: 'hub', label: 'Rewards Hub', Icon: Gift },
+  { id: 'claim', label: 'Claim', Icon: Coins }
+];
+
 export function BaseAppBottomNav({ activeTab, onSelectTab }) {
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const currentTheme = getTheme();
@@ -31,6 +38,10 @@ export function BaseAppBottomNav({ activeTab, onSelectTab }) {
   const activeAddress = vibeActiveAddress || wallets?.[0]?.address || wagmiAddress;
   const isAdmin = !!activeAddress && activeAddress.toLowerCase() === ADMIN_WALLET.toLowerCase();
 
+  // Pages without their own tab open from More, so the marker rests there
+  const tabIndex = NAV_TABS.findIndex((tab) => tab.id === activeTab);
+  const currentIndex = isMoreOpen || tabIndex < 0 ? NAV_TABS.length : tabIndex;
+
   const handleTabClick = (tabId) => {
     onSelectTab(tabId);
     setIsMoreOpen(false);
@@ -38,163 +49,49 @@ export function BaseAppBottomNav({ activeTab, onSelectTab }) {
 
   return (
     <>
-      {/* Bottom Tab Bar (o1-dark-ui-design §5.12) */}
-      <nav
-        className="base-app-bottom-nav"
-        style={{
-          position: 'fixed',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          width: '100%',
-          height: '64px',
-          zIndex: 99999,
-          background: 'rgba(11, 12, 15, 0.95)',
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
-          borderTop: '1px solid var(--border)',
-          paddingBottom: 'env(safe-area-inset-bottom, 0px)',
-          boxSizing: 'border-box',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-around'
-        }}
-      >
-        <div
-          style={{
-            width: '100%',
-            maxWidth: '480px',
-            margin: '0 auto',
-            height: '100%',
-            display: 'grid',
-            gridTemplateColumns: 'repeat(5, 1fr)',
-            alignItems: 'center'
-          }}
-        >
-          {/* 1. Profile */}
-          <button
-            type="button"
-            onClick={() => handleTabClick('profile')}
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '4px',
-              background: 'transparent',
-              border: 'none',
-              cursor: 'pointer',
-              color: activeTab === 'profile' ? 'var(--accent)' : 'var(--text-3)'
-            }}
-          >
-            <User size={22} strokeWidth={1.75} />
-            <span style={{ fontSize: '11px', fontWeight: 500 }}>Profile</span>
-          </button>
+      {/* Bottom Tab Bar. Styles: o1-components.css, Based glass version: based.css */}
+      <nav className="base-app-bottom-nav">
+        <div className="bnav-track">
+          {/* Sliding marker on the current section, shown in Based */}
+          <span className="bnav-glider" style={{ '--bnav-i': currentIndex }} aria-hidden="true" />
 
-          {/* 2. Swap */}
-          <button
-            type="button"
-            onClick={() => handleTabClick('buy')}
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '4px',
-              background: 'transparent',
-              border: 'none',
-              cursor: 'pointer',
-              color: activeTab === 'buy' ? 'var(--accent)' : 'var(--text-3)'
-            }}
-          >
-            <ArrowLeftRight size={22} strokeWidth={1.75} />
-            <span style={{ fontSize: '11px', fontWeight: 500 }}>Swap</span>
-          </button>
+          {NAV_TABS.map(({ id, label, Icon }, index) => (
+            id === 'hub' ? (
+              /* Rewards Hub: the raised centre button in O1 */
+              <button
+                key={id}
+                type="button"
+                className="bnav-item bnav-item-hub"
+                aria-current={currentIndex === index ? 'page' : undefined}
+                onClick={() => handleTabClick(id)}
+              >
+                <div className="bnav-hub-icon">
+                  <Icon size={24} strokeWidth={2} />
+                </div>
+                <span className="bnav-hub-label">{label}</span>
+              </button>
+            ) : (
+              <button
+                key={id}
+                type="button"
+                className={`bnav-item ${activeTab === id ? 'active' : ''}`.trim()}
+                aria-current={currentIndex === index ? 'page' : undefined}
+                onClick={() => handleTabClick(id)}
+              >
+                <Icon size={22} strokeWidth={1.75} />
+                <span>{label}</span>
+              </button>
+            )
+          ))}
 
-          {/* 3. Center Raised Action: Rewards Hub */}
           <button
             type="button"
-            onClick={() => handleTabClick('hub')}
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'flex-start',
-              background: 'transparent',
-              border: 'none',
-              cursor: 'pointer',
-              position: 'relative'
-            }}
-          >
-            <div
-              style={{
-                position: 'absolute',
-                top: '-20px',
-                width: '52px',
-                height: '52px',
-                borderRadius: '50%',
-                background: 'var(--accent)',
-                color: 'var(--on-accent)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                border: '2px solid var(--bg-bar)',
-                transition: 'transform 0.15s ease'
-              }}
-            >
-              <Gift size={24} strokeWidth={2} />
-            </div>
-            <span
-              style={{
-                fontSize: '11px',
-                fontWeight: 600,
-                color: 'var(--accent)',
-                marginTop: '34px',
-                whiteSpace: 'nowrap'
-              }}
-            >
-              Rewards Hub
-            </span>
-          </button>
-
-          {/* 4. Claim */}
-          <button
-            type="button"
-            onClick={() => handleTabClick('claim')}
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '4px',
-              background: 'transparent',
-              border: 'none',
-              cursor: 'pointer',
-              color: activeTab === 'claim' ? 'var(--accent)' : 'var(--text-3)'
-            }}
-          >
-            <Coins size={22} strokeWidth={1.75} />
-            <span style={{ fontSize: '11px', fontWeight: 500 }}>Claim</span>
-          </button>
-
-          {/* 5. More */}
-          <button
-            type="button"
+            className={`bnav-item ${isMoreOpen ? 'active' : ''}`.trim()}
+            aria-current={currentIndex === NAV_TABS.length ? 'page' : undefined}
             onClick={() => setIsMoreOpen(true)}
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '4px',
-              background: 'transparent',
-              border: 'none',
-              cursor: 'pointer',
-              color: isMoreOpen ? 'var(--accent)' : 'var(--text-3)'
-            }}
           >
             <MoreHorizontal size={22} strokeWidth={1.75} />
-            <span style={{ fontSize: '11px', fontWeight: 500 }}>More</span>
+            <span>More</span>
           </button>
         </div>
       </nav>

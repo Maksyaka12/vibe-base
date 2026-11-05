@@ -437,6 +437,80 @@
   color: var(--accent);
 }
 
+/* Bottom bar (below desktop width). Based turns it into a floating glass bar in based.css */
+.base-app-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 64px;
+  z-index: 99999;
+  background: rgba(11, 12, 15, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid var(--border);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+.bnav-track {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  height: 100%;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  align-items: center;
+}
+.bnav-glider {
+  display: none;
+}
+.bnav-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-3);
+  font-size: 11px;
+  font-weight: 500;
+}
+.bnav-item.active {
+  color: var(--accent);
+}
+.bnav-item-hub {
+  justify-content: flex-start;
+  gap: 0;
+}
+.bnav-hub-icon {
+  position: absolute;
+  top: -20px;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--on-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--bg-bar);
+  transition: transform 0.15s ease;
+}
+.bnav-hub-label {
+  font-weight: 600;
+  color: var(--accent);
+  margin-top: 34px;
+  white-space: nowrap;
+}
+
 /* The bottom nav's More sheet carries the theme picker below desktop width */
 @media (max-width: 1023px) {
   .o1-theme-switcher {

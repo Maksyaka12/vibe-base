@@ -40,6 +40,9 @@
   --code-bg:  #0D0F13;
   --tint-ink: #FFFFFF;
 
+  /* Text on top of artwork, which always has a dark overlay */
+  --on-image: #F5F7FA;
+
   /* Semantic */
   --green: #2FD08A; --green-bg: rgba(47, 208, 138, 0.12); --green-bd: rgba(47, 208, 138, 0.28);
   --red:   #FF5A5F; --red-bg:   rgba(255, 90, 95, 0.12);  --red-bd:   rgba(255, 90, 95, 0.28);
