@@ -39,12 +39,25 @@ The app runs without any configuration. The variables for the API and agent feat
 
 ## Tests
 
+The app: lint, tests for claims, proofs and the API, then a build. Every push also runs these checks on GitHub.
+
+```bash
+cd frontend
+npm run lint
+npm test
+npm run build
+```
+
 Contract tests use Foundry. Setup is in [contracts/README.md](contracts/README.md).
 
 ```bash
 cd contracts
 forge test
 ```
+
+## Security
+
+Found a vulnerability? See [SECURITY.md](SECURITY.md).
 
 ## License
 
