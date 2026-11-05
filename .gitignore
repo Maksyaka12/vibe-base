@@ -21,8 +21,11 @@ Thumbs.db
 # Local tool settings
 .claude/
 
-# Promo videos, kept on this machine only
+# Promo videos and local materials, kept on this machine only
 promo/
+/video/
+/skills/
+frontend/public/dexscreener-banner.png
 
 # Local dev store for /api/schedule
 frontend/.data/

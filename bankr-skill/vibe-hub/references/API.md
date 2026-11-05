@@ -11,7 +11,7 @@ Index: endpoints, reward rules (`rules`), contract addresses.
 Wallet overview.
 - `vibeBalance`, `ethBalance`
 - `eligibility.nextHolderRound` / `eligibility.nextRoyaltyRound`: `name`, `snapshot` (ISO), `pool`, `requirement`, `eligibleNow`, `missing` ($VIBE short of the requirement)
-- `vibeClub`: `nftCount`, `tokenIds`, `mint` (info only; agents do not mint)
+- `vibeClub`: `nftCount`, `tokenIds`, `mint`: `live`, `priceEth` (contract price), `minted`, `maxSupply`, `canMint` (live, not sold out, this wallet has not minted yet), `tx` (ETH mint at `priceEth`, `sender` = the wallet; null when `canMint` is false). Mint is ETH only for agents; minting with $VIBE is done on https://vibehome.dog/nft
 - `checkIn`: `currentStreak`, `longestStreak`, `totalCheckIns`, `lastCheckIn`, `canCheckInToday`, `secondsUntilNext`, `tx` (present when a check-in is possible; `sender` = the wallet)
 - `achievements`: `progress` (`longestStreak`, `vaultsJoined`, `largestStake`), `items[]` (`id`, `name`, `condition`, `threshold`, `claimed`, `claimable`), `tx` (claims every claimable achievement at once, `sender: "any"`; null when nothing is claimable)
 - `staking.currentEpoch`: `epoch`, `pool`, `ends`, `vault` (link)
