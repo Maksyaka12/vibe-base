@@ -2,7 +2,7 @@
 
 Host: `https://vibehome.dog`. All endpoints are `GET`, public, no auth, JSON. Chain: Base (8453).
 A ready transaction is always `{ "to": "0x...", "data": "0x...", "value": "<wei>", "sender": "<address>|any" }`.
-Submit it on Base exactly as returned. `sender: "any"` = any wallet may send it, the result goes to the wallet in the request.
+Submit it on Base exactly as returned: `data` ends with the Vibe Hub Base Builder Code, do not strip it. `sender: "any"` = any wallet may send it, the result goes to the wallet in the request.
 
 ## GET /api/agent
 Index: endpoints, reward rules (`rules`), contract addresses.

@@ -11,6 +11,7 @@ import { createRequire } from 'node:module';
 import { encodeFunctionData, formatEther, getAddress, isAddress, parseAbi } from 'viem';
 import { json, store, env } from './common.js';
 import { publicClient } from '../../src/config/rpc.js';
+import { appendBuilderSuffix } from '../../src/config/builderCode.js';
 import { DEFAULT_SCHEDULE, applySchedule } from '../../src/data/rewardsSchedule.js';
 import * as schedule from '../../src/data/rewardsSchedule.js';
 import { validateSchedule } from '../../src/data/scheduleSchema.js';
@@ -72,6 +73,9 @@ const ACH_ABI = parseAbi([
   'function getAchievement(uint256) view returns ((uint8 kind, bool active, uint256 threshold, uint256 totalClaimed, string name, string uri))',
   'function claimAllFor(address account) returns (uint256)',
 ]);
+
+// Ready txs carry the Base Builder Code themselves, so agents that send them from their own wallet are attributed too.
+const encodeTx = (call) => appendBuilderSuffix(encodeFunctionData(call));
 
 const iso = (s) => new Date(s).toISOString();
 
@@ -158,8 +162,8 @@ export async function handleClaims({ method, query = {} }) {
       const proof = claim.proof;
       // v2: anyone (an agent) can send claimFor and the tokens go to the wallet; v1: the wallet itself must send claim
       const tx = status !== 'open' ? null : contract.version === 2
-        ? { to: contract.address, data: encodeFunctionData({ abi: V2_ABI, functionName: 'claimFor', args: [account, BigInt(r.id), BigInt(amountWei), proof] }), value: '0', sender: 'any' }
-        : { to: contract.address, data: encodeFunctionData({ abi: V1_ABI[type], functionName: 'claim', args: [BigInt(r.id), BigInt(amountWei), proof] }), value: '0', sender: account };
+        ? { to: contract.address, data: encodeTx({ abi: V2_ABI, functionName: 'claimFor', args: [account, BigInt(r.id), BigInt(amountWei), proof] }), value: '0', sender: 'any' }
+        : { to: contract.address, data: encodeTx({ abi: V1_ABI[type], functionName: 'claim', args: [BigInt(r.id), BigInt(amountWei), proof] }), value: '0', sender: account };
 
       return {
         type,
@@ -476,10 +480,10 @@ export async function handleStaking({ method, query = {} }) {
         claimableReward: Number(formatEther(reward)),
         txs: {
           claimReward: reward > 0n
-            ? { to: STAKING, data: encodeFunctionData({ abi: STAKING_ABI, functionName: 'claim', args: [e.vaultId, claimableEpochs, account] }), value: '0', sender: account }
+            ? { to: STAKING, data: encodeTx({ abi: STAKING_ABI, functionName: 'claim', args: [e.vaultId, claimableEpochs, account] }), value: '0', sender: account }
             : null,
           withdrawUnlocked: withdrawable.length
-            ? { to: STAKING, data: encodeFunctionData({ abi: STAKING_ABI, functionName: 'withdrawLots', args: [e.vaultId, withdrawable.map((l) => BigInt(l.lotId)), withdrawable.map((l) => lotsRes[0][l.lotId].remainingAmount), account] }), value: '0', sender: account }
+            ? { to: STAKING, data: encodeTx({ abi: STAKING_ABI, functionName: 'withdrawLots', args: [e.vaultId, withdrawable.map((l) => BigInt(l.lotId)), withdrawable.map((l) => lotsRes[0][l.lotId].remainingAmount), account] }), value: '0', sender: account }
             : null,
         },
       });
@@ -502,8 +506,8 @@ export async function handleStaking({ method, query = {} }) {
           amount: Number(formatEther(depositWei)),
           enoughBalance: balance >= depositWei,
           txs: [
-            ...(allowance < depositWei ? [{ to: VIBE_TOKEN, data: encodeFunctionData({ abi: ERC20_RW, functionName: 'approve', args: [STAKING, depositWei] }), value: '0', sender: account }] : []),
-            { to: STAKING, data: encodeFunctionData({ abi: STAKING_ABI, functionName: 'deposit', args: [target.vaultId, depositWei] }), value: '0', sender: account },
+            ...(allowance < depositWei ? [{ to: VIBE_TOKEN, data: encodeTx({ abi: ERC20_RW, functionName: 'approve', args: [STAKING, depositWei] }), value: '0', sender: account }] : []),
+            { to: STAKING, data: encodeTx({ abi: STAKING_ABI, functionName: 'deposit', args: [target.vaultId, depositWei] }), value: '0', sender: account },
           ],
         };
       }
@@ -559,9 +563,9 @@ export async function handleSwap({ method, query = {} }) {
     const txs = [];
     if (side === 'sell') {
       const allowance = await publicClient.readContract({ address: VIBE_TOKEN, abi: ERC20_RW, functionName: 'allowance', args: [account, router] });
-      if (allowance < amountWei) txs.push({ to: VIBE_TOKEN, data: encodeFunctionData({ abi: ERC20_RW, functionName: 'approve', args: [router, amountWei] }), value: '0', sender: account });
+      if (allowance < amountWei) txs.push({ to: VIBE_TOKEN, data: encodeTx({ abi: ERC20_RW, functionName: 'approve', args: [router, amountWei] }), value: '0', sender: account });
     }
-    txs.push({ to: router, data: built.data.data, value: side === 'buy' ? amountWei.toString() : '0', sender: account });
+    txs.push({ to: router, data: appendBuilderSuffix(built.data.data), value: side === 'buy' ? amountWei.toString() : '0', sender: account });
 
     const out = BigInt(built.data.amountOut || route.data.routeSummary.amountOut);
     const minOut = out - (out * BigInt(Math.round(slippage * 100))) / 10000n;
@@ -626,7 +630,7 @@ export async function buildEthMint(account) {
     }
   } catch {} // no route: the contract swaps the ETH itself
 
-  return { priceWei: price, priceEth: formatEther(price), tx: { to: VIBE_CLUB_NFT, data, value: price.toString(), sender: account } };
+  return { priceWei: price, priceEth: formatEther(price), tx: { to: VIBE_CLUB_NFT, data: appendBuilderSuffix(data), value: price.toString(), sender: account } };
 }
 
 // ─────────────────────────────── /api/status ───────────────────────────────
@@ -738,7 +742,7 @@ export async function handleStatus({ method, query = {} }) {
         canCheckInToday: checkIn[4],
         secondsUntilNext: Number(checkIn[5]),
         contract: CHECK_IN,
-        tx: checkIn[4] ? { to: CHECK_IN, data: encodeFunctionData({ abi: CHECK_IN_ABI, functionName: 'checkIn' }), value: '0', sender: account } : null,
+        tx: checkIn[4] ? { to: CHECK_IN, data: encodeTx({ abi: CHECK_IN_ABI, functionName: 'checkIn' }), value: '0', sender: account } : null,
       },
       achievements: {
         contract: ACHIEVEMENTS,
@@ -750,7 +754,7 @@ export async function handleStatus({ method, query = {} }) {
         items: achievements,
         // claims every earned one in one transaction; anyone may send it, badges go to this wallet
         tx: achievements.some((a) => a.claimable)
-          ? { to: ACHIEVEMENTS, data: encodeFunctionData({ abi: ACH_ABI, functionName: 'claimAllFor', args: [account] }), value: '0', sender: 'any' }
+          ? { to: ACHIEVEMENTS, data: encodeTx({ abi: ACH_ABI, functionName: 'claimAllFor', args: [account] }), value: '0', sender: 'any' }
           : null,
       },
       staking: {
