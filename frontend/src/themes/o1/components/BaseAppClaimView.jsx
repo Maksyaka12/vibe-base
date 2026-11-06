@@ -119,6 +119,15 @@ export function BaseAppClaimView(props) {
 
   // Share Celebration Modal state
   const [shareModalItem, setShareModalItem] = useState(null);
+  const [failedClaim, setFailedClaim] = useState(null);
+
+  // handleClaim resolves to false when the wallet rejected the claim or it failed: say so under the button.
+  const claim = async (type, epoch, amount) => {
+    setFailedClaim(null);
+    const done = await handleClaim(type, epoch, amount);
+    if (!done) setFailedClaim(`${type}-${epoch}`);
+    return done;
+  };
   const [downloadingBanner, setDownloadingBanner] = useState(false);
 
   // Download / Save Banner
@@ -287,7 +296,7 @@ export function BaseAppClaimView(props) {
                   </div>
 
                   <Button
-                    onClick={() => handleClaim('holder', activeHolderEpochId || 1, holderRewardAmount || 500000)}
+                    onClick={() => claim('holder', activeHolderEpochId || 1, holderRewardAmount || 500000)}
                     disabled={claimStatus[`holder-${activeHolderEpochId || 1}`] === 'claiming'}
                     variant="primary"
                     size="lg"
@@ -303,6 +312,9 @@ export function BaseAppClaimView(props) {
                       ? 'Claiming on Base...'
                       : `Claim +${(holderRewardAmount || 500000).toLocaleString('en-US')} $VIBE`}
                   </Button>
+                  {failedClaim === `holder-${activeHolderEpochId || 1}` && claimStatus[`holder-${activeHolderEpochId || 1}`] !== 'claiming' && (
+                    <p className="o1-claim-error" role="alert">Claim was cancelled or failed</p>
+                  )}
                 </div>
               </div>
             )}
@@ -343,7 +355,7 @@ export function BaseAppClaimView(props) {
                     onClick={async () => {
                       const ep = activeRoyaltyEpochId || 4;
                       const amt = vibeClubRewardAmount || (ep === 4 ? 9909 : (ep === 3 ? 18018 : (ep === 2 ? 17117 : 22935)));
-                      await handleClaim('vibeclub', ep, amt);
+                      if (!(await claim('vibeclub', ep, amt))) return;
                       setShareModalItem({
                         id: `vibeclub-${ep}`,
                         type: 'vibeclub',
@@ -367,6 +379,9 @@ export function BaseAppClaimView(props) {
                       ? 'Claiming on Base...'
                       : `Claim +${(vibeClubRewardAmount || (activeRoyaltyEpochId === 4 ? 9909 : (activeRoyaltyEpochId === 3 ? 18018 : (activeRoyaltyEpochId === 2 ? 17117 : 22935)))).toLocaleString('en-US')} $VIBE`}
                   </Button>
+                  {failedClaim === `vibeclub-${activeRoyaltyEpochId || 4}` && claimStatus[`vibeclub-${activeRoyaltyEpochId || 4}`] !== 'claiming' && (
+                    <p className="o1-claim-error" role="alert">Claim was cancelled or failed</p>
+                  )}
                 </div>
               </div>
             )}
@@ -487,7 +502,7 @@ export function BaseAppClaimView(props) {
                     targetDate={upcomingVibeClubRound?.targetDate}
                     onClaim={() => {
                       if (activeRoyaltyEpochId && vibeClubRewardAmount) {
-                        handleClaim('vibeclub', activeRoyaltyEpochId, vibeClubRewardAmount);
+                        claim('vibeclub', activeRoyaltyEpochId, vibeClubRewardAmount);
                       } else {
                         const el = document.getElementById('available-claims-section');
                         if (el) el.scrollIntoView({ behavior: 'smooth' });

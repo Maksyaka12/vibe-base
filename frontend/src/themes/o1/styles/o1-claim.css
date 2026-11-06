@@ -413,3 +413,12 @@
   border-radius: var(--r-md);
   padding: 40px 24px;
 }
+
+/* Under a claim button when the claim was rejected or failed */
+.o1-claim-error {
+  width: 100%;
+  margin: 0;
+  font-size: 13px;
+  text-align: center;
+  color: var(--red);
+}
