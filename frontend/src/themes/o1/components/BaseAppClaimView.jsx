@@ -343,7 +343,7 @@ export function BaseAppClaimView(props) {
                     onClick={async () => {
                       const ep = activeRoyaltyEpochId || 4;
                       const amt = vibeClubRewardAmount || (ep === 4 ? 9909 : (ep === 3 ? 18018 : (ep === 2 ? 17117 : 22935)));
-                      await handleClaim('vibeclub', ep, amt);
+                      if (!(await handleClaim('vibeclub', ep, amt))) return;
                       setShareModalItem({
                         id: `vibeclub-${ep}`,
                         type: 'vibeclub',
