@@ -35,13 +35,13 @@ const CONTRACTS = [
   },
   {
     id: 'holder-distributor-v2',
-    title: 'Holder rewards distributor (Unlock 3+)',
+    title: 'Holder rewards distributor',
     address: '0x90B855994D9ba328399d87d0285b7D7f7B8E2c80',
     basescanUrl: 'https://basescan.org/address/0x90B855994D9ba328399d87d0285b7D7f7B8E2c80'
   },
   {
     id: 'royalty-distributor-v2',
-    title: 'NFT royalty distributor (Royalty 7+)',
+    title: 'NFT royalty distributor',
     address: '0xeEb47756fBf417907B2Be94aCcfB851a224add2c',
     basescanUrl: 'https://basescan.org/address/0xeEb47756fBf417907B2Be94aCcfB851a224add2c'
   },
