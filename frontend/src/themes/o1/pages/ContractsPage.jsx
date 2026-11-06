@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Copy, Check, ExternalLink } from 'lucide-react';
-import { Button } from '../components/ui';
+import { Button, SectionTitle } from '../components/ui';
 
 const CONTRACTS = [
   {
@@ -56,13 +56,13 @@ const CONTRACTS = [
     title: 'Achievements & SBT badges contract',
     address: '0x1336E381768c98c8A6e79d99Ec065684c41925A5',
     basescanUrl: 'https://basescan.org/address/0x1336E381768c98c8A6e79d99Ec065684c41925A5'
-  },
-  {
-    id: 'coordinator',
-    title: 'Master AI agent coordinator & registry',
-    address: '0x5c48Ed8E0619d3eD29BdDcE62d2e7746E18d1469',
-    basescanUrl: 'https://basescan.org/address/0x5c48Ed8E0619d3eD29BdDcE62d2e7746E18d1469'
   }
+];
+
+const SECTIONS = [
+  { title: 'Core', ids: ['token', 'buyback'] },
+  { title: 'Contracts v2', ids: ['nft', 'holder-distributor-v2', 'royalty-distributor-v2', 'daily-checkin', 'achievements'] },
+  { title: 'Contracts v1', ids: ['holder-distributor', 'royalty-distributor'] }
 ];
 
 function ContractItemCard({ item }) {
@@ -111,8 +111,13 @@ function ContractItemCard({ item }) {
 export default function ContractsPage() {
   return (
     <div className="o1-contracts-container">
-      {CONTRACTS.map((item) => (
-        <ContractItemCard key={item.id} item={item} />
+      {SECTIONS.map(({ title, ids }) => (
+        <div key={title} className="o1-contracts-section">
+          <SectionTitle title={title} count={ids.length} />
+          {ids.map((id) => (
+            <ContractItemCard key={id} item={CONTRACTS.find((item) => item.id === id)} />
+          ))}
+        </div>
       ))}
     </div>
   );
