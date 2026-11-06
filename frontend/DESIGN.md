@@ -366,7 +366,8 @@ top-right, 28 px. A modal must scroll on small screens.
 ### Transaction states
 
 Each on-chain action goes through: idle → waiting for the wallet → pending (spinner on the button) → success (a Basescan
-link) or error (a short message in plain words). Rejecting in the wallet is not an error, so return to idle quietly.
+link) or error (a short message in plain words). Rejecting in the wallet is not an error, so return to idle quietly. The exception is the Claim Portal: the wallet doesn't
+always tell a rejection from a failure, so its claim buttons show "Claim was cancelled or failed" for both.
 
 ### Connect wallet
 
