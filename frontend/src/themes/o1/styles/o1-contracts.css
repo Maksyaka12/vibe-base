@@ -6,8 +6,14 @@
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 28px;
   box-sizing: border-box;
+}
+
+.o1-contracts-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .o1-contract-card {
@@ -66,4 +72,9 @@
     width: 100%;
     justify-content: flex-start;
   }
+}
+
+/* the section gap adds to the title's own margin: 16px in total, as on other pages */
+.o1-contracts-section .section-title {
+  margin-bottom: 4px;
 }
