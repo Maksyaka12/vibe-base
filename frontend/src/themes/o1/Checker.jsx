@@ -1228,6 +1228,7 @@ export default function Checker({ isProfileMode = false } = {}) {
     return false;
   };
 
+  // Resolves to true only once the contract confirmed the claim; a rejected or failed claim resolves to false.
   const handleClaim = async (type, roundId, amountNum) => {
     const claimKey = `${type}-${roundId}`;
     setClaimStatus(prev => ({ ...prev, [claimKey]: 'claiming' }));
@@ -1295,9 +1296,11 @@ export default function Checker({ isProfileMode = false } = {}) {
       claimedThisSession.current.add(claimKey);
       invalidateClaimTransactions(address);
       setClaimStatus(prev => ({ ...prev, [claimKey]: 'claimed' }));
+      return true;
     } catch (err) {
       console.error('Claim transaction error:', err);
       setClaimStatus(prev => ({ ...prev, [claimKey]: 'idle' }));
+      return false;
     }
   };
 
