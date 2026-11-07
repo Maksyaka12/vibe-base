@@ -16,7 +16,7 @@ export const club = [
               rows={[
                 ['Supply', <><N>333</N> NFTs</>],
                 ['Wallet limit', <><N>1</N> mint per wallet</>],
-                ['Mint price', <>The current price in ETH comes from the contract (<N>0.005 ETH</N> when these docs were written), or the same value in $VIBE at the market price</>],
+                ['Mint price', <><N>0.005 ETH</N>, or the same value in $VIBE at the market price</>],
                 ['Network', 'Base'],
                 ['Secondary market', <Ext href="https://opensea.io/collection/vibeclubnft">OpenSea</Ext>],
               ]}
