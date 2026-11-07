@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import {
   X,
+  BookOpen,
   Puzzle,
   Gift,
   Coins,
@@ -138,6 +139,7 @@ export function BaseAppSidebar({
   ];
 
   const docsItems = [
+    { id: 'docs', name: 'Docs', icon: <BookOpen size={18} strokeWidth={1.75} /> },
     { id: 'tokenomics', name: 'Tokenomics', icon: <TrendingUp size={18} strokeWidth={1.75} /> },
     { id: 'contracts', name: 'Official addresses', icon: <FileCode2 size={18} strokeWidth={1.75} /> }
   ];

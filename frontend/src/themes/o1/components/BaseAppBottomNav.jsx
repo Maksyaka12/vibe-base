@@ -4,6 +4,7 @@ import {
   ArrowLeftRight,
   Coins,
   Gift,
+  BookOpen,
   MoreHorizontal,
   Crown,
   TrendingUp,
@@ -182,6 +183,27 @@ export function BaseAppBottomNav({ activeTab, onSelectTab }) {
               >
                 <TrendingUp size={18} color="var(--accent)" />
                 <span>Tokenomics</span>
+              </button>
+
+              <button
+                onClick={() => handleTabClick('docs')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '12px 14px',
+                  borderRadius: '12px',
+                  background: 'var(--surface-2)',
+                  border: '1px solid var(--border)',
+                  color: 'var(--text)',
+                  fontSize: '14px',
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                  textAlign: 'left'
+                }}
+              >
+                <BookOpen size={18} color="var(--accent)" />
+                <span>Docs</span>
               </button>
 
               <button

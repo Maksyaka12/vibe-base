@@ -122,7 +122,7 @@ export function BaseAppView({ RewardsComponent }) {
     if (path.includes('wallet')) return 'wallet';
     if (path.includes('account')) return 'account';
     if (path.includes('tokenomics')) return 'tokenomics';
-    if (path.includes('contracts') || path.includes('adresses') || path.includes('addresses') || path.includes('docs')) return 'contracts';
+    if (path.includes('contracts') || path.includes('adresses') || path.includes('addresses')) return 'contracts';
     if (path.includes('hub') || path.includes('rewards') || path.includes('events')) return 'hub';
     return 'hub';
   };
@@ -137,6 +137,11 @@ export function BaseAppView({ RewardsComponent }) {
   }, [location.pathname]);
 
   const handleSelectTab = (tabId) => {
+    // The docs are a page of their own, outside this shell.
+    if (tabId === 'docs') {
+      navigate('/docs');
+      return;
+    }
     setActiveTab(tabId);
     const isAppPrefix = location.pathname.startsWith('/app');
     const prefix = isAppPrefix ? '/app' : '';

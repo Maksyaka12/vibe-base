@@ -224,6 +224,12 @@ html[data-theme='based'] .base-app-shell::after {
   opacity: 0.85;
 }
 
+/* Long text in the docs sits right on the page, so it goes without the texture */
+html[data-theme='based'] .o1-docs::before,
+html[data-theme='based'] .o1-docs::after {
+  display: none;
+}
+
 @keyframes based-drift {
   from { -webkit-mask-position: 0 0; mask-position: 0 0; }
   to   { -webkit-mask-position: -3vw 4vh; mask-position: -3vw 4vh; }
