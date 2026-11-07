@@ -904,6 +904,207 @@ html:has(.o1-docs) body,
   }
 }
 
+/* $VIBE market: metric tiles and the market cap chart (VibeMarket.jsx) */
+.o1-docs-market {
+  margin: 12px 0 20px;
+}
+
+.o1-docs-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.o1-docs-metrics .tile-value {
+  font-size: 18px;
+}
+
+.o1-docs .o1-docs-market-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0 14px;
+  font-size: 12px;
+  color: var(--text-3);
+}
+
+.o1-docs-market-status i {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--r-full);
+  background: var(--green);
+}
+
+.o1-docs-chart {
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+}
+
+.o1-docs-chart-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.o1-docs-chart-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.o1-docs-chart-sub {
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--text-3);
+}
+
+.o1-docs-chart .seg button {
+  height: 28px;
+  padding: 0 12px;
+  font-size: 13px;
+}
+
+.o1-docs-chart-plot {
+  position: relative;
+  width: 100%;
+  touch-action: pan-y;
+}
+
+.o1-docs-chart-plot svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.o1-docs-chart-plot .grid {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.o1-docs-chart-plot .axis {
+  font-size: 11px;
+  fill: var(--text-3);
+}
+
+.o1-docs-chart-plot .vol {
+  fill: var(--surface-3);
+}
+
+.o1-docs-chart-plot .vol.on {
+  fill: var(--text-3);
+}
+
+.o1-docs-chart-plot .area {
+  fill: color-mix(in srgb, var(--accent) 14%, transparent);
+}
+
+.o1-docs-chart-plot .line {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.o1-docs-chart-plot .cursor {
+  stroke: var(--border-strong);
+  stroke-dasharray: 3 3;
+}
+
+.o1-docs-chart-plot .dot {
+  fill: var(--accent);
+  stroke: var(--surface);
+  stroke-width: 2;
+}
+
+.o1-docs-chart-plot .ath {
+  stroke: var(--text-3);
+  stroke-dasharray: 4 4;
+}
+
+.o1-docs-chart-plot .ath-label {
+  font-size: 11px;
+  fill: var(--text-2);
+}
+
+.o1-docs-chart-tip {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  font-size: 12px;
+  color: var(--text-2);
+  white-space: nowrap;
+  pointer-events: none;
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-sm);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+}
+
+.o1-docs-chart-tip b {
+  font-size: 14px;
+  color: var(--text);
+}
+
+.o1-docs-chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--text-3);
+}
+
+.o1-docs-chart-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.o1-docs-chart-legend i {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.o1-docs-chart-legend i.line {
+  height: 2px;
+  background: var(--accent);
+}
+
+.o1-docs-chart-legend i.vol {
+  background: var(--surface-3);
+}
+
+.o1-docs-chart-legend i.ath {
+  height: 0;
+  border-top: 2px dashed var(--text-3);
+  border-radius: 0;
+}
+
+@media (max-width: 640px) {
+  .o1-docs-metrics {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .o1-docs-chart {
+    padding: 12px;
+  }
+
+  .o1-docs-chart-head {
+    flex-direction: column;
+  }
+}
+
 @media (max-width: 640px) {
   .o1-docs-timeline,
   .o1-docs-cards {

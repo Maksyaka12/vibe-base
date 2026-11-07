@@ -13,8 +13,9 @@ export const start = [
         body: (
           <>
             <p>
-              Vibe Hub is a web app at <Ext href="https://vibehome.dog">vibehome.dog</Ext> for everyone who holds or uses <strong>$VIBE</strong>, a token on the
-              Base network. It shows when each reward round happens, tells you whether your wallet qualifies, and lets you claim, stake, swap and mint from one place.
+              Vibe Hub is a web app at <Ext href="https://vibehome.dog">vibehome.dog</Ext> for everyone who holds or uses <strong>$VIBE</strong>, the native token of
+              Vibe Hub on the Base network. Every feature is built around $VIBE: rewards, royalties and staking pay out in it, and revenue flows back into it
+              through buybacks and burns (<To page="vibe-token">About $VIBE</To>). The app shows when each reward round happens, tells you whether your wallet qualifies, and lets you claim, stake, swap and mint from one place.
             </p>
             <p>
               Everything that moves funds is a transaction on Base that you sign in your own wallet, or that your agent sends from a separate wallet you control.
@@ -77,7 +78,7 @@ export const start = [
                 ['Time zone of all rounds', 'UTC'],
               ]}
             />
-            <p>Every official contract is listed on <To page="addresses">Official addresses</To>.</p>
+            <p>Every official contract is listed on <To page="addresses">Official addresses</To>. How $VIBE launched and its market data are on <To page="vibe-token">About $VIBE</To>.</p>
           </>
         ),
       },

@@ -6,7 +6,7 @@ version: 1
 
 # Vibe Hub - agent skill
 
-[Vibe Hub](https://vibehome.dog) is the $VIBE community app on **Base (chain ID 8453)**. With this skill you act for the user from their **Vibe Agent Wallet**: our server signs and sends the transactions, you never handle a private key.
+[Vibe Hub](https://vibehome.dog) is a community app on **Base (chain ID 8453)** built around **$VIBE**, its native token. With this skill you act for the user from their **Vibe Agent Wallet**: our server signs and sends the transactions, you never handle a private key.
 
 ## Setup
 

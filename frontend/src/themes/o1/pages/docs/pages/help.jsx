@@ -145,6 +145,7 @@ export const help = [
           <Table
             columns={['Term', 'Meaning']}
             rows={[
+              ['$VIBE', 'The native token of Vibe Hub on Base. Rewards, royalties and staking pay out in it'],
               ['Active wallet', 'The wallet the app is showing and acting with, chosen with the Main and Agent switch'],
               ['Agent key', 'A secret that lets your AI agent ask Vibe Hub to act from the Vibe Agent Wallet. Starts with vibe_agent_'],
               ['Allocation', 'What one wallet can claim from one round'],
