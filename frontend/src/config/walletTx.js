@@ -23,7 +23,8 @@ export async function sendWalletTx({ wallets, address, to, data, value = 0n }) {
         chainId: '0x2105',
         from: address,
         calls: [{ to, value: valueHex, data: calldata }],
-        capabilities: { dataSuffix: { value: DATA_SUFFIX, optional: true } }
+        // no Builder Code on a plain ETH send (see appendBuilderSuffix)
+        ...(calldata !== '0x' ? { capabilities: { dataSuffix: { value: DATA_SUFFIX, optional: true } } } : {})
       }]
     });
   } catch (e) {

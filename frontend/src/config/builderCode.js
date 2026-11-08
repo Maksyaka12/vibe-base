@@ -14,11 +14,13 @@ export const BUILDER_CODE_HEX = DATA_SUFFIX.startsWith('0x')
 
 /**
  * Appends the official ERC-8021 Builder Code suffix to transaction calldata if not already present.
+ * A plain value transfer (no calldata) stays without it: an ETH send to a contract or to an EIP-7702
+ * wallet with unknown calldata runs the recipient's code and can revert, while a send with no data never does.
  * @param {string} calldata - Raw hex calldata (with or without 0x)
  * @returns {string} - Calldata with ERC-8021 data suffix attached
  */
 export function appendBuilderSuffix(calldata) {
-  if (!calldata) return '0x';
+  if (!calldata || calldata === '0x') return '0x';
   const clean = calldata.startsWith('0x') ? calldata : `0x${calldata}`;
   if (!BUILDER_CODE_HEX) return clean;
   if (clean.toLowerCase().endsWith(BUILDER_CODE_HEX.toLowerCase())) {
