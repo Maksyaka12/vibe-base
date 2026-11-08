@@ -230,7 +230,7 @@ export const rewards = [
           <>
             <p>Only $VIBE sitting directly in your wallet at the snapshot counts.</p>
             <Callout type="warn"><strong>These do not count:</strong> tokens staked in a vault, tokens in a liquidity pool, or tokens in any other contract. If you stake everything, that wallet does not qualify for holder rewards.</Callout>
-            <p>Protocol addresses are excluded from the snapshot: the token contract, the Uniswap pool, the vesting vault, staking contracts, the rewards distributor, and the burn and zero addresses.</p>
+            <p>Protocol addresses are excluded from the snapshot: the token contract, the Uniswap pool, the vesting vault, the staking contract, the buyback and community pool address, the reward distributors, and the burn and zero addresses.</p>
           </>
         ),
       },

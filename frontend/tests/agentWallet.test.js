@@ -15,6 +15,7 @@ process.env.PRIVY_AUTHORIZATION_KEY = 'test';
 const AGENT = '0x1111111111111111111111111111111111111111';
 const MAIN = '0x2222222222222222222222222222222222222222';
 const STRANGER = '0x3333333333333333333333333333333333333333';
+const KYBER = '0x6131B5fae19EA4f9D964eAc0408E4408b66337b5';
 const KEY = 'vibe_agent_test';
 
 // what the fake chain does with the next transaction: 'ok', 'revert', 'timeout' or 'refuse' (Privy fails)
@@ -148,4 +149,94 @@ test('a swap route through an unknown router is refused', async () => {
   } finally {
     globalThis.fetch = realFetch;
   }
+});
+
+// ── checkTx: the rules for ready transactions ({"tx"} / {"txs"}) ──
+const { encodeFunctionData, parseAbi } = await import('viem');
+const { VIBE_TOKEN, VIBE_CLUB_NFT, STAKING_CONTRACT } = await import('../src/data/snapshot/constants.js');
+const CHECK_IN = '0x1938BA215ef556e51eE6AaF909e0970AE0167634';
+const ERC20_ABI = parseAbi(['function transfer(address,uint256)', 'function approve(address,uint256)']);
+const STAKE_ABI = parseAbi(['function deposit(bytes32,uint256)', 'function claim(bytes32,uint64[],address)', 'function withdrawLots(bytes32,uint64[],uint256[],address)']);
+const VAULT = `0x${'ab'.repeat(32)}`;
+const erc20 = (fn, args) => encodeFunctionData({ abi: ERC20_ABI, functionName: fn, args });
+const stake = (fn, args) => encodeFunctionData({ abi: STAKE_ABI, functionName: fn, args });
+const sendTx = (tx) => act({ tx });
+const setAllow = (allow) => db.write([['set', `agent_settings:${AGENT}`, { limits: {}, allow }]]);
+
+test('ready txs go only to Vibe Hub contracts', async () => {
+  await reset();
+  await setAllow({});
+  assert.equal((await sendTx({ to: CHECK_IN, data: '0x183ff085', value: '0' })).status, 200);
+  for (const to of [STRANGER, KYBER, VIBE_CLUB_NFT]) {
+    assert.equal((await sendTx({ to, data: '0x', value: '0' })).status, 403, to);
+  }
+  assert.equal(sent, 1);
+});
+
+test('Vibe Hub calls that take no ETH refuse ETH', async () => {
+  await reset();
+  const res = await sendTx({ to: CHECK_IN, data: '0x183ff085', value: '1' });
+  assert.equal(res.status, 403);
+  assert.match(res.body.error, /takes no ETH/);
+});
+
+test('$VIBE can only be approved for staking or the swap router, never sent with a raw tx', async () => {
+  await reset();
+  await setAllow({});
+  assert.equal((await sendTx({ to: VIBE_TOKEN, data: erc20('approve', [STAKING_CONTRACT, 1n]) })).status, 200);
+  assert.equal((await sendTx({ to: VIBE_TOKEN, data: erc20('approve', [KYBER, 1n]) })).status, 200);
+  assert.equal((await sendTx({ to: VIBE_TOKEN, data: erc20('approve', [STRANGER, 1n]) })).status, 403);
+  const raw = await sendTx({ to: VIBE_TOKEN, data: erc20('transfer', [STRANGER, 1n]) });
+  assert.equal(raw.status, 403);
+  assert.match(raw.body.error, /action":"transfer/);
+  assert.equal(sent, 2);
+});
+
+test('staking payouts go only to the agent wallet', async () => {
+  await reset();
+  await setAllow({});
+  assert.equal((await sendTx({ to: STAKING_CONTRACT, data: stake('deposit', [VAULT, 1n]) })).status, 200);
+  assert.equal((await sendTx({ to: STAKING_CONTRACT, data: stake('claim', [VAULT, [1n], AGENT]) })).status, 200);
+  assert.equal((await sendTx({ to: STAKING_CONTRACT, data: stake('claim', [VAULT, [1n], STRANGER]) })).status, 403);
+  assert.equal((await sendTx({ to: STAKING_CONTRACT, data: stake('withdrawLots', [VAULT, [1n], [1n], STRANGER]) })).status, 403);
+  assert.equal((await sendTx({ to: STAKING_CONTRACT, data: '0xdeadbeef' })).status, 403);
+  assert.equal(sent, 2);
+});
+
+test('settings switches are enforced', async () => {
+  await reset();
+  await setAllow({ staking: false, swaps: false, transfers: false, mint: false });
+  assert.equal((await sendTx({ to: STAKING_CONTRACT, data: stake('deposit', [VAULT, 1n]) })).status, 403);
+  assert.equal((await sendTx({ to: VIBE_TOKEN, data: erc20('approve', [STAKING_CONTRACT, 1n]) })).status, 403);
+  assert.equal((await sendTx({ to: VIBE_TOKEN, data: erc20('approve', [KYBER, 1n]) })).status, 403);
+  assert.equal((await act({ action: 'swap', side: 'buy', amount: '0.01' })).status, 403);
+  assert.equal((await act({ action: 'mint' })).status, 403);
+  assert.equal((await transfer(1)).status, 403);
+  assert.equal((await transfer(1, MAIN)).status, 200, 'the own main wallet always works');
+  assert.equal(sent, 1);
+  await setAllow({});
+});
+
+test('a tx built for another wallet is refused', async () => {
+  await reset();
+  const res = await sendTx({ to: CHECK_IN, data: '0x183ff085', value: '0', sender: STRANGER });
+  assert.equal(res.status, 400);
+});
+
+test('a bad tx value is a 400, not a server error', async () => {
+  await reset();
+  for (const value of ['abc', '1.5', '-1', 1.5, -1, {}, '']) {
+    const res = await sendTx({ to: CHECK_IN, data: '0x183ff085', value });
+    assert.equal(res.status, 400, JSON.stringify(value));
+  }
+  for (const value of [undefined, 0, '0', '0x0']) {
+    assert.equal((await sendTx({ to: CHECK_IN, data: '0x183ff085', value })).status, 200, JSON.stringify(value));
+  }
+});
+
+test('at most 5 ready txs per request', async () => {
+  await reset();
+  const tx = { to: CHECK_IN, data: '0x183ff085', value: '0' };
+  assert.equal((await act({ txs: Array(6).fill(tx) })).status, 400);
+  assert.equal(sent, 0);
 });

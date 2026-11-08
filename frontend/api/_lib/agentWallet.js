@@ -24,7 +24,7 @@ import { json, store, env } from './common.js';
 import { publicClient } from '../../src/config/rpc.js';
 import { appendBuilderSuffix } from '../../src/config/builderCode.js';
 import { distributorAddresses } from '../../src/config/distributors.js';
-import { VIBE_TOKEN, VIBE_CLUB_NFT } from '../../src/data/snapshot/constants.js';
+import { VIBE_TOKEN, VIBE_CLUB_NFT, STAKING_CONTRACT as STAKING } from '../../src/data/snapshot/constants.js';
 import { handleSwap, buildEthMint, KYBER_ROUTER } from './agent.js';
 
 export const PRIVY_APP_ID = env('PRIVY_APP_ID') || 'cmrugdvds02q60cl7tegmrnx7';
@@ -32,7 +32,6 @@ export const AGENT_SIGNER_ID = env('PRIVY_SIGNER_ID') || 'y71vnth4hmzgtq71ehfipc
 
 const CHECK_IN = '0x1938BA215ef556e51eE6AaF909e0970AE0167634';
 const ACHIEVEMENTS = '0x1336E381768c98c8A6e79d99Ec065684c41925A5';
-const STAKING = '0x6f25a9e1e677616c1bF7ab54b470b0c82839Adb4';
 const USDC = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913';
 
 const TOKENS = {
@@ -73,6 +72,8 @@ const STAKING_ABI = parseAbi([
 const EMBEDDED = ['privy', 'privy-v2'];
 const sha256 = (s) => createHash('sha256').update(s).digest('hex');
 const lower = (a) => String(a || '').toLowerCase();
+// A tx value in wei: missing, a whole non-negative number, or a decimal or 0x hex string
+const validValue = (v) => v === undefined || v === null || (typeof v === 'number' ? Number.isSafeInteger(v) && v >= 0 : typeof v === 'string' && /^(\d+|0x[0-9a-fA-F]+)$/.test(v));
 
 let client;
 async function privy() {
@@ -369,7 +370,7 @@ export async function handleAgentAct({ method, headers = {}, body }) {
     }
 
     const txs = Array.isArray(req.txs) ? req.txs : req.tx ? [req.tx] : null;
-    if (!txs?.length || txs.length > 5 || txs.some((tx) => !tx || !isAddress(tx.to || '') || !/^0x[0-9a-fA-F]*$/.test(tx.data || ''))) {
+    if (!txs?.length || txs.length > 5 || txs.some((tx) => !tx || !isAddress(tx.to || '') || !/^0x[0-9a-fA-F]*$/.test(tx.data || '') || !validValue(tx.value))) {
       return json(400, { error: 'Send {"tx":{to,data,value}} (or "txs": up to 5, in order) as returned by the Vibe Hub read endpoints, or {"action":"transfer"|"swap",...}' });
     }
     for (const tx of txs) {

@@ -3,23 +3,28 @@
 import { createPublicClient, http, fallback, parseAbi, parseUnits, formatUnits } from 'viem';
 import { base } from 'viem/chains';
 import { claimLeaf, buildMerkleTree } from './merkle.js';
-import { VIBE_TOKEN, VIBE_CLUB_NFT, TRANSFER_TOPIC } from './constants.js';
+import { VIBE_TOKEN, VIBE_CLUB_NFT, TRANSFER_TOPIC, STAKING_CONTRACT, BUYBACK_WALLET, UNISWAP_V4_POOL_MANAGER, VESTING_VAULT, BURN_ADDRESS, ZERO_ADDRESS } from './constants.js';
+import { distributorAddresses } from '../../config/distributors.js';
 
 export { VIBE_TOKEN, VIBE_CLUB_NFT };
 const NFT_MAX_SUPPLY = 333;
 
 export const HOLDER_DEFAULTS = { minBalance: 5000000, cap: 500000 };
 
-const HOLDER_EXCLUSIONS = [
-  '0xb200000000000000000000df24ecb8bf51100a01', // token itself
-  '0x498581ff718922c3f8e6a244956af099b2652b2b', // Uniswap V4 PoolManager
-  '0x3beea54db87a632a5faf20db6765d3af94c81b31', // vesting vault
-  '0xfce13943c69b8cfe3de795dfe1a8447c8f8a99cb', // staking contract
-  '0x000000000000000000000000000000000000dead',
-  '0x0000000000000000000000000000000000000000',
-  '0x77e04dd8c45725d2b2b3c8eebac2f3f1708fd089', // holder rewards distributor
-];
-const NFT_EXCLUSIONS = ['0x0000000000000000000000000000000000000000', '0x000000000000000000000000000000000000dead'];
+// Built from the shared addresses, so a contract that moves cannot drift out of this list (tests/snapshot.test.js).
+export const HOLDER_EXCLUSIONS = [
+  VIBE_TOKEN,
+  UNISWAP_V4_POOL_MANAGER,
+  VESTING_VAULT,
+  STAKING_CONTRACT,
+  BUYBACK_WALLET,
+  ...distributorAddresses('holder'),
+  ...distributorAddresses('royalty'),
+  BURN_ADDRESS,
+  ZERO_ADDRESS,
+  '0xfce13943c69b8cfe3de795dfe1a8447c8f8a99cb', // was listed here as the staking contract; kept out to be safe
+].map((a) => a.toLowerCase());
+const NFT_EXCLUSIONS = [ZERO_ADDRESS, BURN_ADDRESS].map((a) => a.toLowerCase());
 
 // Free nodes that serve historical state (balances at any past block); mainnet.base.org rate-limits hardest.
 const ARCHIVE_RPCS = ['https://base.drpc.org', 'https://1rpc.io/base', 'https://base-mainnet.public.blastapi.io', 'https://mainnet.base.org'];
@@ -214,7 +219,7 @@ async function multicallChunks(contracts, blockNumber, chunkSize, onChunk) {
 }
 
 // Proportional split with a per-wallet cap, redistributing what capped wallets leave (same loop as the script).
-function proportionalWithCap(eligible, pool, cap) {
+export function proportionalWithCap(eligible, pool, cap) {
   let remainingPool = pool;
   let remaining = [...eligible];
   const rewards = new Map();
