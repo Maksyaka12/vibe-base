@@ -2,11 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import { usePrivy, useWallets } from '@privy-io/react-auth';
 import { formatUnits, parseAbi, encodeFunctionData, parseUnits, parseAbiItem } from 'viem';
 import { getPublicClient } from '../../config/rpc';
-import royalty1Data from '../../data/royalty_1_proofs.json';
-import royalty2Data from '../../data/royalty_2_proofs.json';
-import royalty3Data from '../../data/royalty_3_proofs.json';
-import royalty4Data from '../../data/royalty_4_proofs.json';
-import royalty5Data from '../../data/royalty_5_proofs.json';
 import nftNames from '../../data/nftNames.json';
 import { BaseAppClaimView } from './components/BaseAppClaimView';
 import { BaseAppProfileView } from './components/BaseAppProfileView';
@@ -81,11 +76,11 @@ async function loadUserClaimTransactions(userAddress, customClient = null) {
     // Expected allocations for this user if available in proof data
     const expHolder1 = roundProofs('holder', 1)?.claims?.[lowerUser]?.amount;
     const expHolder2 = roundProofs('holder', 2)?.claims?.[lowerUser]?.amount;
-    const expRoyalty1 = royalty1Data?.claims?.[lowerUser]?.amount;
-    const expRoyalty2 = royalty2Data?.claims?.[lowerUser]?.amount;
-    const expRoyalty3 = royalty3Data?.claims?.[lowerUser]?.amount;
-    const expRoyalty4 = royalty4Data?.claims?.[lowerUser]?.amount;
-    const expRoyalty5 = royalty5Data?.claims?.[lowerUser]?.amount;
+    const expRoyalty1 = roundProofs('royalty', 1)?.claims?.[lowerUser]?.amount;
+    const expRoyalty2 = roundProofs('royalty', 2)?.claims?.[lowerUser]?.amount;
+    const expRoyalty3 = roundProofs('royalty', 3)?.claims?.[lowerUser]?.amount;
+    const expRoyalty4 = roundProofs('royalty', 4)?.claims?.[lowerUser]?.amount;
+    const expRoyalty5 = roundProofs('royalty', 5)?.claims?.[lowerUser]?.amount;
 
     const rpcClient = customClient || getPublicClient();
 
@@ -508,19 +503,19 @@ export default function Checker({ isProfileMode = false } = {}) {
               })
               .map(item => {
                 if (item.id === 'vibeclub-5') {
-                  const correctAmt = royalty5Data?.claims?.[address.toLowerCase()]?.amount || 7207;
+                  const correctAmt = roundProofs('royalty', 5)?.claims?.[address.toLowerCase()]?.amount || 7207;
                   return { ...item, roundId: 5, title: 'Vibe Club Royalties · Royalty 5', amount: correctAmt };
                 }
                 if (item.id === 'vibeclub-4') {
-                  const correctAmt = royalty4Data?.claims?.[address.toLowerCase()]?.amount || 9909;
+                  const correctAmt = roundProofs('royalty', 4)?.claims?.[address.toLowerCase()]?.amount || 9909;
                   return { ...item, roundId: 4, title: 'Vibe Club Royalties · Royalty 4', amount: correctAmt };
                 }
                 if (item.id === 'vibeclub-3') {
-                  const correctAmt = royalty3Data?.claims?.[address.toLowerCase()]?.amount || 18018;
+                  const correctAmt = roundProofs('royalty', 3)?.claims?.[address.toLowerCase()]?.amount || 18018;
                   return { ...item, roundId: 3, title: 'Vibe Club Royalties · Royalty 3', amount: correctAmt };
                 }
                 if (item.id === 'vibeclub-2') {
-                  const correctAmt = royalty2Data?.claims?.[address.toLowerCase()]?.amount || 17117;
+                  const correctAmt = roundProofs('royalty', 2)?.claims?.[address.toLowerCase()]?.amount || 17117;
                   const isAdminWallet = address.toLowerCase() === ADMIN_WALLET.toLowerCase();
                   const fallbackTx = isAdminWallet ? '0x88cde1d5ab45186ef77475ced14e2e4b370636da1e345275ee3a2fb5992880c7' : null;
                   const txHash = (item.txHash && !isBadTxHash(item.txHash)) ? item.txHash : fallbackTx;
@@ -533,7 +528,7 @@ export default function Checker({ isProfileMode = false } = {}) {
                   };
                 }
                 if (item.id === 'vibeclub-1') {
-                  const correctAmt = royalty1Data?.claims?.[address.toLowerCase()]?.amount || 22935;
+                  const correctAmt = roundProofs('royalty', 1)?.claims?.[address.toLowerCase()]?.amount || 22935;
                   const isAdminWallet = address.toLowerCase() === ADMIN_WALLET.toLowerCase();
                   const fallbackTx = isAdminWallet ? '0x0efb6d5e52fcca2e770f4c78db0c8b86f6c919ea53272813ec68816e5a5c0d84' : null;
                   const txHash = (item.txHash && !isBadTxHash(item.txHash)) ? item.txHash : fallbackTx;

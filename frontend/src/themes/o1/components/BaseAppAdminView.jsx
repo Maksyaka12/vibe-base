@@ -6,19 +6,12 @@ import { Coins, Crown, Sparkles, ShieldAlert, ExternalLink, Wallet, CalendarCloc
 import { publicClient } from '../../../config/rpc';
 import { DATA_SUFFIX, appendBuilderSuffix } from '../../../config/builderCode';
 import { useVibeNftContract } from '../../../hooks/useVibeNftContract';
-import round1Data from '../../../data/round_1_proofs.json';
-import round2Data from '../../../data/round_2_proofs.json';
-import royalty1Data from '../../../data/royalty_1_proofs.json';
-import royalty2Data from '../../../data/royalty_2_proofs.json';
-import royalty3Data from '../../../data/royalty_3_proofs.json';
-import royalty4Data from '../../../data/royalty_4_proofs.json';
-import royalty5Data from '../../../data/royalty_5_proofs.json';
 import { Card, Tile, Button, Alert } from './ui';
 import { AdminScheduleEditor } from './AdminScheduleEditor';
 import { AdminSnapshotTool } from './AdminSnapshotTool';
 import { HOLDER_ROUNDS, VIBECLUB_ROUNDS, SCHEDULE } from '../../../data/rewardsSchedule';
 import { VIBE_ACHIEVEMENTS_CONTRACT_ADDRESS } from '../../../config/achievements';
-import { roundProofs } from '../../../data/claimRounds';
+import { roundProofs, loadBuiltInRounds } from '../../../data/claimRounds';
 import { distributorFor, rootCall, rootFromResult, withdrawCalldata, V2_ABI, DISTRIBUTORS } from '../../../config/distributors';
 
 // The round the Rewards Hub shows as current: the latest one whose snapshot has passed.
@@ -51,18 +44,20 @@ const ERC20_ABI = parseAbi([
   'function approve(address spender, uint256 amount) returns (bool)'
 ]);
 
-// Proofs bundled with the site, by epoch. Pools are the amounts each round distributed.
-const BUILT_IN_HOLDER_ROUNDS = {
-  1: { claims: round1Data?.claims, merkleRoot: round1Data?.merkleRoot, pool: 10000000 },
-  2: { claims: round2Data?.claims, merkleRoot: round2Data?.merkleRoot, pool: 10000000 },
+// Proofs bundled with the site, by epoch (loaded by claimRounds.js). Pools are the amounts each round distributed.
+const BUILT_IN_POOLS = {
+  holder: { 1: 10000000, 2: 10000000 },
+  royalty: { 1: 2500000, 2: 1900000, 3: 2000000, 4: 1100000, 5: 800000 },
 };
-const BUILT_IN_ROYALTY_ROUNDS = {
-  1: { claims: royalty1Data?.claims, merkleRoot: royalty1Data?.merkleRoot, pool: 2500000 },
-  2: { claims: royalty2Data?.claims, merkleRoot: royalty2Data?.merkleRoot, pool: 1900000 },
-  3: { claims: royalty3Data?.claims, merkleRoot: royalty3Data?.merkleRoot, pool: 2000000 },
-  4: { claims: royalty4Data?.claims, merkleRoot: royalty4Data?.merkleRoot, pool: 1100000 },
-  5: { claims: royalty5Data?.claims, merkleRoot: royalty5Data?.merkleRoot, pool: royalty5Data?.poolAmount || 800000 },
-};
+
+/** { claims, merkleRoot, pool } of a round shipped with the site, or null for a round published from Admin. */
+async function builtInRound(type, epoch) {
+  const pool = BUILT_IN_POOLS[type][epoch];
+  if (pool === undefined) return null;
+  await loadBuiltInRounds().catch(() => {});
+  const data = roundProofs(type, epoch);
+  return { claims: data?.claims, merkleRoot: data?.merkleRoot, pool: (type === 'royalty' && data?.poolAmount) || pool };
+}
 
 // One line under the distributor metrics: where the round's data comes from and whether the contract has its root.
 // A root no proof can match. Setting it closes a round on the old royalty distributor, which has no claim deadline
@@ -364,7 +359,7 @@ export function BaseAppAdminView() {
 
     try {
       // Rounds shipped with the site use their bundled proofs; newer ones use the snapshot published from Admin → Snapshots.
-      const builtIn = isHolder ? BUILT_IN_HOLDER_ROUNDS[epoch] : BUILT_IN_ROYALTY_ROUNDS[epoch];
+      const builtIn = await builtInRound(isHolder ? 'holder' : 'royalty', epoch);
       const published = builtIn ? null : await loadPublishedSnapshot(type, epoch);
       const source = builtIn || published;
       const claims = Object.values(source?.claims || {});
