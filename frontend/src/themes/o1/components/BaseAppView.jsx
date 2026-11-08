@@ -1,22 +1,51 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { BaseAppHeader } from './BaseAppHeader';
 import { BaseAppSidebar } from './BaseAppSidebar';
 import { BaseAppBottomNav } from './BaseAppBottomNav';
-import Checker from '../Checker';
-import NftClubPage from '../pages/NftClubPage';
-import DeFiVibePanel from './DeFiVibePanel';
-import TokenomicsPage from '../pages/TokenomicsPage';
-import WalletPage from '../../../components/wallet/WalletPage';
-import AccountPage from '../../../components/wallet/AccountPage';
-import AgentsPage from '../../../components/agent/AgentsPage';
-import SettingsPage from '../../../components/wallet/SettingsPage';
-import SkillPage from '../../../components/agent/SkillPage';
 import WalletToggle from '../../../components/wallet/WalletToggle';
-import ContractsPage from '../pages/ContractsPage';
-import BaseAppAdminView from './BaseAppAdminView';
 import { PageHeader } from './ui';
+// The page stylesheets stay in the first bundle, in the order they always had, so lazy pages look exactly the same.
+import '../../../components/wallet/WalletPages.css';
+import '../../../components/agent/AgentsPage.css';
+import '../../../components/agent/SkillPage.css';
 import './BaseAppTheme.css';
+
+// Pages other than the Rewards Hub load on demand, so the first visit downloads less. Once the app has shown,
+// they are fetched in the background, so moving between pages stays instant.
+const PAGES = {
+  Checker: () => import('../Checker'),
+  NftClubPage: () => import('../pages/NftClubPage'),
+  DeFiVibePanel: () => import('./DeFiVibePanel'),
+  TokenomicsPage: () => import('../pages/TokenomicsPage'),
+  WalletPage: () => import('../../../components/wallet/WalletPage'),
+  AccountPage: () => import('../../../components/wallet/AccountPage'),
+  AgentsPage: () => import('../../../components/agent/AgentsPage'),
+  SettingsPage: () => import('../../../components/wallet/SettingsPage'),
+  SkillPage: () => import('../../../components/agent/SkillPage'),
+  ContractsPage: () => import('../pages/ContractsPage'),
+  BaseAppAdminView: () => import('./BaseAppAdminView'),
+};
+const Checker = lazy(PAGES.Checker);
+const NftClubPage = lazy(PAGES.NftClubPage);
+const DeFiVibePanel = lazy(PAGES.DeFiVibePanel);
+const TokenomicsPage = lazy(PAGES.TokenomicsPage);
+const WalletPage = lazy(PAGES.WalletPage);
+const AccountPage = lazy(PAGES.AccountPage);
+const AgentsPage = lazy(PAGES.AgentsPage);
+const SettingsPage = lazy(PAGES.SettingsPage);
+const SkillPage = lazy(PAGES.SkillPage);
+const ContractsPage = lazy(PAGES.ContractsPage);
+const BaseAppAdminView = lazy(PAGES.BaseAppAdminView);
+
+let pagesWarm = false;
+function warmPages() {
+  if (pagesWarm) return;
+  pagesWarm = true;
+  const run = () => Object.values(PAGES).forEach((load) => load().catch(() => {}));
+  if (typeof window.requestIdleCallback === 'function') window.requestIdleCallback(run, { timeout: 4000 });
+  else setTimeout(run, 1500);
+}
 
 class BaseAppErrorBoundary extends React.Component {
   constructor(props) {
@@ -63,6 +92,7 @@ class BaseAppErrorBoundary extends React.Component {
 export function BaseAppView({ RewardsComponent }) {
   const location = useLocation();
   const navigate = useNavigate();
+  useEffect(() => { warmPages(); }, []);
   
   // Mobile drawer state
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -224,6 +254,7 @@ export function BaseAppView({ RewardsComponent }) {
 
           {/* View Content: Buy, Claim, Profile, Vibe Club, Tokenomics, Contracts, Rewards Hub */}
           <main key={activeTab} style={{ flex: 1, paddingBottom: isDesktop ? '40px' : '90px' }}>
+            <Suspense fallback={null}>
             {activeTab === 'buy' ? (
               <section style={{ padding: '24px 0 60px 0' }}>
                 <div style={{ maxWidth: '480px', margin: '0 auto', padding: '0 14px' }}>
@@ -315,6 +346,7 @@ export function BaseAppView({ RewardsComponent }) {
             ) : (
               RewardsComponent ? <RewardsComponent /> : null
             )}
+            </Suspense>
           </main>
 
           {/* Fixed Bottom Navigation Bar (Mobile Only) */}

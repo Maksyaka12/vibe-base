@@ -2,8 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import { usePrivy, useWallets } from '@privy-io/react-auth';
 import { formatUnits, parseAbi, encodeFunctionData, parseUnits, parseAbiItem } from 'viem';
 import { getPublicClient } from '../../config/rpc';
-import round1Data from '../../data/round_1_proofs.json';
-import round2Data from '../../data/round_2_proofs.json';
 import royalty1Data from '../../data/royalty_1_proofs.json';
 import royalty2Data from '../../data/royalty_2_proofs.json';
 import royalty3Data from '../../data/royalty_3_proofs.json';
@@ -81,8 +79,8 @@ async function loadUserClaimTransactions(userAddress, customClient = null) {
     }
 
     // Expected allocations for this user if available in proof data
-    const expHolder1 = round1Data?.claims?.[lowerUser]?.amount;
-    const expHolder2 = round2Data?.claims?.[lowerUser]?.amount;
+    const expHolder1 = roundProofs('holder', 1)?.claims?.[lowerUser]?.amount;
+    const expHolder2 = roundProofs('holder', 2)?.claims?.[lowerUser]?.amount;
     const expRoyalty1 = royalty1Data?.claims?.[lowerUser]?.amount;
     const expRoyalty2 = royalty2Data?.claims?.[lowerUser]?.amount;
     const expRoyalty3 = royalty3Data?.claims?.[lowerUser]?.amount;
@@ -542,11 +540,11 @@ export default function Checker({ isProfileMode = false } = {}) {
                   return { ...item, roundId: 1, title: 'Vibe Club Royalties · Royalty 1', amount: correctAmt, txHash };
                 }
                 if (item.id === 'holder-2') {
-                  const correctAmt = round2Data?.claims?.[address.toLowerCase()]?.amount || 500000;
+                  const correctAmt = roundProofs('holder', 2)?.claims?.[address.toLowerCase()]?.amount || 500000;
                   return { ...item, roundId: 2, title: 'Holder Rewards · Unlock 2', amount: Math.round(Number(correctAmt)) };
                 }
                 if (item.id === 'holder-1') {
-                  const correctAmt = round1Data?.claims?.[address.toLowerCase()]?.amount || 126127;
+                  const correctAmt = roundProofs('holder', 1)?.claims?.[address.toLowerCase()]?.amount || 126127;
                   const isAdminWallet = address.toLowerCase() === ADMIN_WALLET.toLowerCase();
                   const fallbackTx = isAdminWallet ? '0x46b72eb1941e010a4952bdb396da20769599bceb835fd23af066005c88569e14' : null;
                   const txHash = (item.txHash && !isBadTxHash(item.txHash)) ? item.txHash : fallbackTx;

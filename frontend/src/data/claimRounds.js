@@ -1,24 +1,39 @@
 // Merkle proofs for every claim round: the ones bundled with the site plus the snapshots
 // published from Admin → Snapshots (loaded once at startup by loadPublishedRounds).
-import round1Data from './round_1_proofs.json';
-import round2Data from './round_2_proofs.json';
-import royalty1Data from './royalty_1_proofs.json';
-import royalty2Data from './royalty_2_proofs.json';
-import royalty3Data from './royalty_3_proofs.json';
-import royalty4Data from './royalty_4_proofs.json';
-import royalty5Data from './royalty_5_proofs.json';
-import royalty6Data from './royalty_6_proofs.json';
-
-const BUILT_IN = {
-  holder: { 1: round1Data, 2: round2Data },
-  royalty: { 1: royalty1Data, 2: royalty2Data, 3: royalty3Data, 4: royalty4Data, 5: royalty5Data, 6: royalty6Data },
+//
+// The bundled rounds are about 0.5 MB of proofs, so they are a separate file fetched at startup next to the app
+// (loadBuiltInRounds), not part of the first script. main.jsx waits for them before the first render.
+const BUILT_IN_FILES = {
+  holder: { 1: () => import('./round_1_proofs.json'), 2: () => import('./round_2_proofs.json') },
+  royalty: {
+    1: () => import('./royalty_1_proofs.json'),
+    2: () => import('./royalty_2_proofs.json'),
+    3: () => import('./royalty_3_proofs.json'),
+    4: () => import('./royalty_4_proofs.json'),
+    5: () => import('./royalty_5_proofs.json'),
+    6: () => import('./royalty_6_proofs.json'),
+  },
 };
+const BUILT_IN = { holder: {}, royalty: {} };
+
+let builtInLoad;
+/** Loads the bundled rounds once; later calls return the same promise. */
+export function loadBuiltInRounds() {
+  builtInLoad ||= Promise.all(
+    Object.entries(BUILT_IN_FILES).flatMap(([type, rounds]) =>
+      Object.entries(rounds).map(async ([round, load]) => {
+        BUILT_IN[type][round] = (await load()).default;
+      })
+    )
+  );
+  return builtInLoad;
+}
 const published = { holder: {}, royalty: {} };
 
 // Checker calls royalties 'vibeclub'.
 const kind = (type) => (type === 'holder' ? 'holder' : 'royalty');
 
-export const isBuiltInRound = (type, round) => Boolean(BUILT_IN[kind(type)][Number(round)]);
+export const isBuiltInRound = (type, round) => Boolean(BUILT_IN_FILES[kind(type)][Number(round)]);
 
 // { merkleRoot, claims: { [lowercase address]: { amount, amountWei, proof, ... } } } or null
 export function roundProofs(type, round) {
