@@ -1,8 +1,9 @@
 import { lazy, Suspense, useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
-import { PrivyProvider } from '@privy-io/react-auth';
+import { PrivyProvider, dataSuffix } from '@privy-io/react-auth';
 import { WagmiProvider as PrivyWagmiProvider } from '@privy-io/wagmi';
 import { privyWagmiConfig } from '../../config/privyWagmi';
+import { DATA_SUFFIX } from '../../config/builderCode';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { base } from 'viem/chains';
 import { BaseAppView } from './components/BaseAppView';
@@ -104,8 +105,7 @@ export default function App() {
     <PrivyProvider
       appId="cmrugdvds02q60cl7tegmrnx7"
       config={{
-        // No Privy dataSuffix plugin: it adds the Builder Code even to a plain ETH send, which then reverts on
-        // contracts and EIP-7702 wallets. Our own txs carry the code already (config/walletTx.js, builderCode.js).
+        plugins: DATA_SUFFIX ? [dataSuffix(DATA_SUFFIX)] : [],
         loginMethods: ['wallet'],
         defaultChain: base,
         supportedChains: [base],
