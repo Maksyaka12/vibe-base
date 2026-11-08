@@ -24,12 +24,15 @@ rounds.then(() => watchPublishedRounds());
 const roundsInTime = Promise.race([rounds, new Promise((r) => setTimeout(r, 2500))]);
 
 // After a deploy, a tab opened before it asks for script files that no longer exist. Reload once to get the new ones.
+// The reload is remembered in sessionStorage; without it (blocked storage) there is no reload, so it can never loop.
 window.addEventListener('vite:preloadError', (event) => {
   try {
     const last = Number(sessionStorage.getItem('vibe_chunk_reload') || 0);
     if (Date.now() - last < 30000) return; // already reloaded just now: show the error instead of looping
     sessionStorage.setItem('vibe_chunk_reload', String(Date.now()));
-  } catch (e) {}
+  } catch (e) {
+    return;
+  }
   event.preventDefault();
   window.location.reload();
 });

@@ -3,29 +3,49 @@
 //
 // The bundled rounds are about 0.5 MB of proofs, so they are a separate file fetched at startup next to the app
 // (loadBuiltInRounds), not part of the first script. main.jsx waits for them before the first render.
+// Plain JSON files fetched by URL: unlike import(), a failed fetch can be tried again (the browser caches a failed
+// module import for good).
+import round1Url from './round_1_proofs.json?url';
+import round2Url from './round_2_proofs.json?url';
+import royalty1Url from './royalty_1_proofs.json?url';
+import royalty2Url from './royalty_2_proofs.json?url';
+import royalty3Url from './royalty_3_proofs.json?url';
+import royalty4Url from './royalty_4_proofs.json?url';
+import royalty5Url from './royalty_5_proofs.json?url';
+import royalty6Url from './royalty_6_proofs.json?url';
+
+const fetchJson = (url) => async () => {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Could not load ${url} (${res.status})`);
+  return res.json();
+};
 const BUILT_IN_FILES = {
-  holder: { 1: () => import('./round_1_proofs.json'), 2: () => import('./round_2_proofs.json') },
+  holder: { 1: fetchJson(round1Url), 2: fetchJson(round2Url) },
   royalty: {
-    1: () => import('./royalty_1_proofs.json'),
-    2: () => import('./royalty_2_proofs.json'),
-    3: () => import('./royalty_3_proofs.json'),
-    4: () => import('./royalty_4_proofs.json'),
-    5: () => import('./royalty_5_proofs.json'),
-    6: () => import('./royalty_6_proofs.json'),
+    1: fetchJson(royalty1Url),
+    2: fetchJson(royalty2Url),
+    3: fetchJson(royalty3Url),
+    4: fetchJson(royalty4Url),
+    5: fetchJson(royalty5Url),
+    6: fetchJson(royalty6Url),
   },
 };
 const BUILT_IN = { holder: {}, royalty: {} };
 
 let builtInLoad;
-/** Loads the bundled rounds once; later calls return the same promise. */
+/** Loads the bundled rounds once; later calls return the same promise. After a failure the next call tries again. */
 export function loadBuiltInRounds() {
   builtInLoad ||= Promise.all(
     Object.entries(BUILT_IN_FILES).flatMap(([type, rounds]) =>
       Object.entries(rounds).map(async ([round, load]) => {
-        BUILT_IN[type][round] = (await load()).default;
+        if (BUILT_IN[type][round]) return;
+        BUILT_IN[type][round] = await load();
       })
     )
-  );
+  ).catch((e) => {
+    builtInLoad = null;
+    throw e;
+  });
   return builtInLoad;
 }
 const published = { holder: {}, royalty: {} };
@@ -62,7 +82,11 @@ export async function loadPublishedRounds() {
   }
 }
 
-// Keeps open pages up to date when a snapshot is published while they are open.
+// Keeps open pages up to date when a snapshot is published while they are open, and retries the bundled
+// rounds if they failed to load at startup (once loaded, that call does nothing).
 export function watchPublishedRounds(intervalMs = 60000) {
-  setInterval(loadPublishedRounds, intervalMs);
+  setInterval(() => {
+    loadPublishedRounds();
+    loadBuiltInRounds().catch(() => {});
+  }, intervalMs);
 }
