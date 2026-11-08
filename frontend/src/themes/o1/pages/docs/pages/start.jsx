@@ -5,7 +5,7 @@ export const start = [
   {
     slug: '',
     title: 'Introduction',
-    lead: 'Vibe Hub is the home of $VIBE on Base: rewards, royalties, staking, swaps, the Vibe Club NFT, and an agent that can do it all for you',
+    lead: 'Vibe Hub is an onchain app that covers the whole ecosystem around $VIBE on Base: rewards, royalties, staking, swaps, the Vibe Club NFT, and an agent that can do it all for you. Every action is a transaction you can check on BaseScan',
     sections: [
       {
         id: 'what-is-vibe-hub',
@@ -13,15 +13,42 @@ export const start = [
         body: (
           <>
             <p>
-              Vibe Hub is a web app at <Ext href="https://vibehome.dog">vibehome.dog</Ext> for everyone who holds or uses <strong>$VIBE</strong>, the native token of
+              Vibe Hub is an onchain app at <Ext href="https://vibehome.dog">vibehome.dog</Ext> for everyone who holds or uses <strong>$VIBE</strong>, the native token of
               Vibe Hub on the Base network. Every feature is built around $VIBE: rewards, royalties and staking pay out in it, and revenue flows back into it
               through buybacks and burns (<To page="vibe-token">About $VIBE</To>). The app shows when each reward round happens, tells you whether your wallet qualifies, and lets you claim, stake, swap and mint from one place.
             </p>
             <p>
-              Everything that moves funds is a transaction on Base that you sign in your own wallet, or that your agent sends from a separate wallet you control.
-              Claim windows, achievements and limits on rewards are checked by smart contracts, not only by the website.
+              <strong>Everything in Vibe Hub happens onchain.</strong> Claims, check-ins, achievements, NFT mints, staking, swaps and burns are transactions on Base that you sign in your own wallet,
+              or that your agent sends from a separate wallet you control. The rules are enforced by smart contracts on Base, and the website is only the interface to them.
             </p>
             <Shot name="app-overview" alt="Vibe Hub Rewards Hub on desktop with the sidebar, the header and a live holder round" caption="The app on desktop: the menu on the left, your wallet status in the header, and the Rewards Hub in the middle." />
+          </>
+        ),
+      },
+      {
+        id: 'onchain',
+        title: 'Built onchain',
+        body: (
+          <>
+            <p>Your balances, rewards, streak and badges live on Base, not in a Vibe Hub database. Here is what each feature relies on:</p>
+            <Table
+              columns={['Feature', 'What lives onchain', 'Who enforces the rules']}
+              rows={[
+                [<To page="how-rewards-work">Holder rewards and royalties</To>, 'The allocation root, every claim and every burn of unclaimed rewards', 'The distributor contracts: claim window, one claim per wallet, pool size'],
+                [<To page="check-in">Daily check-in</To>, 'Every check-in and your streak', 'The check-in contract: one per UTC day'],
+                [<To page="achievements">Achievements</To>, 'Soulbound badges in your wallet', 'The achievements contract, which reads your streak and staking onchain'],
+                [<To page="vibe-club-nft">Vibe Club NFT</To>, 'The NFT, the mint and the $VIBE bought and burned from it', 'The NFT contract: one per wallet, 333 in total'],
+                [<To page="staking">Staking</To>, 'Your deposit and its rewards', 'The official vaults on o1 Exchange'],
+                [<To page="swap">Swap</To>, 'The trade itself', 'The DEX pools on Base'],
+              ]}
+            />
+            <p>
+              Snapshots are read from Base: the eligible wallets are the balances of $VIBE and Vibe Club NFTs at the snapshot block. Payouts, buybacks and burns go through public addresses,
+              and every official contract is on <To page="addresses">Official addresses</To>. Anyone can check any of it on BaseScan.
+            </p>
+            <Callout type="note">
+              <strong>What is not onchain.</strong> Your theme and the active wallet are saved on your device. The rules and daily limits of an <To page="agent-zone">agent</To> are enforced by the Vibe Hub server before it signs for the agent wallet. What the agent does is still an ordinary transaction on Base.
+            </Callout>
           </>
         ),
       },

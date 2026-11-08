@@ -125,7 +125,7 @@ export const rewards = [
         title: 'How a claim is verified',
         body: (
           <>
-            <p>After a snapshot, the allocation of every eligible wallet goes into a Merkle tree, and its root is stored in the distributor contract. When you claim, the app sends the contract your amount and a short proof that this amount belongs to your wallet. The contract checks:</p>
+            <p>A snapshot reads $VIBE and Vibe Club NFT balances straight from Base at the snapshot block. The allocation of every eligible wallet then goes into a Merkle tree, and its root is stored in the distributor contract. When you claim, the app sends the contract your amount and a short proof that this amount belongs to your wallet. The contract checks:</p>
             <ul>
               <li>that the claim window is open,</li>
               <li>that your wallet has not claimed this round yet,</li>
@@ -133,15 +133,6 @@ export const rewards = [
               <li>that the round's pool is not exceeded.</li>
             </ul>
             <p>Tokens always go to the wallet in the snapshot, whoever sends the transaction. That is what lets an <To page="agent-zone" hash="abilities">agent claim for your main wallet</To> without being able to redirect the reward.</p>
-            <H3 id="contract-versions">Contract versions</H3>
-            <Table
-              columns={['Rounds', 'Contracts', 'What differs']}
-              rows={[
-                ['Unlock 1-2, Royalty 1-6', 'v1 distributors', 'The wallet has to send its own claim'],
-                ['Unlock 3+, Royalty 7+', 'v2 distributors', 'Each round has its own pool and window, enforced by the contract. Anyone may send a claim for an eligible wallet'],
-              ]}
-            />
-            <p>You do not need to choose: the app and the API pick the right contract. Addresses are on <To page="addresses">Official addresses</To>.</p>
           </>
         ),
       },

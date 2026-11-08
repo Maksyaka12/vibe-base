@@ -32,7 +32,7 @@ export const agents = [
             />
             <H3 id="abilities">Claims for your main wallet</H3>
             <p>
-              Your agent can send claims for your main wallet when you ask it to. This works for achievements and for rewards from <N>Unlock 3</N> and <N>Royalty 7</N> onwards. The agent wallet pays the gas, and the tokens and badges go straight to your main wallet. Your main wallet signs nothing and the agent cannot redirect the reward.
+              Your agent can send claims for your main wallet when you ask it to. The agent wallet pays the gas, and the tokens and badges go straight to your main wallet. Your main wallet signs nothing and the agent cannot redirect the reward.
             </p>
           </>
         ),
@@ -86,6 +86,7 @@ export const agents = [
             <li><strong>Your main wallet is never touched.</strong> The agent has no way to spend from it.</li>
             <li><strong>Only Vibe Hub contracts are allowed.</strong> The server refuses any transaction to another contract, apart from the transfers you allow.</li>
             <li><strong>You set the rules.</strong> Turn abilities off and set daily limits in <To page="agent-settings">Settings</To>. The server enforces them on every action.</li>
+            <li><strong>Everything is onchain.</strong> Each agent action is an ordinary transaction on Base from the agent wallet, which you can check on BaseScan.</li>
             <li><strong>Exposure is limited to what you deposit.</strong> The agent wallet holds only what you put in it.</li>
             <li><strong>You can stop at any time.</strong> Revoke the key or disable the agent with one button.</li>
             <li><strong>Agents are told to confirm.</strong> The skill tells agents to confirm with you before they stake, swap, mint or send.</li>
@@ -344,9 +345,9 @@ export const agents = [
           <Table
             columns={['Action', 'For your main wallet from Bankr']}
             rows={[
-              ['Rewards from Unlock 3 and Royalty 7 onwards', 'Yes. Tokens go straight to the main wallet'],
+              ['Holder rewards and royalties', 'Yes. Tokens go straight to the main wallet'],
               ['Achievements', 'Yes. Badges go straight to the main wallet'],
-              ['Older rounds, check-in and staking', 'No. The wallet has to send these itself'],
+              ['Check-in and staking', 'No. The wallet has to send these itself'],
             ]}
           />
         ),

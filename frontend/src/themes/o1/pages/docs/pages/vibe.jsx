@@ -260,11 +260,6 @@ export const vibe = [
           />
         ),
       },
-      {
-        id: 'versions',
-        title: 'Why two sets of distributors',
-        body: <p>The first distributors keep their finished rounds, and every round since <N>Unlock 3</N> and <N>Royalty 7</N> uses the v2 contracts. <To page="how-rewards-work" hash="contract-versions">Read what changed</To>.</p>,
-      },
     ],
   },
 ];
