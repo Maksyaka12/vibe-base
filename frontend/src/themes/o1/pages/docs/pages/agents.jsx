@@ -146,6 +146,7 @@ export const agents = [
             />
             <ul>
               <li>Set a limit to <N>0</N> to block that token.</li>
+              <li>Transfers to other addresses run one at a time per wallet, so parallel requests cannot go past the limit.</li>
               <li>Each token shows how much was sent today against its limit.</li>
               <li>Press <Ui>Save limits</Ui> after changing them, or use the reset icon to go back to the defaults.</li>
               <li>The limits apply to transfers. Swaps and staking are controlled by their switches.</li>
@@ -277,7 +278,7 @@ export const agents = [
                 [<C>{'{"tx": {...}}'}</C>, 'Sends one ready transaction'],
                 [<C>{'{"txs": [...]}'}</C>, <>Sends ready transactions in order, up to <N>5</N></>],
                 [<C>{'{"action":"swap","side":"buy","amount":"0.01"}'}</C>, <>Buys $VIBE for <N>0.01 ETH</N> on a route the server builds</>],
-                [<C>{'{"action":"swap","side":"sell","amount":"1000000"}'}</C>, <>Sells <N>1,000,000</N> $VIBE for ETH</>],
+                [<C>{'{"action":"swap","side":"sell","amount":"1000000"}'}</C>, <>Sells <N>1,000,000</N> $VIBE for ETH. An optional <C>slippage</C> is in percent: default <N>1</N>, at most <N>5</N></>],
                 [<C>{'{"action":"transfer","token":"ETH","to":"0x...","amount":"0.01"}'}</C>, 'Sends ETH, VIBE or USDC'],
                 [<C>{'{"action":"mint"}'}</C>, 'Mints one Vibe Club NFT with ETH at the contract price'],
               ]}

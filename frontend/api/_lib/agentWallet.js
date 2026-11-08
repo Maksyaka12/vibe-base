@@ -25,7 +25,7 @@ import { publicClient } from '../../src/config/rpc.js';
 import { appendBuilderSuffix } from '../../src/config/builderCode.js';
 import { distributorAddresses } from '../../src/config/distributors.js';
 import { VIBE_TOKEN, VIBE_CLUB_NFT } from '../../src/data/snapshot/constants.js';
-import { handleSwap, buildEthMint } from './agent.js';
+import { handleSwap, buildEthMint, KYBER_ROUTER } from './agent.js';
 
 export const PRIVY_APP_ID = env('PRIVY_APP_ID') || 'cmrugdvds02q60cl7tegmrnx7';
 export const AGENT_SIGNER_ID = env('PRIVY_SIGNER_ID') || 'y71vnth4hmzgtq71ehfipceq';
@@ -33,7 +33,6 @@ export const AGENT_SIGNER_ID = env('PRIVY_SIGNER_ID') || 'y71vnth4hmzgtq71ehfipc
 const CHECK_IN = '0x1938BA215ef556e51eE6AaF909e0970AE0167634';
 const ACHIEVEMENTS = '0x1336E381768c98c8A6e79d99Ec065684c41925A5';
 const STAKING = '0x6f25a9e1e677616c1bF7ab54b470b0c82839Adb4';
-const KYBER_ROUTER = '0x6131B5fae19EA4f9D964eAc0408E4408b66337b5';
 const USDC = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913';
 
 const TOKENS = {
@@ -203,31 +202,41 @@ async function agentFromKey(headers) {
 
 const dayKey = (address) => `agent_spend:${lower(address)}:${new Date().toISOString().slice(0, 10)}`;
 
-/** Checks a transfer against today's cap; returns an error message or null. Transfers to the main wallet are free. */
-async function checkLimit(agent, settings, symbol, to, amount) {
-  if (agent.mainAddress && lower(to) === lower(agent.mainAddress)) return null;
-  if (!settings.allow.transfers) return 'Transfers to other addresses are turned off in your Vibe Hub settings. Transfers to your own main wallet still work.';
+// Transfers to other addresses count against a daily cap. They run one at a time per agent wallet (a lock), and
+// the amount is reserved before the transaction is sent, so parallel requests cannot all see "nothing spent yet".
+const TRANSFERS_OFF = 'Transfers to other addresses are turned off in your Vibe Hub settings. Transfers to your own main wallet still work.';
+const BUSY = 'Another transfer from this agent wallet is still running. Try again in a few seconds.';
+const LOCK_SECONDS = 120;
+
+/** Reserves `amount` in today's spend if it fits under the cap; returns an error message or null. Call under the lock. */
+async function reserveSpend(settings, symbol, amount, key) {
+  const db = await store();
   const t = TOKENS[symbol];
   const limit = settings.limits[symbol];
-  const spent = BigInt((await (await store()).get(dayKey(agent.address)))?.[symbol] || '0');
+  const today = (await db.get(key)) || {};
+  const spent = BigInt(today[symbol] || '0');
   const cap = parseUnits(limit, t.decimals);
   if (spent + amount > cap) {
     return `Daily limit for transfers to other addresses is ${limit} ${symbol}; ${formatUnits(cap - spent < 0n ? 0n : cap - spent, t.decimals)} ${symbol} left today. Transfers to your own main wallet have no limit.`;
   }
+  today[symbol] = (spent + amount).toString();
+  await db.write([['set', key, today]]);
   return null;
 }
 
-async function recordSpend(agent, symbol, to, amount) {
-  if (agent.mainAddress && lower(to) === lower(agent.mainAddress)) return;
+/** Gives a reservation back when the transfer did not happen. Call under the lock. */
+async function releaseSpend(symbol, amount, key) {
   const db = await store();
-  const key = dayKey(agent.address);
   const today = (await db.get(key)) || {};
-  today[symbol] = (BigInt(today[symbol] || '0') + amount).toString();
+  const left = BigInt(today[symbol] || '0') - amount;
+  today[symbol] = (left < 0n ? 0n : left).toString();
   await db.write([['set', key, today]]);
 }
 
 const STAKING_OFF = 'Staking is turned off in your Vibe Hub settings';
 const SWAPS_OFF = 'Swaps are turned off in your Vibe Hub settings';
+// A leaked agent key must not be able to bleed the wallet through badly priced swaps
+const AGENT_MAX_SLIPPAGE = 5;
 const MINT_OFF = 'NFT mint is turned off in your Vibe Hub settings';
 
 /** Refuses anything outside the agent rules and the user's settings; returns an error message or null. */
@@ -273,7 +282,13 @@ async function send(agent, tx) {
     },
     authorization_context: { authorization_private_keys: [env('PRIVY_AUTHORIZATION_KEY')] },
   });
-  const receipt = await publicClient.waitForTransactionReceipt({ hash: res.hash, timeout: 45_000 });
+  let receipt;
+  try {
+    receipt = await publicClient.waitForTransactionReceipt({ hash: res.hash, timeout: 45_000 });
+  } catch {
+    // it was sent and may still land: the caller must treat it as spent
+    throw Object.assign(new Error('Sent, but Base did not confirm it in time. Check the hash on BaseScan before trying again'), { hash: res.hash, pending: true });
+  }
   if (receipt.status !== 'success') throw Object.assign(new Error('Transaction reverted on Base'), { hash: res.hash });
   return res.hash;
 }
@@ -300,18 +315,38 @@ export async function handleAgentAct({ method, headers = {}, body }) {
       }
       const amount = parseUnits(String(req.amount), t.decimals);
       if (amount <= 0n) return json(400, { error: 'Amount must be above zero' });
-      const limitError = await checkLimit(agent, settings, symbol, req.to, amount);
-      if (limitError) return json(403, { error: limitError });
       const tx = t.address
         ? { to: t.address, data: encodeFunctionData({ abi: ERC20, functionName: 'transfer', args: [getAddress(req.to), amount] }), value: 0n }
         : { to: req.to, data: '0x', value: amount };
-      const [hash] = await sendAll(agent, [tx]);
-      await recordSpend(agent, symbol, req.to, amount);
-      return json(200, { action: 'transfer', from: agent.address, to: getAddress(req.to), token: symbol, amount: String(req.amount), hashes: [hash] });
+      const done = (hash) => json(200, { action: 'transfer', from: agent.address, to: getAddress(req.to), token: symbol, amount: String(req.amount), hashes: [hash] });
+
+      // to the user's own main wallet: no cap, no lock
+      if (agent.mainAddress && lower(req.to) === lower(agent.mainAddress)) return done((await sendAll(agent, [tx]))[0]);
+
+      if (!settings.allow.transfers) return json(403, { error: TRANSFERS_OFF });
+      const db = await store();
+      const lockKey = `agent_lock:${lower(agent.address)}`;
+      if (!(await db.lock(lockKey, LOCK_SECONDS))) return json(429, { error: BUSY });
+      try {
+        const key = dayKey(agent.address);
+        const limitError = await reserveSpend(settings, symbol, amount, key);
+        if (limitError) return json(403, { error: limitError });
+        try {
+          return done((await sendAll(agent, [tx]))[0]);
+        } catch (e) {
+          if (!e.pending) await releaseSpend(symbol, amount, key); // not sent, or reverted: nothing left the wallet
+          throw e;
+        }
+      } finally {
+        await db.write([['del', lockKey]]).catch(() => {});
+      }
     }
 
     if (req.action === 'swap') {
       if (!settings.allow.swaps) return json(403, { error: SWAPS_OFF });
+      if (req.slippage !== undefined && !(Number(req.slippage) > 0 && Number(req.slippage) <= AGENT_MAX_SLIPPAGE)) {
+        return json(400, { error: `Agent swaps take a slippage above 0 and at most ${AGENT_MAX_SLIPPAGE}%` });
+      }
       const quote = await handleSwap({ method: 'GET', query: { address: agent.address, side: req.side, amount: req.amount, slippage: req.slippage } });
       if (quote.status !== 200) return quote;
       const hashes = await sendAll(agent, quote.body.txs);

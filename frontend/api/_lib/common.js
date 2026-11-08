@@ -93,6 +93,11 @@ const redisStore = {
     for (let i = 0; i < (result || []).length; i += 2) out[result[i]] = JSON.parse(result[i + 1]);
     return out;
   },
+  /** Takes a lock that expires by itself after `seconds`; true if this caller got it. Release with write([['del', key]]). */
+  async lock(key, seconds) {
+    const { result } = await redis('', ['SET', key, '1', 'NX', 'EX', seconds]);
+    return result === 'OK';
+  },
   // ops: [['set', key, value] | ['push', key, value, limit] | ['hset', key, field, value] | ['del', key]]
   async write(ops) {
     const commands = ops.flatMap(([op, key, a, b]) => {
@@ -106,6 +111,8 @@ const redisStore = {
     if (results.some((r) => r.error)) throw new Error('Storage error');
   },
 };
+
+const localLocks = new Map();
 
 async function fileStore() {
   const fs = await import('node:fs/promises');
@@ -121,6 +128,13 @@ async function fileStore() {
   };
   return {
     get: (key) => read(key, null),
+    // local dev only: one process, so an in-memory lock is enough
+    async lock(key, seconds) {
+      const now = Date.now();
+      if ((localLocks.get(key) || 0) > now) return false;
+      localLocks.set(key, now + seconds * 1000);
+      return true;
+    },
     async list(key, limit) { return (await read(key, [])).slice(0, limit); },
     hgetall: (key) => read(key, {}),
     async write(ops) {
@@ -128,7 +142,7 @@ async function fileStore() {
         if (op === 'set') await save(key, a);
         else if (op === 'push') await save(key, [a, ...(await read(key, []))].slice(0, b));
         else if (op === 'hset') await save(key, { ...(await read(key, {})), [a]: b });
-        else if (op === 'del') await fs.rm(file(key), { force: true });
+        else if (op === 'del') { localLocks.delete(key); await fs.rm(file(key), { force: true }); }
       }
     },
   };
@@ -139,6 +153,7 @@ const unconfiguredStore = {
   async get() { return null; },
   async list() { return []; },
   async hgetall() { return {}; },
+  async lock() { throw new Error('Storage is not connected: add Upstash Redis in Vercel → Storage and redeploy'); },
   async write() { throw new Error('Storage is not connected: add Upstash Redis in Vercel → Storage and redeploy'); },
 };
 
