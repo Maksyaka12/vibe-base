@@ -6,6 +6,8 @@ import { sendWalletTx, isWalletRejection, waitUntil } from '../config/walletTx';
 import { useUserBalances } from './useUserBalances';
 import { fetchPrices } from '../config/prices';
 import { useVibeWallets } from './useVibeWallets';
+import { useDemoMode } from './useDemoMode';
+import { isDemoActive, showDemoTxPreview } from '../config/demo';
 
 // ETH <-> $VIBE swap logic shared by the Swap panels of both themes.
 // - Quotes LI.FI and KyberSwap in parallel and takes the one that gives the user more (LI.FI adds a 0.25% fee,
@@ -107,7 +109,9 @@ function usePrices() {
 }
 
 export function useVibeSwap() {
-  const { authenticated, login } = usePrivy();
+  const { authenticated: walletConnected, login } = usePrivy();
+  const { demo } = useDemoMode();
+  const authenticated = walletConnected || demo; // the read-only demo can quote and preview, never send
   const { wallets } = useWallets();
   const { activeAddress } = useVibeWallets();
   const balances = useUserBalances(activeAddress);
@@ -127,7 +131,8 @@ export function useVibeSwap() {
   const from = activeAddress || '0x0000000000000000000000000000000000000001';
   const key = amountWei ? `${mode}:${amountWei}:${slippage}:${from.toLowerCase()}` : '';
   const balanceWei = mode === 'buy' ? balances.rawEth : balances.rawVibe;
-  const insufficient = Boolean(activeAddress && amountWei && balanceWei != null && amountWei > balanceWei);
+  // the demo only previews, so it can try any amount
+  const insufficient = Boolean(!demo && activeAddress && amountWei && balanceWei != null && amountWei > balanceWei);
 
   const setFromAmount = (v) => {
     setTxStatus({ type: '', msg: '', hash: '' });
@@ -196,6 +201,18 @@ export function useVibeSwap() {
       return;
     }
     if (!amountWei || insufficient) return;
+    // Read-only demo: preview the swap with the live quote, send nothing.
+    if (isDemoActive()) {
+      const inLabel = `${formatUnits(amountWei, 18)} ${mode === 'buy' ? 'ETH' : '$VIBE'}`;
+      showDemoTxPreview({
+        action: `Swap ${mode === 'buy' ? 'ETH → $VIBE' : '$VIBE → ETH'}${liveQuote ? ` via ${liveQuote.engine}` : ''}`,
+        amount: liveQuote ? `${inLabel} → ~${toAmount} ${mode === 'buy' ? '$VIBE' : 'ETH'}` : inLabel,
+        contract: liveQuote?.spender || '',
+        contractLabel: liveQuote ? `${liveQuote.engine} router` : '',
+        note: `Slippage ${slippage}%.${mode === 'sell' ? ' Selling first asks for a $VIBE approval for exactly this amount.' : ''}`,
+      });
+      return;
+    }
     setSwapping(true);
     try {
       // a fresh quote for exactly these inputs

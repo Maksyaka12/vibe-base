@@ -18,7 +18,8 @@ import { roundProofs, publishedRounds } from '../../data/claimRounds';
 import { distributorFor, distributorAddresses } from '../../config/distributors';
 import { findOwnedVibeClubNfts, findMintedVibeClubNft } from '../../data/vibeClubNft';
 import { useVibeWallets } from '../../hooks/useVibeWallets';
-import { guardProvider } from '../../config/demo';
+import { guardProvider, isDemoActive, showDemoTxPreview } from '../../config/demo';
+import { useDemoMode } from '../../hooks/useDemoMode';
 export { STAKING_VAULTS_INFO, ADMIN_WITHDRAWAL_TXS };
 
 export function getRoyaltyBannerUrl(epochId) {
@@ -443,7 +444,10 @@ const NFT_ABI = parseAbi([
 
 
 export default function Checker({ isProfileMode = false } = {}) {
-  const { authenticated, login } = usePrivy();
+  const { authenticated: walletConnected, login } = usePrivy();
+  const { demo } = useDemoMode();
+  // the read-only demo loads everything for the demo address, as for a connected wallet
+  const authenticated = walletConnected || demo;
   const { wallets } = useWallets();
   const { activeAddress: vibeActiveAddress } = useVibeWallets();
   const address = vibeActiveAddress;
@@ -1255,6 +1259,24 @@ export default function Checker({ isProfileMode = false } = {}) {
   // Resolves to true only once the contract confirmed the claim; a rejected or failed claim resolves to false.
   const handleClaim = async (type, roundId, amountNum) => {
     const claimKey = `${type}-${roundId}`;
+
+    // Read-only demo: show the exact claim that would be sent, and send nothing.
+    if (isDemoActive()) {
+      const isHolder = type === 'holder';
+      const proof = roundProofs(isHolder ? 'holder' : 'royalty', roundId)?.claims?.[address?.toLowerCase()] || (isHolder ? userProofData : userRoyaltyProofData);
+      const roundContract = distributorFor(isHolder ? 'holder' : 'royalty', roundId);
+      const distributor = roundContract ? (roundContract.version === 1 && !isHolder ? ROYALTY_DISTRIBUTOR_CA : roundContract.address) : '';
+      showDemoTxPreview({
+        action: isHolder ? `Claim holder rewards · Unlock ${roundId}` : `Claim Vibe Club royalties · Round ${roundId}`,
+        amount: `${Number(proof?.amount ?? amountNum ?? 0).toLocaleString('en-US')} $VIBE`,
+        contract: distributor,
+        contractLabel: 'Reward distributor',
+        method: 'claim(roundId, amount, proof)',
+        note: proof ? `The Merkle proof for this address has ${proof.proof?.length || 0} hashes.` : 'This address has no proof for this round.',
+      });
+      return 'demo';
+    }
+
     setClaimStatus(prev => ({ ...prev, [claimKey]: 'claiming' }));
 
     try {

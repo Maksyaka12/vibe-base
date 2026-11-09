@@ -79,7 +79,13 @@ export function useWalletAssets() {
     const tx = t.address
       ? { to: t.address, data: encodeFunctionData({ abi: ERC20, functionName: 'transfer', args: [to, value] }), value: 0n }
       : { to, data: '0x', value };
-    const hash = await sendWalletTx({ wallets, address: from, ...tx });
+    const hash = await sendWalletTx({
+      wallets,
+      address: from,
+      ...tx,
+      // shown instead of sending while the read-only demo is on
+      preview: { action: `Send ${token} to ${to.slice(0, 6)}…${to.slice(-4)}`, amount: `${amount} ${token}`, contract: tx.to, contractLabel: t.address ? token : 'Recipient', method: t.address ? 'transfer(to, amount)' : '' },
+    });
     if (hash) {
       const receipt = await publicClient.waitForTransactionReceipt({ hash, timeout: 90_000 });
       if (receipt.status !== 'success') throw new Error('Transaction reverted on Base');
