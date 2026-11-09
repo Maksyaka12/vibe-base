@@ -233,10 +233,10 @@ export default function BaseAppRewardsView({
     : { count: 'Ended', tone: 'neutral' });
 
   const tabs = [
-    { id: 'holders', label: 'Holders', image: '/rewards-hub/holders.jfif', ...tabCount(activeHolders, upcomingHolders) },
-    { id: 'vibe-club', label: 'Vibe Club', image: '/rewards-hub/vibe-club.jfif', ...tabCount(activeVibeClubs, upcomingVibeClubs) },
-    { id: 'staking', label: 'Staking', image: '/rewards-hub/staking.jfif', ...tabCount(activeStakings, upcomingStakings) },
-    { id: 'giveaways', label: 'Giveaways', image: '/rewards-hub/giveaways.jfif', count: `${activeGiveaways.length} active`, tone: activeGiveaways.length > 0 ? 'accent' : 'neutral' }
+    { id: 'holders', label: 'Holders', image: '/rewards-hub/holders.webp', ...tabCount(activeHolders, upcomingHolders) },
+    { id: 'vibe-club', label: 'Vibe Club', image: '/rewards-hub/vibe-club.webp', ...tabCount(activeVibeClubs, upcomingVibeClubs) },
+    { id: 'staking', label: 'Staking', image: '/rewards-hub/staking.webp', ...tabCount(activeStakings, upcomingStakings) },
+    { id: 'giveaways', label: 'Giveaways', image: '/rewards-hub/giveaways.webp', count: `${activeGiveaways.length} active`, tone: activeGiveaways.length > 0 ? 'accent' : 'neutral' }
   ];
 
   return (
@@ -261,7 +261,7 @@ export default function BaseAppRewardsView({
               <div className="o1-campaign-card-badge">
                 <Badge tone={tab.tone} pill>{tab.count}</Badge>
               </div>
-              <img src={tab.image} alt={tab.label} className="o1-campaign-card-img" />
+              <img src={tab.image} alt={tab.label} className="o1-campaign-card-img" width="800" height="450" fetchpriority="high" />
               <div className="o1-campaign-card-overlay" />
               <div className="o1-campaign-card-title">{tab.label}</div>
             </button>
