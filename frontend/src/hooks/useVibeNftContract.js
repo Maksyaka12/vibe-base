@@ -12,6 +12,7 @@ export const OPENSEA_COLLECTION_URL = 'https://opensea.io/collection/vibeclubnft
 export const VIBE_TOKEN_ADDRESS = '0xb200000000000000000000df24ecb8bf51100a01';
 import { BUILDER_CODE, DATA_SUFFIX, BUILDER_CODE_HEX, appendBuilderSuffix } from '../config/builderCode';
 import { useVibeWallets } from './useVibeWallets';
+import { guardProvider } from '../config/demo';
 export { BUILDER_CODE, DATA_SUFFIX, BUILDER_CODE_HEX };
 
 const withBuilderCode = appendBuilderSuffix;
@@ -204,7 +205,7 @@ export function useVibeNftContract() {
       (w) => w.address?.toLowerCase() === walletAddress?.toLowerCase()
     ) || wallets[0];
 
-    const provider = connectedWallet ? await connectedWallet.getEthereumProvider() : window.ethereum;
+    const provider = guardProvider(connectedWallet ? await connectedWallet.getEthereumProvider() : window.ethereum);
 
     if (!provider) {
       throw new Error('No compatible Web3 wallet found');

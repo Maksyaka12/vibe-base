@@ -18,6 +18,7 @@ import { roundProofs, publishedRounds } from '../../data/claimRounds';
 import { distributorFor, distributorAddresses } from '../../config/distributors';
 import { findOwnedVibeClubNfts, findMintedVibeClubNft } from '../../data/vibeClubNft';
 import { useVibeWallets } from '../../hooks/useVibeWallets';
+import { guardProvider } from '../../config/demo';
 export { STAKING_VAULTS_INFO, ADMIN_WITHDRAWAL_TXS };
 
 export function getRoyaltyBannerUrl(epochId) {
@@ -1265,7 +1266,7 @@ export default function Checker({ isProfileMode = false } = {}) {
       const distributor = roundContract.version === 1 && !isHolder ? ROYALTY_DISTRIBUTOR_CA : roundContract.address;
 
       const activeWallet = wallets.find(w => w.address.toLowerCase() === address?.toLowerCase()) || wallets[0];
-      const provider = await activeWallet.getEthereumProvider();
+      const provider = guardProvider(await activeWallet.getEthereumProvider());
       const amountWei = parseUnits(proof.amount.toString(), 18);
       const calldataRaw = encodeFunctionData({
         abi: DISTRIBUTOR_ABI,

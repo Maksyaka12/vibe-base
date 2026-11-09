@@ -6,6 +6,7 @@ import { validateSchedule, hashScheduleJson, scheduleSignMessage } from '../../.
 import { fetchPublishedSchedule, applyPublishedSchedule } from '../../../data/scheduleLoader';
 import { Card, Button, Alert } from './ui';
 import { pickAdminWallet, adminSessionHeaders, compressImage } from './adminSession';
+import { guardProvider } from '../../../config/demo';
 
 const TABS = [
   { id: 'staking', label: 'Staking epochs' },
@@ -184,7 +185,7 @@ export function AdminScheduleEditor({ activeAddress, wallets }) {
       const json = JSON.stringify(normalized);
       const issuedAt = new Date().toISOString();
       const message = scheduleSignMessage({ address: wallet.address, issuedAt, hash: await hashScheduleJson(json) });
-      const provider = await wallet.getEthereumProvider();
+      const provider = guardProvider(await wallet.getEthereumProvider());
       const signature = await provider.request({ method: 'personal_sign', params: [stringToHex(message), wallet.address] });
       const res = await fetch('/api/schedule', {
         method: 'PUT',

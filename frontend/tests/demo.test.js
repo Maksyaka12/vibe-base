@@ -128,3 +128,28 @@ test('outside demo mode a transaction reaches the wallet as before', async () =>
   assert.deepEqual(calls, ['wallet_sendCalls', 'personal_sign']);
   assert.doesNotThrow(() => blockInDemo({ action: 'Claim' }));
 });
+
+// Every place in the app that gets a wallet provider must go through guardProvider (or sendWalletTx),
+// so a new code path cannot sign or send in demo mode by accident.
+test('every wallet provider in the app is wrapped by guardProvider', async () => {
+  const fs = await import('node:fs');
+  const path = await import('node:path');
+  const root = new URL('../src/', import.meta.url).pathname;
+  const files = [];
+  const walk = (dir) => fs.readdirSync(dir, { withFileTypes: true }).forEach((d) => {
+    const p = path.join(dir, d.name);
+    if (d.isDirectory()) walk(p);
+    else if (/\.(js|jsx)$/.test(d.name)) files.push(p);
+  });
+  walk(root);
+  const unguarded = [];
+  for (const file of files) {
+    fs.readFileSync(file, 'utf8').split('\n').forEach((line, i) => {
+      const code = line.replace(/\/\/.*$/, '');
+      if (/getEthereumProvider\(\)|window\.ethereum\b/.test(code) && !/guardProvider\(/.test(code)) unguarded.push(`${path.relative(root, file)}:${i + 1}`);
+      // wallet hooks that sign or send outside our guarded paths
+      if (/\b(useSendTransaction|useWriteContract|useSignMessage|useSignTypedData|useSendCalls)\b/.test(code)) unguarded.push(`${path.relative(root, file)}:${i + 1}`);
+    });
+  }
+  assert.deepEqual(unguarded, []);
+});

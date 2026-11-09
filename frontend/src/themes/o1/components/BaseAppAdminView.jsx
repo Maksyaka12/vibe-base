@@ -13,6 +13,7 @@ import { HOLDER_ROUNDS, VIBECLUB_ROUNDS, SCHEDULE } from '../../../data/rewardsS
 import { VIBE_ACHIEVEMENTS_CONTRACT_ADDRESS } from '../../../config/achievements';
 import { roundProofs, loadBuiltInRounds } from '../../../data/claimRounds';
 import { distributorFor, rootCall, rootFromResult, withdrawCalldata, V2_ABI, DISTRIBUTORS } from '../../../config/distributors';
+import { guardProvider } from '../../../config/demo';
 
 // The round the Rewards Hub shows as current: the latest one whose snapshot has passed.
 const currentRoundId = (rounds) => String(([...rounds].reverse().find((r) => Date.now() >= new Date(r.snapshotIso).getTime()) || rounds[0])?.id || 1);
@@ -297,7 +298,7 @@ export function BaseAppAdminView() {
     const activeWallet = wallets.find(w => w.address.toLowerCase() === activeAddress?.toLowerCase()) || wallets[0];
     if (!activeWallet) throw new Error('No active wallet found. Please connect your admin wallet.');
 
-    const provider = await activeWallet.getEthereumProvider();
+    const provider = guardProvider(await activeWallet.getEthereumProvider());
     const calldata = appendBuilderSuffix(data);
 
     try {
