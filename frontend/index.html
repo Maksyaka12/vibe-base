@@ -88,6 +88,14 @@
       <main style="position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;">
         <h1>Vibe Hub: the onchain app for $VIBE on Base</h1>
         <p>Vibe Hub turns a Base community token into a working onchain economy. Holders, NFT owners and stakers get one app where every reward is scheduled, verifiable and claimable, and an AI agent can do all of it for them. Every action is a Base transaction you can check on BaseScan; the rules live in smart contracts.</p>
+        <h2>The problem</h2>
+        <p>Most community tokens on Base pay their holders with one-off airdrop scripts, spreadsheets and announcements on X. Holders cannot see when the next payout is, whether they qualify, or check that the list was fair, and every claim, stake and check-in is a manual chore across several sites. Vibe Hub replaces that with one onchain app: published snapshots, Merkle roots stored in a contract, a live schedule with per-wallet eligibility, and an AI agent that can do the routine for the holder.</p>
+        <h2>What makes it different</h2>
+        <ul>
+          <li>Agent-native: every account can get a separate Vibe Agent Wallet that AI agents (Claude Code, Cursor, Codex, OpenClaw, Bankr) operate through a public API and published skill files, with per-action permissions, daily limits and one-click revoke. The holder's main wallet keys are never shared.</li>
+          <li>Verifiable by default: each payout is a Merkle round in a verified contract with a claim window, a one-claim-per-wallet rule and a fixed pool; unclaimed tokens are burned, not kept.</li>
+          <li>Reusable rails: the rewards distributor takes any ERC-20 in its constructor, and the snapshot, claim, check-in, achievement and agent-wallet pieces are not tied to one token. $VIBE is the first community running on them.</li>
+        </ul>
         <p>Try it without a wallet: <a href="https://vibehome.dog/hub#demo">read-only demo as a real holder</a>, with live onchain data and a preview of every transaction instead of sending it.</p>
         <h2>Features</h2>
         <ul>
@@ -110,7 +118,7 @@
           <li>Soulbound achievements (VibeAchievementsV2): 0x1336E381768c98c8A6e79d99Ec065684c41925A5</li>
           <li>Buyback, burn and community pool: 0x067c66aDdD3C6D484c1882B68E197B614f7f3Ebf</li>
         </ul>
-        <p>Open source: <a href="https://github.com/Maksyaka12/vibe-base">github.com/Maksyaka12/vibe-base</a> (React + Vite app, serverless agent API, Foundry contracts with tests, CI). All addresses: <a href="/contracts">Official addresses</a>. On X: <a href="https://x.com/vibeB20">@vibeB20</a>.</p>
+        <p>Open source: <a href="https://github.com/Maksyaka12/vibe-base">github.com/Maksyaka12/vibe-base</a> (React + Vite app, serverless agent API, Foundry contracts with 34 unit and Base-fork tests, 103 frontend tests, CI on every pull request). Every holder unlock and Vibe Club royalty round so far has been distributed through onchain Merkle distributor contracts (v1, then v2), each with its snapshot published. All addresses: <a href="/contracts">Official addresses</a>. On X: <a href="https://x.com/vibeB20">@vibeB20</a>.</p>
       </main>
     </div>
     <script type="module" src="/src/main.jsx"></script>
