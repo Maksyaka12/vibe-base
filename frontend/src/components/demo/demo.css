@@ -37,18 +37,56 @@
 /* the app header sits under the banner while the demo is on */
 html.vibe-demo-on .base-app-header { top: 40px !important; }
 
-/* "Try demo": a header pill like Connect wallet (desktop), or hanging over the header's bottom edge (mobile) */
+/* "Try demo" on desktop: a pill in the middle column of the header, with an (i) beside it */
+.vibe-demo-try-slot { display: flex; justify-content: center; min-width: 0; }
+.vibe-demo-try-group { display: inline-flex; align-items: center; gap: 4px; }
 .vibe-demo-try {
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
   border-radius: var(--r-full); white-space: nowrap; flex-shrink: 0;
 }
 .btn.vibe-demo-try-desktop { height: 36px; padding: 0 16px; font-size: 14px; }
-.btn.vibe-demo-try-mobile {
-  position: absolute; left: 50%; bottom: -14px; transform: translateX(-50%); z-index: 1;
-  height: 28px; padding: 0 12px; font-size: 12px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5); /* it floats above the page, like a menu */
+
+/* the (i): same trigger and popover look as the achievements' info, opening downwards */
+.vibe-demo-info { position: relative; display: inline-flex; flex-shrink: 0; }
+.vibe-demo-info-trigger {
+  width: 28px; height: 28px; padding: 0; border: none; border-radius: var(--r-full);
+  display: inline-flex; align-items: center; justify-content: center;
+  background: transparent; color: var(--text-3); cursor: pointer;
+  transition: color 0.15s ease, background-color 0.15s ease;
 }
-.btn.vibe-demo-try-mobile:active { transform: translateX(-50%) scale(0.98); }
+.vibe-demo-info-trigger:hover, .vibe-demo-info-trigger[aria-expanded='true'] { color: var(--text); background: var(--surface-2); }
+.vibe-demo-info-pop {
+  position: absolute; top: calc(100% + 8px); left: 50%; transform: translateX(-50%); z-index: 70;
+  width: 260px; box-sizing: border-box; padding: 10px 12px; display: block; text-align: left;
+  background: var(--surface-3); border: 1px solid var(--border-strong); border-radius: var(--r-sm);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+  font-family: var(--font-sans); white-space: normal;
+  animation: vibe-tour-card-in 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.vibe-demo-info.is-end .vibe-demo-info-pop { left: auto; right: -24px; transform: none; width: min(280px, calc(100vw - 24px)); }
+.vibe-demo-info-title { display: block; font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.vibe-demo-info-text { display: block; font-size: 12px; line-height: 1.45; color: var(--text-2); }
+
+/* "Try demo" on phones: a strip above the header; × hides it until the next page load */
+.vibe-demo-strip {
+  position: relative; z-index: 55;
+  display: flex; align-items: center; gap: 4px; height: 40px; padding: 0 6px 0 12px; box-sizing: border-box;
+  background: var(--accent-soft); border-bottom: 1px solid var(--accent-border);
+  font-family: var(--font-sans);
+}
+.vibe-demo-strip-main {
+  flex: 1; min-width: 0; display: inline-flex; align-items: center; gap: 8px; height: 100%;
+  padding: 0; border: 0; background: transparent; color: var(--accent); cursor: pointer; text-align: left;
+}
+.vibe-demo-strip-label { font-size: 13px; font-weight: 600; white-space: nowrap; }
+.vibe-demo-strip-sub { font-size: 12px; color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.vibe-demo-strip-close {
+  width: 28px; height: 28px; flex-shrink: 0; padding: 0; border: 0; border-radius: var(--r-full);
+  display: inline-flex; align-items: center; justify-content: center;
+  background: transparent; color: var(--text-2); cursor: pointer;
+}
+.vibe-demo-strip-close:hover { color: var(--text); background: var(--surface-2); }
+@media (prefers-reduced-motion: reduce) { .vibe-demo-info-pop { animation: none; } }
 
 .vibe-demo-modal-backdrop {
   position: fixed; inset: 0; z-index: 1000;

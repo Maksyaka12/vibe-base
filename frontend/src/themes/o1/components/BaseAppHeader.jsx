@@ -29,9 +29,11 @@ export function BaseAppHeader({ onOpenSidebar, isDesktop = false }) {
         height: '64px',
         background: 'var(--bg-bar)',
         borderBottom: '1px solid var(--border)',
-        display: 'flex',
+        // desktop: three columns, so Try demo sits in the middle of the header whatever the sides hold
+        ...(isDesktop
+          ? { display: 'grid', gridTemplateColumns: '1fr auto 1fr', columnGap: '16px' }
+          : { display: 'flex', justifyContent: 'space-between' }),
         alignItems: 'center',
-        justifyContent: 'space-between',
         padding: isDesktop ? '0 24px' : '0 8px',
         position: 'sticky',
         top: 0,
@@ -80,8 +82,15 @@ export function BaseAppHeader({ onOpenSidebar, isDesktop = false }) {
         )}
       </div>
 
+      {/* Desktop: Try demo in the middle, always there (also with a wallet connected) */}
+      {isDesktop && (
+        <div className="vibe-demo-try-slot">
+          <TryDemoButton isDesktop />
+        </div>
+      )}
+
       {/* Right side: Three pills or Connect Wallet */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: isDesktop ? '8px' : '4px', minWidth: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', justifySelf: 'end', gap: isDesktop ? '8px' : '4px', minWidth: 0 }}>
         <AgentsButton theme="o1" />
         {hasWallet && !isDemo && <WalletToggle theme="o1" size="sm" />}
         {isDesktop && <ThemeSwitcher />}
@@ -193,8 +202,6 @@ export function BaseAppHeader({ onOpenSidebar, isDesktop = false }) {
             </div>
           </>
         ) : (
-          <>
-          {isDesktop && <TryDemoButton isDesktop />}
           <button
             onClick={login}
             className="btn btn-primary"
@@ -208,12 +215,8 @@ export function BaseAppHeader({ onOpenSidebar, isDesktop = false }) {
             <Wallet size={16} strokeWidth={1.75} />
             <span>Connect wallet</span>
           </button>
-          </>
         )}
       </div>
-
-      {/* Mobile: "Try demo" hangs over the bottom edge of the header */}
-      {!isDesktop && !hasWallet && <TryDemoButton />}
     </header>
   );
 }

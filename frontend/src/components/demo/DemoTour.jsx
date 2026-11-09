@@ -116,7 +116,7 @@ function Welcome() {
 /* ── Finish: what to do next ─────────────────────────────────────────────────────────────────────── */
 
 function Finish() {
-  const { login } = usePrivy();
+  const { login, authenticated } = usePrivy();
   return (
     <div className="vibe-demo-modal-backdrop vibe-tour-fade" onClick={closeTour}>
       <div className="vibe-demo-modal" role="dialog" aria-modal="true" aria-labelledby="vibe-tour-finish-title" data-testid="demo-tour-finish" onClick={(e) => e.stopPropagation()}>
@@ -124,14 +124,27 @@ function Finish() {
           <span className="vibe-demo-modal-icon vibe-tour-icon-done"><Check size={16} /></span>
           <div>
             <div id="vibe-tour-finish-title" className="vibe-demo-modal-title">That is Vibe Hub</div>
-            <div className="vibe-demo-modal-sub">Everything you saw was live data. Keep exploring, or connect your own wallet to do it for real: the demo then turns off by itself.</div>
+            <div className="vibe-demo-modal-sub">
+              {authenticated
+                ? 'Everything you saw was live data. Keep exploring, or go back to your own wallet to do it for real.'
+                : 'Everything you saw was live data. Keep exploring, or connect your own wallet to do it for real: the demo then turns off by itself.'}
+            </div>
           </div>
           <button className="vibe-demo-modal-close" onClick={closeTour} aria-label="Close"><X size={16} /></button>
         </div>
         <div className="vibe-demo-modal-actions vibe-tour-finish-actions">
-          <button className="btn btn-ghost btn-sm" onClick={() => { closeTour(); exitDemo(); }}>Exit demo</button>
-          <button className="btn btn-secondary btn-sm" onClick={closeTour}>Keep exploring</button>
-          <button className="btn btn-primary btn-sm" onClick={() => { closeTour(); login(); }} autoFocus>Connect wallet</button>
+          {authenticated ? (
+            <>
+              <button className="btn btn-secondary btn-sm" onClick={closeTour}>Keep exploring</button>
+              <button className="btn btn-primary btn-sm" onClick={() => { closeTour(); exitDemo(); }} autoFocus>Back to my wallet</button>
+            </>
+          ) : (
+            <>
+              <button className="btn btn-ghost btn-sm" onClick={() => { closeTour(); exitDemo(); }}>Exit demo</button>
+              <button className="btn btn-secondary btn-sm" onClick={closeTour}>Keep exploring</button>
+              <button className="btn btn-primary btn-sm" onClick={() => { closeTour(); login(); }} autoFocus>Connect wallet</button>
+            </>
+          )}
         </div>
       </div>
     </div>

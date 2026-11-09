@@ -330,9 +330,11 @@ before `based.css`.
     from 500 to 600. Rewards Hub is a regular tab here.
 - **Header:** logo on mobile, then Agent Zone, wallet toggle, theme switcher, streak and NFT pills, and the wallet or
   Connect button. Everything is a pill: 36 px on desktop, 32 px on mobile.
-- **Try demo** (logged out only): a secondary pill beside Connect wallet on desktop. On mobile, where the header has no
-  room, it is a 28 px pill that hangs centred over the header's bottom edge. While the read-only demo is on, it hides
-  and a 40 px amber banner with Exit demo sits above the header (`src/components/demo/`).
+- **Try demo** (always, with or without a wallet): on desktop a secondary pill in the middle of the header (the header
+  is a `1fr auto 1fr` grid), with an (i) beside it whose popover explains the demo, like the achievements' info. On
+  phones it is a 40 px `--accent-soft` strip above the header with the same (i) and a × that hides it until the next
+  page load. While the read-only demo is on, both hide and a 40 px amber banner with Tour and Exit demo sits above the
+  header (`src/components/demo/`).
 - **Demo tour** (demo only): a welcome card, then steps (`components/demo/tourState.js`) that open a page, ring one
   block in `--accent` over a dimmed page and show a card with a caret beside it (docked above the bottom bar on
   phones). Clicks pass through the dim, so the highlighted action can be tried. The banner's Tour button reopens it.

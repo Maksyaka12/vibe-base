@@ -159,3 +159,29 @@ test('every wallet provider in the app is wrapped by guardProvider', async () =>
   }
   assert.deepEqual(unguarded, []);
 });
+
+// A wallet can be connected during the demo, so writes to this site's /api are refused in the browser.
+test('the demo blocks writes to /api and lets reads and other sites through', async () => {
+  const { isBlockedDemoRequest, installDemoFetchGuard } = demo;
+  window.location.origin = 'https://vibehome.dog';
+  assert.equal(isBlockedDemoRequest('/api/agent/settings', { method: 'PUT' }), true);
+  assert.equal(isBlockedDemoRequest('/api/agent/token', { method: 'post' }), true);
+  assert.equal(isBlockedDemoRequest('https://vibehome.dog/api/schedule', { method: 'DELETE' }), true);
+  assert.equal(isBlockedDemoRequest('/api/claims?address=0x1'), false);
+  assert.equal(isBlockedDemoRequest('/api/status', { method: 'HEAD' }), false);
+  assert.equal(isBlockedDemoRequest('https://aggregator-api.kyberswap.com/base/api/v1/route/build', { method: 'POST' }), false);
+
+  const sent = [];
+  window.fetch = async (input, init) => { sent.push(`${init?.method || 'GET'} ${input}`); return { ok: true }; };
+  installDemoFetchGuard();
+  installDemoFetchGuard(); // installing twice wraps once
+
+  enterDemo();
+  await assert.rejects(window.fetch('/api/agent/settings', { method: 'PUT', body: '{}' }), (e) => isDemoModeError(e));
+  await window.fetch('/api/claims?address=0x1');
+  assert.deepEqual(sent, ['GET /api/claims?address=0x1'], 'only the read left the browser');
+
+  exitDemo();
+  await window.fetch('/api/agent/settings', { method: 'PUT', body: '{}' });
+  assert.deepEqual(sent.at(-1), 'PUT /api/agent/settings', 'outside the demo writes go through as before');
+});
