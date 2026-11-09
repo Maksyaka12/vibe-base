@@ -218,9 +218,39 @@ async function loadUserClaimTransactions(userAddress, customClient = null) {
       console.warn('RPC log query error:', rpcLogErr);
     }
 
-    // 2. All staking claims of this wallet in one request: EpochRewardClaimed logs filtered by user.
-    // Paging through token transfers below can miss old claims on busy wallets.
+    // 2. All staking claims of this wallet from our own /api/history (Alchemy on the server).
+    // Blockscout sits behind a Cloudflare challenge that in-app wallet browsers (Coinbase Wallet) do not
+    // pass, so there the explorer requests below fail and staking payouts would be missing.
     let stakingLogsLoaded = false;
+    try {
+      const res = await fetch(`/api/history?address=${lowerUser}`);
+      const data = res.ok ? await res.json() : null;
+      if (Array.isArray(data?.items)) {
+        for (const item of data.items) {
+          if (item?.type !== 'staking_reward') continue;
+          const matchedVault = STAKING_VAULTS_INFO.find(v => v.roundId === Number(item.round));
+          if (!matchedVault || isBadTxHash(item.txHash)) continue;
+          const key = `staking-${matchedVault.roundId}`;
+          map[key] = {
+            id: key,
+            type: 'staking',
+            roundId: matchedVault.roundId,
+            vaultId: matchedVault.id,
+            title: `Staking Rewards · Epoch ${matchedVault.roundId}`,
+            amount: Math.round(Number(item.amount) || 0),
+            txHash: item.txHash,
+            timestamp: item.date || matchedVault.defaultTime,
+            link: `https://launch.o1.exchange/staking/vaults/${matchedVault.id}?chain=8453`
+          };
+        }
+        stakingLogsLoaded = true;
+      }
+    } catch (e) {
+      console.warn('Error fetching staking history:', e);
+    }
+
+    // 2b. Fallback: EpochRewardClaimed logs of this wallet from Blockscout in one request.
+    // Paging through token transfers below can miss old claims on busy wallets.
     const stakingLogsUrl = `https://base.blockscout.com/api?module=logs&action=getLogs&address=${STAKING_CONTRACT}&fromBlock=0&toBlock=latest&topic0=${CLAIM_TOPIC}&topic3=0x${lowerUser.slice(2).padStart(64, '0')}&topic0_3_opr=and`;
     for (let attempt = 0; attempt < 3 && !stakingLogsLoaded; attempt++) {
       try {
@@ -257,9 +287,9 @@ async function loadUserClaimTransactions(userAddress, customClient = null) {
 
     while (url && pageCount < 6) {
       pageCount++;
-      const res = await fetch(url);
-      if (!res.ok) break;
-      const data = await res.json();
+      // A blocked explorer (Cloudflare challenge -> CORS error) ends paging but keeps what was found above.
+      const data = await fetch(url).then(r => (r.ok ? r.json() : null)).catch(() => null);
+      if (!data) break;
       if (data?.items && Array.isArray(data.items)) {
         for (const item of data.items) {
           const from = item?.from?.hash?.toLowerCase();
