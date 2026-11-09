@@ -61,9 +61,16 @@ export function roundProofs(type, round) {
   return BUILT_IN[t][Number(round)] || published[t][Number(round)] || null;
 }
 
+const listRounds = (byType) => Object.entries(byType).flatMap(([type, rounds]) => Object.entries(rounds).map(([round, data]) => ({ type, round: Number(round), data })));
+
 // Rounds that come from the admin panel rather than bundled files.
 export function publishedRounds() {
-  return Object.entries(published).flatMap(([type, rounds]) => Object.entries(rounds).map(([round, data]) => ({ type, round: Number(round), data })));
+  return listRounds(published);
+}
+
+// Every round with proofs loaded: the bundled ones (once loadBuiltInRounds finished) and the published ones.
+export function allLoadedRounds() {
+  return [...listRounds(BUILT_IN), ...listRounds(published)];
 }
 
 // Fetches snapshots that are new or were republished since the last call; the rest stay as loaded.
