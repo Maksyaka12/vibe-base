@@ -1,6 +1,7 @@
-import { Eye, LogOut } from 'lucide-react';
+import { Compass, Eye, LogOut } from 'lucide-react';
 import { DEMO_ADDRESS, basescanAddress, exitDemo } from '../../config/demo';
 import { useDemoMode } from '../../hooks/useDemoMode';
+import { startTour } from './tourState';
 import './demo.css';
 
 const short = (a) => `${a.slice(0, 6)}…${a.slice(-4)}`;
@@ -19,6 +20,9 @@ export default function DemoBanner() {
         </a>
         {' '}— read-only<span className="vibe-demo-banner-long"> demo</span>
       </span>
+      <button className="vibe-demo-banner-tour" onClick={startTour} data-testid="demo-tour-open">
+        <Compass size={13} /> Tour
+      </button>
       <button className="vibe-demo-banner-exit" onClick={exitDemo}>
         <LogOut size={13} /> Exit demo
       </button>
