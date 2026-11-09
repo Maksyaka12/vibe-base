@@ -14,7 +14,7 @@ export const STAKING_CONTRACT = '0x6f25a9e1e677616c1bF7ab54b470b0c82839Adb4';
 const ADMIN_WALLET = '0x4c91d3bed372c11795b9ce9a9017dfe447bf050a';
 import { DATA_SUFFIX, appendBuilderSuffix } from '../../config/builderCode';
 import { STAKING_VAULTS_INFO, ADMIN_WITHDRAWAL_TXS, HOLDER_ROUNDS, VIBECLUB_ROUNDS, royaltyBannerFor } from '../../data/rewardsSchedule';
-import { roundProofs, publishedRounds } from '../../data/claimRounds';
+import { roundProofs, allLoadedRounds } from '../../data/claimRounds';
 import { distributorFor, distributorAddresses } from '../../config/distributors';
 import { findOwnedVibeClubNfts, findMintedVibeClubNft } from '../../data/vibeClubNft';
 import { useVibeWallets } from '../../hooks/useVibeWallets';
@@ -386,9 +386,10 @@ async function loadUserClaimTransactions(userAddress, customClient = null) {
       }
       url = data?.next_page_params ? (`https://base.blockscout.com/api/v2/addresses/${lowerUser}/token-transfers?` + new URLSearchParams(data.next_page_params).toString()) : null;
     }
-    // Rounds published from the admin panel: their claim is the transfer from the right distributor
-    // with exactly the user's allocation.
-    for (const { type, round, data } of publishedRounds()) {
+    // Every round still without a transaction (rounds published from the admin panel, and bundled rounds the
+    // date buckets above do not cover, such as Royalty 6): its claim is the transfer from the right distributor
+    // with exactly the user's allocation, not already used by another round.
+    for (const { type, round, data } of allLoadedRounds()) {
       const isHolder = type === 'holder';
       const key = `${isHolder ? 'holder' : 'vibeclub'}-${round}`;
       const expected = data?.claims?.[lowerUser]?.amount;
