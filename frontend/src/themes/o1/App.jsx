@@ -7,6 +7,7 @@ import { DATA_SUFFIX } from '../../config/builderCode';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { base } from 'viem/chains';
 import { BaseAppView } from './components/BaseAppView';
+import DemoController from '../../components/demo/DemoController';
 import BaseAppRewardsView from './components/BaseAppRewardsView';
 import { O1_STAKING_VAULT, STAKING_EPOCHS, VIBECLUB_EPOCHS, GIVEAWAYS_DATA, HOLDER_UNLOCKS } from '../../data/rewardsSchedule';
 import './index.css';
@@ -124,6 +125,7 @@ export default function App() {
         <PrivyWagmiProvider config={privyWagmiConfig}>
           <BrowserRouter>
             <ScrollToTop />
+            <DemoController />
             <DomainRouter />
           </BrowserRouter>
         </PrivyWagmiProvider>

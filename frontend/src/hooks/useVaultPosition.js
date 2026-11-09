@@ -3,6 +3,7 @@ import { formatEther, parseAbi } from 'viem';
 import { publicClient } from '../config/rpc';
 
 const STAKING = '0x6f25a9e1e677616c1bF7ab54b470b0c82839Adb4';
+export const O1_STAKING_CONTRACT = STAKING;
 const STAKING_ABI = parseAbi([
   'function getVault(bytes32 vaultId) view returns (((address stakingToken, address rewardCurrency, uint64 startTime, uint64 epochDuration, uint64 epochCount, uint192 rewardPerEpoch, uint8 earlyExitMode, uint16 penaltyBps) config, address creator, uint64 endTime, uint192 totalStaked, uint256 rewardRemaining) vault, uint64 depositOpenTime)',
   'function getUserState(bytes32 vaultId, address user) view returns (uint64 nextLotId, uint192 totalStaked, uint16 penaltyRemainder)',

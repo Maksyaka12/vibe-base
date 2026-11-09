@@ -4,6 +4,7 @@ import { BaseAppHeader } from './BaseAppHeader';
 import { BaseAppSidebar } from './BaseAppSidebar';
 import { BaseAppBottomNav } from './BaseAppBottomNav';
 import WalletToggle from '../../../components/wallet/WalletToggle';
+import DemoBanner from '../../../components/demo/DemoBanner';
 import { PageHeader } from './ui';
 // The page stylesheets stay in the first bundle, in the order they always had, so lazy pages look exactly the same.
 import '../../../components/wallet/WalletPages.css';
@@ -245,6 +246,9 @@ export function BaseAppView({ RewardsComponent }) {
             boxSizing: 'border-box'
           }}
         >
+          {/* Read-only demo banner (only while #demo is on and no wallet is connected) */}
+          <DemoBanner />
+
           {/* Top Header */}
           <BaseAppHeader
             isDesktop={isDesktop}
