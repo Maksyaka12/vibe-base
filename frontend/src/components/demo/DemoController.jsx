@@ -1,33 +1,40 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { usePrivy } from '@privy-io/react-auth';
-import { exitDemo, keepDemoHash } from '../../config/demo';
+import { exitDemo, installDemoFetchGuard, keepDemoHash } from '../../config/demo';
 import { useDemoFlag } from '../../hooks/useDemoMode';
 import DemoTxPreview from './DemoTxPreview';
 import DemoTour from './DemoTour';
 import { closeTour, openWelcomeOnce } from './tourState';
 
-// Keeps the demo flag in the URL across in-app navigation, turns the demo off once a real wallet
-// connects, and shows the welcome card, the guided tour and the transaction previews.
+// Keeps the demo flag in the URL across in-app navigation, shows the welcome card, the guided tour and the
+// transaction previews, and blocks writes to /api while the demo is on. The demo works with or without a
+// connected wallet; logging in from inside the demo ends it, so the visitor lands in their own account.
 export default function DemoController() {
   const location = useLocation();
-  const flag = useDemoFlag();
+  const demo = useDemoFlag();
   const { ready, authenticated } = usePrivy();
-  const demo = flag && !authenticated;
+  const wasAuthenticated = useRef(null); // null until Privy is ready, so a restored session is not a login
 
   useEffect(() => {
-    if (flag) keepDemoHash();
-  }, [flag, location.pathname, location.search, location.hash]);
+    installDemoFetchGuard();
+  }, []);
 
   useEffect(() => {
-    if (flag && ready && authenticated) exitDemo();
-  }, [flag, ready, authenticated]);
+    if (demo) keepDemoHash();
+  }, [demo, location.pathname, location.search, location.hash]);
+
+  useEffect(() => {
+    if (!ready) return;
+    if (wasAuthenticated.current === false && authenticated && demo) exitDemo();
+    wasAuthenticated.current = authenticated;
+  }, [ready, authenticated, demo]);
 
   useEffect(() => {
     document.documentElement.classList.toggle('vibe-demo-on', demo);
   }, [demo]);
 
-  // the welcome card opens once per browser session when the demo starts; leaving the demo closes the tour
+  // a shared #demo link opens the welcome card once per browser session; leaving the demo closes the tour
   useEffect(() => {
     if (demo) openWelcomeOnce();
     else closeTour();

@@ -68,7 +68,7 @@ export default function DemoTxPreview() {
         </dl>
 
         {note ? <p className="vibe-demo-note">{note}</p> : null}
-        <p className="vibe-demo-note">Connect your own wallet to do this for real; the demo then turns off.</p>
+        <p className="vibe-demo-note">To do this for real, exit the demo and use your own wallet.</p>
 
         <div className="vibe-demo-modal-actions">
           {contract ? (

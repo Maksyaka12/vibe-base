@@ -38,13 +38,14 @@ export function setActiveWallet(which) {
 
 /** The user's main and agent wallets, and which one the site is showing / acting with. */
 export function useVibeWallets() {
-  const { user, authenticated } = usePrivy();
+  const { user } = usePrivy();
   const choice = useSyncExternalStore(subscribe, read, () => 'main');
   const demoFlag = useDemoFlag();
   const setActive = useCallback((which) => setActiveWallet(which), []);
 
-  // Read-only demo: the whole site shows the fixed demo address. A connected wallet always wins.
-  if (demoFlag && !authenticated) {
+  // Read-only demo: the whole site shows the fixed demo address, also when the visitor's own wallet is
+  // connected (that wallet comes back on Exit demo).
+  if (demoFlag) {
     return {
       mainAddress: DEMO_ADDRESS,
       agentAddress: null,

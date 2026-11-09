@@ -114,6 +114,39 @@ export function blockInDemo(preview) {
   throw new DemoModeError();
 }
 
+/**
+ * True for a request the read-only demo must not send: anything but GET/HEAD to this site's own /api
+ * (agent settings, keys, admin uploads). Reads stay allowed, so the demo shows live data.
+ */
+export function isBlockedDemoRequest(input, init) {
+  const method = String(init?.method || (typeof input === 'object' && input?.method) || 'GET').toUpperCase();
+  if (method === 'GET' || method === 'HEAD') return false;
+  const raw = typeof input === 'string' ? input : input?.url || String(input);
+  try {
+    const origin = hasWindow() && window.location?.origin ? window.location.origin : 'https://vibehome.dog';
+    const url = new URL(raw, origin);
+    return url.origin === origin && url.pathname.startsWith('/api/');
+  } catch (e) {
+    return false;
+  }
+}
+
+/**
+ * Installs once a fetch wrapper that, while the demo is on, refuses writes to /api before they leave the
+ * browser. Outside the demo every request goes through unchanged. A wallet may be connected during the demo,
+ * so this keeps its Privy session from changing anything on the server.
+ */
+export function installDemoFetchGuard() {
+  if (!hasWindow() || typeof window.fetch !== 'function' || window.fetch.__vibeDemoGuard) return;
+  const original = window.fetch.bind(window);
+  const guarded = (input, init) => {
+    if (isDemoActive() && isBlockedDemoRequest(input, init)) return Promise.reject(new DemoModeError('Read-only demo: nothing was saved'));
+    return original(input, init);
+  };
+  guarded.__vibeDemoGuard = true;
+  window.fetch = guarded;
+}
+
 /** Wallet RPC methods that sign or send anything. */
 export const SIGNING_METHODS = new Set([
   'eth_sendTransaction',

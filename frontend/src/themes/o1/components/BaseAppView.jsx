@@ -5,6 +5,7 @@ import { BaseAppSidebar } from './BaseAppSidebar';
 import { BaseAppBottomNav } from './BaseAppBottomNav';
 import WalletToggle from '../../../components/wallet/WalletToggle';
 import DemoBanner from '../../../components/demo/DemoBanner';
+import { TryDemoStrip } from '../../../components/demo/TryDemoButton';
 import { PageHeader } from './ui';
 // The page stylesheets stay in the first bundle, in the order they always had, so lazy pages look exactly the same.
 import '../../../components/wallet/WalletPages.css';
@@ -246,7 +247,8 @@ export function BaseAppView({ RewardsComponent }) {
             boxSizing: 'border-box'
           }}
         >
-          {/* Read-only demo banner (only while #demo is on and no wallet is connected) */}
+          {/* Phones: the Try demo strip (desktop has the button in the header). While the demo is on: its banner. */}
+          {!isDesktop && <TryDemoStrip />}
           <DemoBanner />
 
           {/* Top Header */}
