@@ -21,6 +21,21 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
     <title>Vibe Hub</title>
+    <meta name="description" content="Vibe Hub is an onchain app for the whole $VIBE ecosystem on Base: Merkle-proof holder rewards and NFT royalties, staking, best-route swaps, the Vibe Club NFT with auto buy-and-burn, onchain daily check-ins, soulbound achievements, and an AI agent wallet that does it all for you within limits you set." />
+    <link rel="canonical" href="https://vibehome.dog/" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Vibe Hub",
+        "url": "https://vibehome.dog",
+        "applicationCategory": "FinanceApplication",
+        "operatingSystem": "Web",
+        "description": "Onchain app for the $VIBE ecosystem on Base: holder rewards, NFT royalties, staking, swaps, the Vibe Club NFT, daily check-ins, soulbound achievements and an AI agent wallet.",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "sameAs": ["https://x.com/vibeB20", "https://github.com/Maksyaka12/vibe-base"]
+      }
+    </script>
     <meta
       name="base:app_id"
       content="6a709302a8c4f2b6db3b3ed5"
@@ -31,7 +46,7 @@
     <meta property="og:site_name" content="$VIBE on Base" />
     <meta property="og:url" content="https://vibehome.dog" />
     <meta property="og:title" content="$VIBE — The Base Dog 🐶" />
-    <meta property="og:description" content="The official website for $VIBE token on Base. Check rewards, claim holder & royalty distributions, explore tokenomics, and ride the vibe!" />
+    <meta property="og:description" content="The onchain app for $VIBE on Base: claim holder rewards and NFT royalties, stake, swap, mint, check in daily and earn soulbound badges, or let your AI agent do it for you." />
     <meta property="og:image" content="https://vibehome.dog/x-banner.png?v=2" />
     <meta property="og:image:secure_url" content="https://vibehome.dog/x-banner.png?v=2" />
     <meta property="og:image:type" content="image/png" />
@@ -45,7 +60,7 @@
     <meta name="twitter:creator" content="@vibeB20" />
     <meta name="twitter:url" content="https://vibehome.dog" />
     <meta name="twitter:title" content="$VIBE — The Base Dog 🐶" />
-    <meta name="twitter:description" content="The official website for $VIBE token on Base. Check rewards, claim holder & royalty distributions, explore tokenomics, and ride the vibe!" />
+    <meta name="twitter:description" content="The onchain app for $VIBE on Base: claim holder rewards and NFT royalties, stake, swap, mint, check in daily and earn soulbound badges, or let your AI agent do it for you." />
     <meta name="twitter:image" content="https://vibehome.dog/x-banner.png?v=2" />
     <meta name="twitter:image:src" content="https://vibehome.dog/x-banner.png?v=2" />
     <meta name="twitter:image:alt" content="Vibe Hub" />
@@ -68,7 +83,36 @@
     </style>
   </head>
   <body style="background-color: var(--boot-bg, #020b1a); margin: 0; padding: 0; width: 100%; min-height: 100vh; overflow-x: hidden;">
-    <div id="root" style="background-color: var(--boot-bg, #020b1a); margin: 0; padding: 0; width: 100%; min-height: 100vh;"></div>
+    <div id="root" style="background-color: var(--boot-bg, #020b1a); margin: 0; padding: 0; width: 100%; min-height: 100vh;">
+      <!-- What crawlers and link scanners read before the app loads. Visually hidden; React replaces it on mount. -->
+      <main style="position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;">
+        <h1>Vibe Hub: the onchain app for $VIBE on Base</h1>
+        <p>Vibe Hub turns a Base community token into a working onchain economy. Holders, NFT owners and stakers get one app where every reward is scheduled, verifiable and claimable, and an AI agent can do all of it for them. Every action is a Base transaction you can check on BaseScan; the rules live in smart contracts.</p>
+        <p>Try it without a wallet: <a href="https://vibehome.dog/hub#demo">read-only demo as a real holder</a>, with live onchain data and a preview of every transaction instead of sending it.</p>
+        <h2>Features</h2>
+        <ul>
+          <li><a href="/hub">Rewards Hub</a>: holder rewards (10,000,000 $VIBE monthly pool for 5M+ holders), Vibe Club NFT royalties every 10 days, staking epochs and giveaways on one live schedule, with countdowns and per-wallet eligibility.</li>
+          <li><a href="/claim">Claim Portal</a>: Merkle-proof claims checked by the distributor contract (claim window, one claim per wallet, pool size); unclaimed rewards are burned; full payout history with BaseScan links.</li>
+          <li><a href="/profile">Profile</a>: onchain daily check-in streak and 8 soulbound ERC-1155 achievements whose conditions the contract reads onchain.</li>
+          <li><a href="/vibeclub">Vibe Club NFT</a>: 333 genesis passes; the mint contract buys $VIBE with 80% of the revenue and burns it.</li>
+          <li><a href="/swap">Swap</a>: KyberSwap and LI.FI quoted in parallel, best route wins, exact approvals and a slippage guard.</li>
+          <li><a href="/agents">Agent Zone</a>: a second Vibe Agent Wallet per account. Claude Code, Cursor, Codex, OpenClaw or Bankr act through a public API and skill: check in, claim (also into your main wallet without touching it), stake, swap, transfer and mint, within permissions and daily limits you set, revocable in one click.</li>
+          <li><a href="/docs">Docs</a>: a full user guide, the <a href="/docs/vibe-token">$VIBE token page</a>, <a href="/docs/how-rewards-work">how rewards work</a> and the <a href="/docs/agent-api">agent API</a>.</li>
+          <li>Two themes (O1 dark, Based light), full mobile layout, works inside Coinbase Wallet and the Base App.</li>
+        </ul>
+        <h2>Verified contracts on Base</h2>
+        <ul>
+          <li>$VIBE token: 0xb200000000000000000000df24ecb8bf51100a01</li>
+          <li>Vibe Club NFT: 0x9E92307Dbec2d0aE4BBF14cA93E1cA00edC4b886</li>
+          <li>Holder rewards distributor (VibeRewardsDistributor v2): 0x90B855994D9ba328399d87d0285b7D7f7B8E2c80</li>
+          <li>NFT royalty distributor (VibeRewardsDistributor v2): 0xeEb47756fBf417907B2Be94aCcfB851a224add2c</li>
+          <li>Daily check-in: 0x1938BA215ef556e51eE6AaF909e0970AE0167634</li>
+          <li>Soulbound achievements (VibeAchievementsV2): 0x1336E381768c98c8A6e79d99Ec065684c41925A5</li>
+          <li>Buyback, burn and community pool: 0x067c66aDdD3C6D484c1882B68E197B614f7f3Ebf</li>
+        </ul>
+        <p>Open source: <a href="https://github.com/Maksyaka12/vibe-base">github.com/Maksyaka12/vibe-base</a> (React + Vite app, serverless agent API, Foundry contracts with tests, CI). All addresses: <a href="/contracts">Official addresses</a>. On X: <a href="https://x.com/vibeB20">@vibeB20</a>.</p>
+      </main>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
