@@ -6,6 +6,7 @@ import { hashScheduleJson } from '../../../data/scheduleSchema';
 import { snapshotSignMessage } from '../../../data/snapshot/publish';
 import { pickAdminWallet, adminSessionHeaders } from './adminSession';
 import { Card, Button, Alert, Tile } from './ui';
+import { guardProvider } from '../../../config/demo';
 
 const TYPES = [
   { id: 'royalty', label: 'Vibe Club royalties', rule: 'Every wallet holding a Vibe Club NFT at the snapshot gets an equal share.' },
@@ -153,7 +154,7 @@ export function AdminSnapshotTool({ activeAddress, wallets, onUseRoot }) {
       const payload = JSON.stringify(result);
       const issuedAt = new Date().toISOString();
       const message = snapshotSignMessage({ address: wallet.address, issuedAt, type: result.type, round: result.round, root: result.merkleRoot, hash: await hashScheduleJson(payload) });
-      const provider = await wallet.getEthereumProvider();
+      const provider = guardProvider(await wallet.getEthereumProvider());
       const signature = await provider.request({ method: 'personal_sign', params: [stringToHex(message), wallet.address] });
       const res = await fetch('/api/snapshots', {
         method: 'PUT',

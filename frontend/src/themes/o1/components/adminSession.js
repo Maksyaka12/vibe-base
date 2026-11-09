@@ -2,6 +2,7 @@
 // The admin signs once; the signature is reused until shortly before the server's 2-hour limit.
 import { stringToHex } from 'viem';
 import { adminSessionMessage } from '../../../data/snapshot/publish';
+import { guardProvider } from '../../../config/demo';
 
 const REUSE_MS = 90 * 60 * 1000;
 let cached = null;
@@ -15,7 +16,7 @@ export async function adminSessionHeaders(wallet) {
   const address = wallet.address.toLowerCase();
   if (cached && cached.address === address && Date.now() - cached.at < REUSE_MS) return cached.headers;
   const issuedAt = new Date().toISOString();
-  const provider = await wallet.getEthereumProvider();
+  const provider = guardProvider(await wallet.getEthereumProvider());
   const signature = await provider.request({ method: 'personal_sign', params: [stringToHex(adminSessionMessage({ address: wallet.address, issuedAt })), wallet.address] });
   const headers = { 'x-admin-address': wallet.address, 'x-admin-issued': issuedAt, 'x-admin-signature': signature };
   cached = { address, at: Date.now(), headers };

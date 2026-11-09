@@ -17,14 +17,20 @@ const MIN_BALANCE = 5000000; // 5,000,000 $VIBE threshold
 const MONTHLY_POOL = 10000000; // 10,000,000 $VIBE per month
 const MAX_ALLOCATION_CAP = 500000; // 500,000 $VIBE cap per wallet
 
+// Same list as HOLDER_EXCLUSIONS in frontend/src/data/snapshot/engine.js (tests/snapshot.test.js checks they match)
 const SYSTEM_EXCLUSIONS = [
   '0xb200000000000000000000df24ecb8bf51100a01', // Token CA itself
   '0x498581ff718922c3f8e6a244956af099b2652b2b', // Uniswap V4 PoolManager
   '0x3beea54db87a632a5faf20db6765d3af94c81b31', // VestingVault 100M
-  '0xfce13943c69b8cfe3de795dfe1a8447c8f8a99cb', // Staking Contract
+  '0x6f25a9e1e677616c1bf7ab54b470b0c82839adb4', // o1 Exchange staking contract
+  '0x067c66addd3c6d484c1882b68e197b614f7f3ebf', // Buyback, burn and community pool
+  '0x77e04dd8c45725d2b2b3c8eebac2f3f1708fd089', // Holder rewards distributor v1
+  '0x90b855994d9ba328399d87d0285b7d7f7b8e2c80', // Holder rewards distributor v2
+  '0x3753ee7fa9538087f901aa5e4afc12dba57b97c1', // Royalty distributor v1
+  '0xeeb47756fbf417907b2be94accfb851a224add2c', // Royalty distributor v2
   '0x000000000000000000000000000000000000dead', // Burn Address
   '0x0000000000000000000000000000000000000000', // Zero Address
-  '0x77e04dd8c45725d2b2b3c8eebac2f3f1708fd089'  // Vesting Distributor
+  '0xfce13943c69b8cfe3de795dfe1a8447c8f8a99cb', // was listed as the staking contract; kept out to be safe
 ].map(a => a.toLowerCase());
 
 function sleep(ms) {

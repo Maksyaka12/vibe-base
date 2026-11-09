@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { lazy, Suspense, useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { PrivyProvider, dataSuffix } from '@privy-io/react-auth';
 import { WagmiProvider as PrivyWagmiProvider } from '@privy-io/wagmi';
@@ -7,9 +7,13 @@ import { DATA_SUFFIX } from '../../config/builderCode';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { base } from 'viem/chains';
 import { BaseAppView } from './components/BaseAppView';
+import DemoController from '../../components/demo/DemoController';
 import BaseAppRewardsView from './components/BaseAppRewardsView';
 import { O1_STAKING_VAULT, STAKING_EPOCHS, VIBECLUB_EPOCHS, GIVEAWAYS_DATA, HOLDER_UNLOCKS } from '../../data/rewardsSchedule';
 import './index.css';
+
+const DocsPage = lazy(() => import('./pages/docs/DocsPage'));
+const docs = <Suspense fallback={null}><DocsPage /></Suspense>;
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -59,6 +63,7 @@ function DomainRouter() {
 
       {/* ── Dedicated Base App / Vibe Hub Routes ── */}
       <Route path="/app" element={<BaseAppView RewardsComponent={Rewards} />} />
+      <Route path="/app/docs/*" element={<Navigate to="/docs" replace />} />
       <Route path="/app/*" element={<BaseAppView RewardsComponent={Rewards} />} />
 
       {/* ── Welcome & Main App Routes (Direct to Unified BaseAppView) ── */}
@@ -87,7 +92,8 @@ function DomainRouter() {
       <Route path="/contracts" element={<BaseAppView RewardsComponent={Rewards} />} />
       <Route path="/adresses" element={<Navigate to="/contracts" replace />} />
       <Route path="/addresses" element={<Navigate to="/contracts" replace />} />
-      <Route path="/docs" element={<Navigate to="/contracts" replace />} />
+      <Route path="/docs" element={docs} />
+      <Route path="/docs/:slug" element={docs} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
@@ -119,6 +125,7 @@ export default function App() {
         <PrivyWagmiProvider config={privyWagmiConfig}>
           <BrowserRouter>
             <ScrollToTop />
+            <DemoController />
             <DomainRouter />
           </BrowserRouter>
         </PrivyWagmiProvider>

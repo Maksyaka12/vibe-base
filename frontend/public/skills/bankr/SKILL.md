@@ -7,7 +7,7 @@ version: 1
 
 # Vibe Hub - Bankr agent skill
 
-[Vibe Hub](https://vibehome.dog) is the $VIBE community app on **Base (chain ID 8453)**: daily onchain check-in, holder reward unlocks, royalties for Vibe Club NFT holders, soulbound achievements and $VIBE staking vaults on o1 Exchange.
+[Vibe Hub](https://vibehome.dog) is a community app on **Base (chain ID 8453)** built around **$VIBE**, its native token: daily onchain check-in, holder reward unlocks, royalties for Vibe Club NFT holders, soulbound achievements and $VIBE staking vaults on o1 Exchange.
 
 With this skill the user just tells Bankr what to do ("do my vibe check-in", "claim my vibe rewards", "stake 5M VIBE") and Bankr does it from the user's Bankr wallet. Nothing to sign up for and no keys: the Vibe Hub API is public and returns **ready transactions**, Bankr submits them.
 

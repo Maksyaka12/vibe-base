@@ -361,7 +361,7 @@ export async function handleAgentIndex({ method }) {
       auth: 'Authorization: Bearer <agent key>',
       endpoints: {
         'POST /api/agent/act {"tx":{to,data,value}} or {"txs":[...]}': 'Send txs returned by the read endpoints (built with address=<agent wallet>): check-in, achievements, reward claims, staking deposit/claim/withdraw.',
-        'POST /api/agent/act {"action":"swap","side":"buy|sell","amount":"0.01","slippage":1}': 'Swap ETH <-> $VIBE; the output comes back to the agent wallet.',
+        'POST /api/agent/act {"action":"swap","side":"buy|sell","amount":"0.01","slippage":1}': 'Swap ETH <-> $VIBE; the output comes back to the agent wallet. Slippage is in percent: default 1, at most 5.',
         'POST /api/agent/act {"action":"transfer","token":"ETH|VIBE|USDC","to":"0x...","amount":"1.5"}': 'Transfer from the agent wallet: unlimited to the owner\'s main wallet, capped per day to other addresses.',
         'POST /api/agent/act {"action":"mint"}': 'Mints one Vibe Club NFT to the agent wallet with ETH, at the current contract price (one per wallet).',
       },
@@ -529,6 +529,9 @@ export async function handleStaking({ method, query = {} }) {
 
 const KYBER = 'https://aggregator-api.kyberswap.com/base/api/v1';
 const KYBER_ETH = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
+// The KyberSwap router on Base. A route that points anywhere else is refused, so a bad API answer can never
+// receive our users' ETH or a $VIBE approval.
+export const KYBER_ROUTER = '0x6131B5fae19EA4f9D964eAc0408E4408b66337b5';
 
 export async function handleSwap({ method, query = {} }) {
   if (method !== 'GET') return json(405, { error: 'Method not allowed' }, { Allow: 'GET' });
@@ -560,6 +563,7 @@ export async function handleSwap({ method, query = {} }) {
     if (built?.code !== 0 || !built.data?.data) return json(502, { error: `Could not build the swap: ${built?.message || 'KyberSwap did not answer'}` });
 
     const router = built.data.routerAddress || route.data.routerAddress;
+    if (String(router || '').toLowerCase() !== KYBER_ROUTER.toLowerCase()) return json(502, { error: 'KyberSwap returned an unknown router, so the swap was not built. Try again later' });
     const txs = [];
     if (side === 'sell') {
       const allowance = await publicClient.readContract({ address: VIBE_TOKEN, abi: ERC20_RW, functionName: 'allowance', args: [account, router] });

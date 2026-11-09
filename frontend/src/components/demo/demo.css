@@ -1,0 +1,241 @@
+/* Read-only demo mode: banner, "Try demo" call to action, transaction preview, API playground. */
+
+.vibe-demo-banner {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  height: 40px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px;
+  background: var(--amber-bg);
+  border-bottom: 1px solid var(--amber-bd);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  backdrop-filter: blur(8px);
+}
+.vibe-demo-banner-icon { color: var(--amber); flex-shrink: 0; }
+.vibe-demo-banner-text { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vibe-demo-banner-addr { font-family: var(--font-mono); color: var(--amber); text-decoration: underline; text-underline-offset: 2px; }
+.vibe-demo-banner-exit {
+  display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0;
+  padding: 5px 10px; border-radius: var(--r-full);
+  background: transparent; color: var(--text); border: 1px solid var(--amber-bd);
+  font: 600 12px var(--font-sans); cursor: pointer;
+}
+.vibe-demo-banner-exit:hover { background: var(--amber-bg); }
+
+@media (max-width: 420px) {
+  .vibe-demo-banner { padding: 0 10px; gap: 8px; font-size: 12px; }
+  .vibe-demo-banner-long { display: none; }
+  .vibe-demo-banner-exit { padding: 4px 8px; }
+}
+
+/* the app header sits under the banner while the demo is on */
+html.vibe-demo-on .base-app-header { top: 40px !important; }
+
+/* "Try demo" on desktop: a pill in the middle column of the header, with an (i) beside it */
+.vibe-demo-try-slot { display: flex; justify-content: center; min-width: 0; }
+.vibe-demo-try-group { display: inline-flex; align-items: center; gap: 4px; }
+.vibe-demo-try {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  border-radius: var(--r-full); white-space: nowrap; flex-shrink: 0;
+}
+.btn.vibe-demo-try-desktop { height: 36px; padding: 0 16px; font-size: 14px; }
+
+/* the (i): same trigger and popover look as the achievements' info, opening downwards */
+.vibe-demo-info { position: relative; display: inline-flex; flex-shrink: 0; }
+.vibe-demo-info-trigger {
+  width: 28px; height: 28px; padding: 0; border: none; border-radius: var(--r-full);
+  display: inline-flex; align-items: center; justify-content: center;
+  background: transparent; color: var(--text-3); cursor: pointer;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+.vibe-demo-info-trigger:hover, .vibe-demo-info-trigger[aria-expanded='true'] { color: var(--text); background: var(--surface-2); }
+.vibe-demo-info-pop {
+  position: absolute; top: calc(100% + 8px); left: 50%; transform: translateX(-50%); z-index: 70;
+  width: 260px; box-sizing: border-box; padding: 10px 12px; display: block; text-align: left;
+  background: var(--surface-3); border: 1px solid var(--border-strong); border-radius: var(--r-sm);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+  font-family: var(--font-sans); white-space: normal;
+  animation: vibe-tour-card-in 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.vibe-demo-info.is-end .vibe-demo-info-pop { left: auto; right: -24px; transform: none; width: min(280px, calc(100vw - 24px)); }
+.vibe-demo-info-title { display: block; font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.vibe-demo-info-text { display: block; font-size: 12px; line-height: 1.45; color: var(--text-2); }
+
+/* "Try demo" on phones: a strip above the header; × hides it until the next page load */
+.vibe-demo-strip {
+  position: relative; z-index: 55;
+  display: flex; align-items: center; gap: 4px; height: 40px; padding: 0 6px 0 12px; box-sizing: border-box;
+  background: var(--accent-soft); border-bottom: 1px solid var(--accent-border);
+  font-family: var(--font-sans);
+}
+.vibe-demo-strip-main {
+  flex: 1; min-width: 0; display: inline-flex; align-items: center; gap: 8px; height: 100%;
+  padding: 0; border: 0; background: transparent; color: var(--accent); cursor: pointer; text-align: left;
+}
+.vibe-demo-strip-label { font-size: 13px; font-weight: 600; white-space: nowrap; }
+.vibe-demo-strip-sub { font-size: 12px; color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.vibe-demo-strip-close {
+  width: 28px; height: 28px; flex-shrink: 0; padding: 0; border: 0; border-radius: var(--r-full);
+  display: inline-flex; align-items: center; justify-content: center;
+  background: transparent; color: var(--text-2); cursor: pointer;
+}
+.vibe-demo-strip-close:hover { color: var(--text); background: var(--surface-2); }
+@media (prefers-reduced-motion: reduce) { .vibe-demo-info-pop { animation: none; } }
+
+.vibe-demo-modal-backdrop {
+  position: fixed; inset: 0; z-index: 1000;
+  display: flex; align-items: center; justify-content: center; padding: 16px;
+  background: rgba(0, 0, 0, 0.6);
+}
+.vibe-demo-modal {
+  width: 100%; max-width: 440px; box-sizing: border-box;
+  background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--r-xl);
+  padding: 20px; color: var(--text); font-family: var(--font-sans);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+.vibe-demo-modal-head { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px; }
+.vibe-demo-modal-icon {
+  display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+  width: 32px; height: 32px; border-radius: var(--r-md); background: var(--amber-bg); color: var(--amber);
+}
+.vibe-demo-modal-head > div { flex: 1; }
+.vibe-demo-modal-title { font-weight: 700; font-size: 16px; }
+.vibe-demo-modal-sub { color: var(--text-2); font-size: 13px; margin-top: 2px; }
+.vibe-demo-modal-close { background: transparent; border: 0; color: var(--text-3); cursor: pointer; padding: 4px; }
+.vibe-demo-rows { margin: 0; display: grid; gap: 1px; background: var(--border); border-radius: var(--r-md); overflow: hidden; }
+.vibe-demo-rows > div { display: flex; justify-content: space-between; gap: 12px; padding: 10px 12px; background: var(--surface-2); font-size: 13px; }
+.vibe-demo-rows dt { color: var(--text-3); }
+.vibe-demo-rows dd { margin: 0; text-align: right; word-break: break-word; }
+.vibe-demo-mono { font-family: var(--font-mono); }
+.vibe-demo-link { color: var(--accent); display: inline-flex; align-items: center; gap: 4px; font-family: var(--font-mono); }
+.vibe-demo-note { color: var(--text-2); font-size: 12px; margin: 12px 0 0; line-height: 1.5; }
+.vibe-demo-modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+.vibe-demo-modal-actions .btn { display: inline-flex; align-items: center; gap: 6px; }
+
+/* Agent Zone: Try the API */
+.vibe-api-try { margin-top: 24px; }
+.vibe-api-try-list { display: grid; gap: 10px; margin-top: 12px; }
+.vibe-api-try-row { border: 1px solid var(--border); border-radius: var(--r-md); background: var(--surface-2); overflow: hidden; }
+.vibe-api-try-head { display: flex; align-items: center; gap: 10px; padding: 10px 12px; flex-wrap: wrap; }
+.vibe-api-try-method { font: 700 11px var(--font-mono); color: var(--green); background: var(--green-bg); border: 1px solid var(--green-bd); border-radius: var(--r-sm); padding: 2px 6px; }
+.vibe-api-try-path { font: 13px var(--font-mono); color: var(--text); flex: 1 1 200px; min-width: 0; word-break: break-all; }
+.vibe-api-try-desc { color: var(--text-3); font-size: 12px; padding: 0 12px 10px; }
+.vibe-api-try-out {
+  margin: 0; max-height: 320px; overflow: auto; padding: 12px;
+  background: var(--code-bg); border-top: 1px solid var(--border);
+  font: 12px/1.5 var(--font-mono); color: var(--text-2); white-space: pre-wrap; word-break: break-word;
+}
+.vibe-api-try-status { font: 12px var(--font-mono); color: var(--text-3); }
+.vibe-api-try-status.ok { color: var(--green); }
+.vibe-api-try-status.err { color: var(--red); }
+.vibe-api-try-head .btn { display: inline-flex; align-items: center; gap: 6px; }
+
+/* ── Guided tour ─────────────────────────────────────────────────────────────────────────────────── */
+
+/* The ring around the highlighted block; its huge shadow dims the rest of the page. Clicks pass through,
+   so the visitor can try the highlighted action. */
+.vibe-tour-spot {
+  position: fixed; z-index: 900; pointer-events: none;
+  border-radius: var(--r-lg);
+  outline: 2px solid var(--accent); outline-offset: 0;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.55);
+  animation: vibe-tour-in 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.vibe-tour-spot-pulse {
+  position: absolute; inset: -2px; border-radius: inherit;
+  border: 2px solid var(--accent);
+  animation: vibe-tour-pulse 1.8s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+.vibe-tour-dim { position: fixed; inset: 0; z-index: 900; pointer-events: none; background: rgba(0, 0, 0, 0.55); animation: vibe-tour-fade 0.2s ease; }
+.vibe-tour-fade { animation: vibe-tour-fade 0.2s ease; }
+
+.vibe-tour-card {
+  position: fixed; z-index: 950; box-sizing: border-box;
+  padding: 16px; border-radius: var(--r-lg);
+  background: var(--surface); border: 1px solid var(--border-strong); color: var(--text);
+  font-family: var(--font-sans);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+  animation: vibe-tour-card-in 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.vibe-tour-card.is-docked { max-width: none; }
+.vibe-tour-caret {
+  position: absolute; width: 12px; height: 12px; margin-left: -6px;
+  background: var(--surface); border: 1px solid var(--border-strong); transform: rotate(45deg);
+}
+.vibe-tour-caret.is-up { top: -7px; border-right: 0; border-bottom: 0; }
+.vibe-tour-caret.is-down { bottom: -7px; border-left: 0; border-top: 0; }
+
+.vibe-tour-card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.vibe-tour-count { font-size: 12px; color: var(--text-3); }
+.vibe-tour-title { font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
+.vibe-tour-text { margin: 6px 0 0; font-size: 14px; line-height: 1.5; color: var(--text-2); }
+.vibe-tour-hint {
+  display: flex; align-items: center; gap: 8px; margin: 12px 0 0; padding: 8px 10px;
+  border-radius: var(--r-md); font-size: 13px; font-weight: 600;
+  background: var(--accent-soft); border: 1px solid var(--accent-border); color: var(--accent);
+}
+.vibe-tour-hint.is-done { background: var(--green-bg); border-color: var(--green-bd); color: var(--green); }
+.vibe-tour-hint.is-muted { background: var(--surface-2); border-color: var(--border); color: var(--text-3); font-weight: 400; }
+.vibe-tour-bounce { flex-shrink: 0; animation: vibe-tour-bounce 1.2s ease-in-out infinite; }
+
+.vibe-tour-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 14px; }
+.vibe-tour-dots { display: flex; gap: 5px; }
+.vibe-tour-dots span { width: 6px; height: 6px; border-radius: var(--r-full); background: var(--surface-3); transition: background-color 0.15s ease, transform 0.15s ease; }
+.vibe-tour-dots span.is-past { background: var(--accent-border); }
+.vibe-tour-dots span.is-on { background: var(--accent); transform: scale(1.35); }
+.vibe-tour-nav { display: flex; gap: 6px; }
+.vibe-tour-nav .btn { display: inline-flex; align-items: center; gap: 6px; }
+
+/* welcome and finish cards (they reuse the preview dialog) */
+.vibe-tour-welcome { max-width: 480px; animation: vibe-tour-card-in 0.32s cubic-bezier(0.16, 1, 0.3, 1); }
+.vibe-tour-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.vibe-tour-stat {
+  display: flex; flex-direction: column; gap: 4px; min-width: 0;
+  padding: 10px 12px; border-radius: var(--r-md); background: var(--surface-2); border: 1px solid var(--border);
+  color: var(--text); text-decoration: none;
+}
+.vibe-tour-stat-label { font-size: 12px; color: var(--text-3); }
+.vibe-tour-stat-value { display: inline-flex; align-items: center; gap: 4px; font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+a.vibe-tour-stat:hover { border-color: var(--border-strong); }
+.vibe-tour-icon-done { background: var(--green-bg); color: var(--green); }
+.vibe-tour-finish-actions { flex-wrap: wrap; }
+@media (max-width: 420px) {
+  .vibe-tour-stats { grid-template-columns: 1fr; }
+  .vibe-demo-modal-actions { flex-wrap: wrap; }
+  .vibe-demo-modal-actions .btn { flex: 1 1 auto; justify-content: center; }
+}
+
+/* the banner's Tour button */
+.vibe-demo-banner-tour {
+  display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0;
+  padding: 5px 10px; border-radius: var(--r-full);
+  background: var(--amber); color: var(--bg); border: 1px solid var(--amber);
+  font: 600 12px var(--font-sans); cursor: pointer;
+}
+.vibe-demo-banner-tour:hover { opacity: 0.9; }
+
+@keyframes vibe-tour-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes vibe-tour-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes vibe-tour-card-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes vibe-tour-pulse { 0% { opacity: 0.9; transform: scale(1); } 100% { opacity: 0; transform: scale(1.04); } }
+@keyframes vibe-tour-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .vibe-tour-spot, .vibe-tour-spot-pulse, .vibe-tour-dim, .vibe-tour-fade, .vibe-tour-card, .vibe-tour-welcome, .vibe-tour-bounce { animation: none; }
+}
+
+/* phones: a compact card docked above the bottom bar */
+@media (max-width: 767px) {
+  .vibe-tour-card { padding: 12px 14px; }
+  .vibe-tour-card-head { margin-bottom: 2px; }
+  .vibe-tour-title { font-size: 15px; }
+  .vibe-tour-text { font-size: 13px; line-height: 1.45; margin-top: 4px; }
+  .vibe-tour-hint { margin-top: 8px; padding: 6px 10px; font-size: 12px; }
+  .vibe-tour-foot { margin-top: 10px; }
+}

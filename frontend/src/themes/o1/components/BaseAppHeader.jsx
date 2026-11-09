@@ -7,15 +7,17 @@ import { ThemeSwitcher } from './ThemeSwitcher';
 import WalletToggle from '../../../components/wallet/WalletToggle';
 import AgentsButton from '../../../components/agent/AgentsButton';
 import { useVibeWallets } from '../../../hooks/useVibeWallets';
+import TryDemoButton from '../../../components/demo/TryDemoButton';
 
 export function BaseAppHeader({ onOpenSidebar, isDesktop = false }) {
   const { login, authenticated } = usePrivy();
   const { wallets } = useWallets();
   const { address: wagmiAddress, isConnected: isWagmiConnected } = useAccount();
 
-  const { activeAddress: vibeActiveAddress } = useVibeWallets();
+  const { activeAddress: vibeActiveAddress, isDemo } = useVibeWallets();
   const activeAddress = vibeActiveAddress || wallets?.[0]?.address || wagmiAddress;
-  const hasWallet = (authenticated && !!activeAddress) || (isWagmiConnected && !!wagmiAddress);
+  // the read-only demo shows the demo holder's pills, as for a connected wallet
+  const hasWallet = (authenticated && !!activeAddress) || (isWagmiConnected && !!wagmiAddress) || (isDemo && !!activeAddress);
 
   const { nftCount, formattedBalance } = useVibeBalances(activeAddress);
   const { streak } = useVibeCheckIn(activeAddress);
@@ -27,9 +29,11 @@ export function BaseAppHeader({ onOpenSidebar, isDesktop = false }) {
         height: '64px',
         background: 'var(--bg-bar)',
         borderBottom: '1px solid var(--border)',
-        display: 'flex',
+        // desktop: three columns, so Try demo sits in the middle of the header whatever the sides hold
+        ...(isDesktop
+          ? { display: 'grid', gridTemplateColumns: '1fr auto 1fr', columnGap: '16px' }
+          : { display: 'flex', justifyContent: 'space-between' }),
         alignItems: 'center',
-        justifyContent: 'space-between',
         padding: isDesktop ? '0 24px' : '0 8px',
         position: 'sticky',
         top: 0,
@@ -78,10 +82,17 @@ export function BaseAppHeader({ onOpenSidebar, isDesktop = false }) {
         )}
       </div>
 
+      {/* Desktop: Try demo in the middle, always there (also with a wallet connected) */}
+      {isDesktop && (
+        <div className="vibe-demo-try-slot">
+          <TryDemoButton isDesktop />
+        </div>
+      )}
+
       {/* Right side: Three pills or Connect Wallet */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: isDesktop ? '8px' : '4px', minWidth: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', justifySelf: 'end', gap: isDesktop ? '8px' : '4px', minWidth: 0 }}>
         <AgentsButton theme="o1" />
-        {hasWallet && <WalletToggle theme="o1" size="sm" />}
+        {hasWallet && !isDemo && <WalletToggle theme="o1" size="sm" />}
         {isDesktop && <ThemeSwitcher />}
         {hasWallet ? (
           <>

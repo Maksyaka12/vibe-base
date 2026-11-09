@@ -9,6 +9,8 @@ import { useWalletAssets } from '../../hooks/useWalletAssets';
 import AgentAccessCard from '../wallet/AgentAccessCard';
 import { DepositModal } from '../wallet/WalletPage';
 import { InstallTiles, BankrCard, useCopy } from './InstallBlocks';
+import ApiPlayground from '../demo/ApiPlayground';
+import { useDemoMode } from '../../hooks/useDemoMode';
 import '../wallet/WalletPages.css';
 import './AgentsPage.css';
 
@@ -57,6 +59,7 @@ export default function AgentsPage({ theme = 'o1' }) {
   const assets = useWalletAssets();
   const [copied, copy] = useCopy();
   const [depositOpen, setDepositOpen] = useState(false);
+  const { demo } = useDemoMode();
   const closeDeposit = useCallback(() => setDepositOpen(false), []);
 
   return (
@@ -142,6 +145,9 @@ export default function AgentsPage({ theme = 'o1' }) {
           <span className="agp-example agp-typing" aria-label="and more"><i /><i /><i /></span>
         </div>
       </section>
+
+      {/* read-only demo only: the public API, run live for the demo address */}
+      {demo && <ApiPlayground />}
 
       <BankrCard />
 

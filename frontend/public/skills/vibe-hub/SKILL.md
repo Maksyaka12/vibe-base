@@ -6,7 +6,7 @@ version: 1
 
 # Vibe Hub - agent skill
 
-[Vibe Hub](https://vibehome.dog) is the $VIBE community app on **Base (chain ID 8453)**. With this skill you act for the user from their **Vibe Agent Wallet**: our server signs and sends the transactions, you never handle a private key.
+[Vibe Hub](https://vibehome.dog) is a community app on **Base (chain ID 8453)** built around **$VIBE**, its native token. With this skill you act for the user from their **Vibe Agent Wallet**: our server signs and sends the transactions, you never handle a private key.
 
 ## Setup
 
@@ -29,7 +29,7 @@ Content-Type: application/json
 |---|---|
 | `{"tx": {...}}` or `{"txs": [...]}` | Sends ready txs exactly as returned by the read endpoints (called with `address=<agent wallet>`), in order, up to 5 |
 | `{"action":"swap","side":"buy","amount":"0.01"}` | Buys $VIBE for 0.01 ETH (best route, server-built) |
-| `{"action":"swap","side":"sell","amount":"1000000"}` | Sells 1M $VIBE for ETH |
+| `{"action":"swap","side":"sell","amount":"1000000"}` | Sells 1M $VIBE for ETH. Optional `"slippage"` in percent: default 1, at most 5 |
 | `{"action":"transfer","token":"ETH","to":"0x...","amount":"0.01"}` | Sends ETH, VIBE or USDC |
 | `{"action":"mint"}` | Mints one Vibe Club NFT with ETH at the contract price (server-built) |
 
@@ -60,5 +60,5 @@ The response is `{ "from": "<agent wallet>", "hashes": ["0x..."] }`. Reply with 
 - Only Vibe Hub contracts are allowed; the server refuses anything else.
 - Mint only with ETH, never with $VIBE: the price is set by the contract (`priceEth`), one NFT per wallet.
 - The user's main wallet is never touched. Achievement and v2 reward claims can be sent for the main wallet (`address=<main>`, txs with `sender: "any"`) only when the user explicitly asks.
-- Errors come as `{ "error": "..." }`: relay them. `401` = the key was revoked; ask the user for a new one.
+- Errors come as `{ "error": "..." }`: relay them. `401` = the key was revoked; ask the user for a new one. `429` = another transfer from this wallet is still running: wait a few seconds and retry once. Send actions one after another, not in parallel.
 - Gas is paid in ETH from the agent wallet. If it has none, ask the user to top it up from https://vibehome.dog/wallet

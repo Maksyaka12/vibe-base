@@ -4,6 +4,7 @@ import {
   ArrowLeftRight,
   Coins,
   Gift,
+  BookOpen,
   MoreHorizontal,
   Crown,
   TrendingUp,
@@ -34,9 +35,10 @@ export function BaseAppBottomNav({ activeTab, onSelectTab }) {
   const { wallets } = useWallets();
   const { address: wagmiAddress } = useAccount();
 
-  const { activeAddress: vibeActiveAddress } = useVibeWallets();
+  const { activeAddress: vibeActiveAddress, isDemo } = useVibeWallets();
   const activeAddress = vibeActiveAddress || wallets?.[0]?.address || wagmiAddress;
-  const isAdmin = !!activeAddress && activeAddress.toLowerCase() === ADMIN_WALLET.toLowerCase();
+  // the read-only demo never shows the admin entry
+  const isAdmin = !isDemo && !!activeAddress && activeAddress.toLowerCase() === ADMIN_WALLET.toLowerCase();
 
   // Pages without their own tab open from More, so the marker rests there
   const tabIndex = NAV_TABS.findIndex((tab) => tab.id === activeTab);
@@ -182,6 +184,27 @@ export function BaseAppBottomNav({ activeTab, onSelectTab }) {
               >
                 <TrendingUp size={18} color="var(--accent)" />
                 <span>Tokenomics</span>
+              </button>
+
+              <button
+                onClick={() => handleTabClick('docs')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '12px 14px',
+                  borderRadius: '12px',
+                  background: 'var(--surface-2)',
+                  border: '1px solid var(--border)',
+                  color: 'var(--text)',
+                  fontSize: '14px',
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                  textAlign: 'left'
+                }}
+              >
+                <BookOpen size={18} color="var(--accent)" />
+                <span>Docs</span>
               </button>
 
               <button

@@ -169,6 +169,7 @@ The base unit is 4 px: `--s1` 4 · `--s2` 8 · `--s3` 12 · `--s4` 16 · `--s5` 
 | Width | Pages |
 |---|---|
 | 1040 px | Rewards Hub, Claim Portal, Profile, Vibe Club NFT, Tokenomics, Official addresses, Agent Zone, Skill, Admin |
+| 760 px | Docs article (its own shell: top bar, menu, "On this page") |
 | 640 px | Settings |
 | 560 px | Wallet, Account |
 | 480 px | Swap |
@@ -329,6 +330,14 @@ before `based.css`.
     from 500 to 600. Rewards Hub is a regular tab here.
 - **Header:** logo on mobile, then Agent Zone, wallet toggle, theme switcher, streak and NFT pills, and the wallet or
   Connect button. Everything is a pill: 36 px on desktop, 32 px on mobile.
+- **Try demo** (always, with or without a wallet): on desktop a secondary pill in the middle of the header (the header
+  is a `1fr auto 1fr` grid), with an (i) beside it whose popover explains the demo, like the achievements' info. On
+  phones it is a 40 px `--accent-soft` strip above the header with the same (i) and a × that hides it until the next
+  page load. While the read-only demo is on, both hide and a 40 px amber banner with Tour and Exit demo sits above the
+  header (`src/components/demo/`).
+- **Demo tour** (demo only): a welcome card, then steps (`components/demo/tourState.js`) that open a page, ring one
+  block in `--accent` over a dimmed page and show a card with a caret beside it (docked above the bottom bar on
+  phones). Clicks pass through the dim, so the highlighted action can be tried. The banner's Tour button reopens it.
 
 ### Campaign card
 
@@ -423,13 +432,14 @@ Icons take a colour from their text or a token.
 | NFT art | `/nft/images/{id}.png` | 1:1 |
 | Campaign art | `/rewards-hub/*.jfif` | 16:9, `object-fit: cover` |
 | Royalty banners | `/vibe-club-royalties-*` | 16:9 |
+| Docs screenshots | `/docs-media/{o1,based}/*.webp` | One per theme; sizes in `pages/docs/shotSizes.json` |
 | Partner logos | `/brands/*` | Square |
 
 Images that sit on a colour need their own rounded frame. A white logo that needs ink on a light tile gets a scoped
 filter in `based.css`.
 
 **Based background:** fine vertical gray lines and dot-matrix clusters in the free space of the page, fixed to the
-viewport, on `.base-app-shell`. It is weaker on mobile. Don't add other page backgrounds.
+viewport, on `.base-app-shell`. It is weaker on mobile. The docs go without it, because their long text sits right on the page. Don't add other page backgrounds.
 
 **Glows** are O1 only. Based stays flat, and `based.css` removes them.
 
@@ -460,7 +470,8 @@ viewport, on `.base-app-shell`. It is weaker on mobile. Don't add other page bac
 | `src/themes/o1/styles/based.css` | Based tokens, texture and motion |
 | `src/themes/o1/styles/o1-components.css` | Buttons, cards, tiles, badges, segmented control, header, alerts, empty state |
 | `src/themes/o1/components/ui/index.jsx` | The React components for the above |
-| `src/themes/o1/styles/o1-{hub,claim,profile,swap,nft,tokenomics,contracts,admin}.css` | One page each |
+| `src/themes/o1/styles/o1-{hub,claim,profile,swap,nft,tokenomics,contracts,admin,docs}.css` | One page each |
+| `src/themes/o1/pages/docs/` | Docs at `/docs`: shell (`DocsPage.jsx`), blocks (`kit.jsx`), content by menu group (`pages/`) |
 | `src/themes/o1/components/BaseApp{View,Sidebar,Header,BottomNav}.jsx` | App shell |
 | `src/components/wallet/WalletPages.css` | Wallet, Account, Settings, forms, modals (`vwp-*`) |
 | `src/components/agent/AgentsPage.css`, `SkillPage.css` | Agent Zone and Skill (`agp-*`, `skp-*`) |

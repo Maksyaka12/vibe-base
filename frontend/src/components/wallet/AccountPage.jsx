@@ -11,7 +11,12 @@ import './WalletPages.css';
 export default function AccountPage({ theme = 'o1', onOpenWallet }) {
   const { user } = usePrivy();
   const { exportWallet } = useExportWallet();
-  const { mainAddress, agentAddress, hasAgentWallet, active } = useVibeWallets();
+  const { mainAddress, agentAddress, hasAgentWallet, active, isDemo } = useVibeWallets();
+
+  // the read-only demo never shows or exports the visitor's own account
+  if (isDemo) {
+    return <div className={`vwp vwp-${theme}`}><div className="vwp-card vwp-empty">Account settings are not part of the read-only demo.</div></div>;
+  }
 
   if (!user || !mainAddress) {
     return <div className={`vwp vwp-${theme}`}><div className="vwp-card vwp-empty">Log in to manage your account.</div></div>;

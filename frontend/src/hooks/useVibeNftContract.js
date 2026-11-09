@@ -12,6 +12,7 @@ export const OPENSEA_COLLECTION_URL = 'https://opensea.io/collection/vibeclubnft
 export const VIBE_TOKEN_ADDRESS = '0xb200000000000000000000df24ecb8bf51100a01';
 import { BUILDER_CODE, DATA_SUFFIX, BUILDER_CODE_HEX, appendBuilderSuffix } from '../config/builderCode';
 import { useVibeWallets } from './useVibeWallets';
+import { guardProvider, isDemoActive, showDemoTxPreview } from '../config/demo';
 export { BUILDER_CODE, DATA_SUFFIX, BUILDER_CODE_HEX };
 
 const withBuilderCode = appendBuilderSuffix;
@@ -204,7 +205,7 @@ export function useVibeNftContract() {
       (w) => w.address?.toLowerCase() === walletAddress?.toLowerCase()
     ) || wallets[0];
 
-    const provider = connectedWallet ? await connectedWallet.getEthereumProvider() : window.ethereum;
+    const provider = guardProvider(connectedWallet ? await connectedWallet.getEthereumProvider() : window.ethereum);
 
     if (!provider) {
       throw new Error('No compatible Web3 wallet found');
@@ -288,6 +289,18 @@ export function useVibeNftContract() {
 
   // 1. Mint with ETH & Automatic DEX Swap + 80% Burn
   const mintWithETH = async () => {
+    // Read-only demo: preview the mint at the live onchain price, send nothing.
+    if (isDemoActive()) {
+      showDemoTxPreview({
+        action: `Mint Vibe Club NFT with ETH (phase ${currentPhase})`,
+        amount: `${formatEther(ethPriceWei)} ETH`,
+        contract: NFT_CONTRACT_ADDRESS,
+        contractLabel: 'Vibe Club NFT',
+        method: 'mintWithETHAndSwap(swapData), or mintWithETH() without a route',
+        note: 'The ETH is swapped to $VIBE on the way in; 80% of that $VIBE is burned.',
+      });
+      return;
+    }
     if (!authenticated || !walletAddress) {
       login();
       return;
@@ -352,6 +365,19 @@ export function useVibeNftContract() {
 
   // 2. Mint with $VIBE
   const mintWithVIBE = async (customVibeAmountWei) => {
+    // Read-only demo: preview the mint (and its exact approval), send nothing.
+    if (isDemoActive()) {
+      const amount = customVibeAmountWei || vibePriceWei;
+      showDemoTxPreview({
+        action: 'Mint Vibe Club NFT with $VIBE',
+        amount: `${Number(formatEther(amount)).toLocaleString('en-US')} $VIBE`,
+        contract: NFT_CONTRACT_ADDRESS,
+        contractLabel: 'Vibe Club NFT',
+        method: 'mintWithVIBE(amount)',
+        note: 'If the allowance is short, an approval for exactly this amount is asked first.',
+      });
+      return;
+    }
     if (!authenticated || !walletAddress) {
       login();
       return;

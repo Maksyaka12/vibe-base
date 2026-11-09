@@ -3,6 +3,7 @@ import { useWallets } from '@privy-io/react-auth';
 import { encodeFunctionData } from 'viem';
 import { publicClient } from '../config/rpc';
 import { sendWalletTx, waitUntil } from '../config/walletTx';
+import { isDemoActive, showDemoTxPreview } from '../config/demo';
 import {
   VIBE_ACHIEVEMENTS_CONTRACT_ADDRESS,
   ACHIEVEMENTS_ABI,
@@ -80,6 +81,17 @@ export function useVibeAchievements(address) {
   const claimAchievement = async (achId) => {
     if (!address || claimingId) return false;
     const id = ACHIEVEMENT_ID_MAP[achId] || Number(achId);
+    // Read-only demo: preview the soulbound mint, send nothing.
+    if (isDemoActive()) {
+      showDemoTxPreview({
+        action: `Claim achievement #${id} (soulbound)`,
+        amount: 'Gas only',
+        contract: VIBE_ACHIEVEMENTS_CONTRACT_ADDRESS,
+        contractLabel: 'Vibe Achievements',
+        method: `claim(${id})`,
+      });
+      return false;
+    }
     setClaimingId(achId);
     setErrorMessage('');
     setLastTxHash(null);

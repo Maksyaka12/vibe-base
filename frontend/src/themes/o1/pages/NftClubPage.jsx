@@ -9,12 +9,15 @@ import { publicClient } from '../../../config/rpc';
 import { findMintedVibeClubNft, findOwnedVibeClubNfts, rememberMintedVibeClubNft, fetchVibePerEth, fetchNftBurned } from '../../../data/vibeClubNft';
 import { Button, Card, StatusPill, ProgressBar, SectionTitle, Alert } from '../components/ui';
 import { useVibeWallets } from '../../../hooks/useVibeWallets';
+import { useDemoMode } from '../../../hooks/useDemoMode';
 
 // NFT Deck strictly from #5 to #35 (31 NFTs)
 const NFT_DECK = Array.from({ length: 31 }, (_, i) => i + 5);
 
 export default function NftClubPage() {
-  const { login, authenticated } = usePrivy();
+  const { login, authenticated: walletConnected } = usePrivy();
+  const { demo } = useDemoMode();
+  const authenticated = walletConnected || demo; // the read-only demo shows the demo address's balances
   const { activeAddress: vibeActiveAddress } = useVibeWallets();
   const walletAddress = vibeActiveAddress;
   const balances = useUserBalances(walletAddress);
@@ -395,6 +398,12 @@ export default function NftClubPage() {
                     OpenSea <ExternalLink size={12} />
                   </Button>
                 </div>
+                {demo && (
+                  <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '10px', flexWrap: 'wrap' }}>
+                    <Button variant="ghost" size="sm" onClick={mintWithETH}>Preview mint with ETH</Button>
+                    <Button variant="ghost" size="sm" onClick={handleMintWithVibeClick} disabled={!currentDynamicVibeAmount}>Preview mint with $VIBE</Button>
+                  </div>
+                )}
               </Card>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>

@@ -2,13 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import { usePrivy, useWallets } from '@privy-io/react-auth';
 import { formatUnits, parseAbi, encodeFunctionData, parseUnits, parseAbiItem } from 'viem';
 import { getPublicClient } from '../../config/rpc';
-import round1Data from '../../data/round_1_proofs.json';
-import round2Data from '../../data/round_2_proofs.json';
-import royalty1Data from '../../data/royalty_1_proofs.json';
-import royalty2Data from '../../data/royalty_2_proofs.json';
-import royalty3Data from '../../data/royalty_3_proofs.json';
-import royalty4Data from '../../data/royalty_4_proofs.json';
-import royalty5Data from '../../data/royalty_5_proofs.json';
 import nftNames from '../../data/nftNames.json';
 import { BaseAppClaimView } from './components/BaseAppClaimView';
 import { BaseAppProfileView } from './components/BaseAppProfileView';
@@ -21,10 +14,12 @@ export const STAKING_CONTRACT = '0x6f25a9e1e677616c1bF7ab54b470b0c82839Adb4';
 const ADMIN_WALLET = '0x4c91d3bed372c11795b9ce9a9017dfe447bf050a';
 import { DATA_SUFFIX, appendBuilderSuffix } from '../../config/builderCode';
 import { STAKING_VAULTS_INFO, ADMIN_WITHDRAWAL_TXS, HOLDER_ROUNDS, VIBECLUB_ROUNDS, royaltyBannerFor } from '../../data/rewardsSchedule';
-import { roundProofs, publishedRounds } from '../../data/claimRounds';
+import { roundProofs, allLoadedRounds } from '../../data/claimRounds';
 import { distributorFor, distributorAddresses } from '../../config/distributors';
 import { findOwnedVibeClubNfts, findMintedVibeClubNft } from '../../data/vibeClubNft';
 import { useVibeWallets } from '../../hooks/useVibeWallets';
+import { guardProvider, isDemoActive, showDemoTxPreview } from '../../config/demo';
+import { useDemoMode } from '../../hooks/useDemoMode';
 export { STAKING_VAULTS_INFO, ADMIN_WITHDRAWAL_TXS };
 
 export function getRoyaltyBannerUrl(epochId) {
@@ -81,13 +76,13 @@ async function loadUserClaimTransactions(userAddress, customClient = null) {
     }
 
     // Expected allocations for this user if available in proof data
-    const expHolder1 = round1Data?.claims?.[lowerUser]?.amount;
-    const expHolder2 = round2Data?.claims?.[lowerUser]?.amount;
-    const expRoyalty1 = royalty1Data?.claims?.[lowerUser]?.amount;
-    const expRoyalty2 = royalty2Data?.claims?.[lowerUser]?.amount;
-    const expRoyalty3 = royalty3Data?.claims?.[lowerUser]?.amount;
-    const expRoyalty4 = royalty4Data?.claims?.[lowerUser]?.amount;
-    const expRoyalty5 = royalty5Data?.claims?.[lowerUser]?.amount;
+    const expHolder1 = roundProofs('holder', 1)?.claims?.[lowerUser]?.amount;
+    const expHolder2 = roundProofs('holder', 2)?.claims?.[lowerUser]?.amount;
+    const expRoyalty1 = roundProofs('royalty', 1)?.claims?.[lowerUser]?.amount;
+    const expRoyalty2 = roundProofs('royalty', 2)?.claims?.[lowerUser]?.amount;
+    const expRoyalty3 = roundProofs('royalty', 3)?.claims?.[lowerUser]?.amount;
+    const expRoyalty4 = roundProofs('royalty', 4)?.claims?.[lowerUser]?.amount;
+    const expRoyalty5 = roundProofs('royalty', 5)?.claims?.[lowerUser]?.amount;
 
     const rpcClient = customClient || getPublicClient();
 
@@ -225,9 +220,39 @@ async function loadUserClaimTransactions(userAddress, customClient = null) {
       console.warn('RPC log query error:', rpcLogErr);
     }
 
-    // 2. All staking claims of this wallet in one request: EpochRewardClaimed logs filtered by user.
-    // Paging through token transfers below can miss old claims on busy wallets.
+    // 2. All staking claims of this wallet from our own /api/history (Alchemy on the server).
+    // Blockscout sits behind a Cloudflare challenge that in-app wallet browsers (Coinbase Wallet) do not
+    // pass, so there the explorer requests below fail and staking payouts would be missing.
     let stakingLogsLoaded = false;
+    try {
+      const res = await fetch(`/api/history?address=${lowerUser}`);
+      const data = res.ok ? await res.json() : null;
+      if (Array.isArray(data?.items)) {
+        for (const item of data.items) {
+          if (item?.type !== 'staking_reward') continue;
+          const matchedVault = STAKING_VAULTS_INFO.find(v => v.roundId === Number(item.round));
+          if (!matchedVault || isBadTxHash(item.txHash)) continue;
+          const key = `staking-${matchedVault.roundId}`;
+          map[key] = {
+            id: key,
+            type: 'staking',
+            roundId: matchedVault.roundId,
+            vaultId: matchedVault.id,
+            title: `Staking Rewards · Epoch ${matchedVault.roundId}`,
+            amount: Math.round(Number(item.amount) || 0),
+            txHash: item.txHash,
+            timestamp: item.date || matchedVault.defaultTime,
+            link: `https://launch.o1.exchange/staking/vaults/${matchedVault.id}?chain=8453`
+          };
+        }
+        stakingLogsLoaded = true;
+      }
+    } catch (e) {
+      console.warn('Error fetching staking history:', e);
+    }
+
+    // 2b. Fallback: EpochRewardClaimed logs of this wallet from Blockscout in one request.
+    // Paging through token transfers below can miss old claims on busy wallets.
     const stakingLogsUrl = `https://base.blockscout.com/api?module=logs&action=getLogs&address=${STAKING_CONTRACT}&fromBlock=0&toBlock=latest&topic0=${CLAIM_TOPIC}&topic3=0x${lowerUser.slice(2).padStart(64, '0')}&topic0_3_opr=and`;
     for (let attempt = 0; attempt < 3 && !stakingLogsLoaded; attempt++) {
       try {
@@ -264,9 +289,9 @@ async function loadUserClaimTransactions(userAddress, customClient = null) {
 
     while (url && pageCount < 6) {
       pageCount++;
-      const res = await fetch(url);
-      if (!res.ok) break;
-      const data = await res.json();
+      // A blocked explorer (Cloudflare challenge -> CORS error) ends paging but keeps what was found above.
+      const data = await fetch(url).then(r => (r.ok ? r.json() : null)).catch(() => null);
+      if (!data) break;
       if (data?.items && Array.isArray(data.items)) {
         for (const item of data.items) {
           const from = item?.from?.hash?.toLowerCase();
@@ -361,9 +386,10 @@ async function loadUserClaimTransactions(userAddress, customClient = null) {
       }
       url = data?.next_page_params ? (`https://base.blockscout.com/api/v2/addresses/${lowerUser}/token-transfers?` + new URLSearchParams(data.next_page_params).toString()) : null;
     }
-    // Rounds published from the admin panel: their claim is the transfer from the right distributor
-    // with exactly the user's allocation.
-    for (const { type, round, data } of publishedRounds()) {
+    // Every round still without a transaction (rounds published from the admin panel, and bundled rounds the
+    // date buckets above do not cover, such as Royalty 6): its claim is the transfer from the right distributor
+    // with exactly the user's allocation, not already used by another round.
+    for (const { type, round, data } of allLoadedRounds()) {
       const isHolder = type === 'holder';
       const key = `${isHolder ? 'holder' : 'vibeclub'}-${round}`;
       const expected = data?.claims?.[lowerUser]?.amount;
@@ -419,7 +445,10 @@ const NFT_ABI = parseAbi([
 
 
 export default function Checker({ isProfileMode = false } = {}) {
-  const { authenticated, login } = usePrivy();
+  const { authenticated: walletConnected, login } = usePrivy();
+  const { demo } = useDemoMode();
+  // the read-only demo loads everything for the demo address, as for a connected wallet
+  const authenticated = walletConnected || demo;
   const { wallets } = useWallets();
   const { activeAddress: vibeActiveAddress } = useVibeWallets();
   const address = vibeActiveAddress;
@@ -510,19 +539,19 @@ export default function Checker({ isProfileMode = false } = {}) {
               })
               .map(item => {
                 if (item.id === 'vibeclub-5') {
-                  const correctAmt = royalty5Data?.claims?.[address.toLowerCase()]?.amount || 7207;
+                  const correctAmt = roundProofs('royalty', 5)?.claims?.[address.toLowerCase()]?.amount || 7207;
                   return { ...item, roundId: 5, title: 'Vibe Club Royalties · Royalty 5', amount: correctAmt };
                 }
                 if (item.id === 'vibeclub-4') {
-                  const correctAmt = royalty4Data?.claims?.[address.toLowerCase()]?.amount || 9909;
+                  const correctAmt = roundProofs('royalty', 4)?.claims?.[address.toLowerCase()]?.amount || 9909;
                   return { ...item, roundId: 4, title: 'Vibe Club Royalties · Royalty 4', amount: correctAmt };
                 }
                 if (item.id === 'vibeclub-3') {
-                  const correctAmt = royalty3Data?.claims?.[address.toLowerCase()]?.amount || 18018;
+                  const correctAmt = roundProofs('royalty', 3)?.claims?.[address.toLowerCase()]?.amount || 18018;
                   return { ...item, roundId: 3, title: 'Vibe Club Royalties · Royalty 3', amount: correctAmt };
                 }
                 if (item.id === 'vibeclub-2') {
-                  const correctAmt = royalty2Data?.claims?.[address.toLowerCase()]?.amount || 17117;
+                  const correctAmt = roundProofs('royalty', 2)?.claims?.[address.toLowerCase()]?.amount || 17117;
                   const isAdminWallet = address.toLowerCase() === ADMIN_WALLET.toLowerCase();
                   const fallbackTx = isAdminWallet ? '0x88cde1d5ab45186ef77475ced14e2e4b370636da1e345275ee3a2fb5992880c7' : null;
                   const txHash = (item.txHash && !isBadTxHash(item.txHash)) ? item.txHash : fallbackTx;
@@ -535,18 +564,18 @@ export default function Checker({ isProfileMode = false } = {}) {
                   };
                 }
                 if (item.id === 'vibeclub-1') {
-                  const correctAmt = royalty1Data?.claims?.[address.toLowerCase()]?.amount || 22935;
+                  const correctAmt = roundProofs('royalty', 1)?.claims?.[address.toLowerCase()]?.amount || 22935;
                   const isAdminWallet = address.toLowerCase() === ADMIN_WALLET.toLowerCase();
                   const fallbackTx = isAdminWallet ? '0x0efb6d5e52fcca2e770f4c78db0c8b86f6c919ea53272813ec68816e5a5c0d84' : null;
                   const txHash = (item.txHash && !isBadTxHash(item.txHash)) ? item.txHash : fallbackTx;
                   return { ...item, roundId: 1, title: 'Vibe Club Royalties · Royalty 1', amount: correctAmt, txHash };
                 }
                 if (item.id === 'holder-2') {
-                  const correctAmt = round2Data?.claims?.[address.toLowerCase()]?.amount || 500000;
+                  const correctAmt = roundProofs('holder', 2)?.claims?.[address.toLowerCase()]?.amount || 500000;
                   return { ...item, roundId: 2, title: 'Holder Rewards · Unlock 2', amount: Math.round(Number(correctAmt)) };
                 }
                 if (item.id === 'holder-1') {
-                  const correctAmt = round1Data?.claims?.[address.toLowerCase()]?.amount || 126127;
+                  const correctAmt = roundProofs('holder', 1)?.claims?.[address.toLowerCase()]?.amount || 126127;
                   const isAdminWallet = address.toLowerCase() === ADMIN_WALLET.toLowerCase();
                   const fallbackTx = isAdminWallet ? '0x46b72eb1941e010a4952bdb396da20769599bceb835fd23af066005c88569e14' : null;
                   const txHash = (item.txHash && !isBadTxHash(item.txHash)) ? item.txHash : fallbackTx;
@@ -1231,6 +1260,24 @@ export default function Checker({ isProfileMode = false } = {}) {
   // Resolves to true only once the contract confirmed the claim; a rejected or failed claim resolves to false.
   const handleClaim = async (type, roundId, amountNum) => {
     const claimKey = `${type}-${roundId}`;
+
+    // Read-only demo: show the exact claim that would be sent, and send nothing.
+    if (isDemoActive()) {
+      const isHolder = type === 'holder';
+      const proof = roundProofs(isHolder ? 'holder' : 'royalty', roundId)?.claims?.[address?.toLowerCase()] || (isHolder ? userProofData : userRoyaltyProofData);
+      const roundContract = distributorFor(isHolder ? 'holder' : 'royalty', roundId);
+      const distributor = roundContract ? (roundContract.version === 1 && !isHolder ? ROYALTY_DISTRIBUTOR_CA : roundContract.address) : '';
+      showDemoTxPreview({
+        action: isHolder ? `Claim holder rewards · Unlock ${roundId}` : `Claim Vibe Club royalties · Round ${roundId}`,
+        amount: `${Number(proof?.amount ?? amountNum ?? 0).toLocaleString('en-US')} $VIBE`,
+        contract: distributor,
+        contractLabel: 'Reward distributor',
+        method: 'claim(roundId, amount, proof)',
+        note: proof ? `The Merkle proof for this address has ${proof.proof?.length || 0} hashes.` : 'This address has no proof for this round.',
+      });
+      return 'demo';
+    }
+
     setClaimStatus(prev => ({ ...prev, [claimKey]: 'claiming' }));
 
     try {
@@ -1242,7 +1289,7 @@ export default function Checker({ isProfileMode = false } = {}) {
       const distributor = roundContract.version === 1 && !isHolder ? ROYALTY_DISTRIBUTOR_CA : roundContract.address;
 
       const activeWallet = wallets.find(w => w.address.toLowerCase() === address?.toLowerCase()) || wallets[0];
-      const provider = await activeWallet.getEthereumProvider();
+      const provider = guardProvider(await activeWallet.getEthereumProvider());
       const amountWei = parseUnits(proof.amount.toString(), 18);
       const calldataRaw = encodeFunctionData({
         abi: DISTRIBUTOR_ABI,

@@ -1,6 +1,6 @@
 # Vibe Hub
 
-The home of $VIBE on Base: rewards, royalties, staking, swaps, the Vibe Club NFT, and an agent that can do it all for you.
+Vibe Hub is an onchain app that covers the whole ecosystem around $VIBE on Base: rewards, royalties, staking, swaps, the Vibe Club NFT, and an agent that can do it all for you. Every action is a transaction you can check on BaseScan.
 
 **Live:** [vibehome.dog](https://vibehome.dog)
 
