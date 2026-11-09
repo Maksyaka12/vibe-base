@@ -3,6 +3,7 @@ import { useWallets } from '@privy-io/react-auth';
 import { parseAbi, encodeFunctionData } from 'viem';
 import { publicClient } from '../config/rpc';
 import { sendWalletTx, waitUntil } from '../config/walletTx';
+import { isDemoActive, showDemoTxPreview } from '../config/demo';
 
 export const VIBE_CHECKIN_CONTRACT_ADDRESS =
   import.meta.env?.VITE_CHECKIN_CONTRACT_ADDRESS ||
@@ -189,6 +190,18 @@ export function useVibeCheckIn(address) {
 
   const performCheckIn = async () => {
     if (!address || state.hasCheckedInToday || isCheckingIn) return;
+
+    // Read-only demo: preview the check-in, send nothing.
+    if (isDemoActive()) {
+      showDemoTxPreview({
+        action: `Daily check-in (streak ${state.streak || 0} → ${(state.streak || 0) + 1})`,
+        amount: 'Gas only',
+        contract: VIBE_CHECKIN_CONTRACT_ADDRESS,
+        contractLabel: 'Vibe Check-in',
+        method: 'checkIn()',
+      });
+      return;
+    }
 
     setIsCheckingIn(true);
     setCheckInSuccess(false);

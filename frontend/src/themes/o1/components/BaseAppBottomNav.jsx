@@ -35,9 +35,10 @@ export function BaseAppBottomNav({ activeTab, onSelectTab }) {
   const { wallets } = useWallets();
   const { address: wagmiAddress } = useAccount();
 
-  const { activeAddress: vibeActiveAddress } = useVibeWallets();
+  const { activeAddress: vibeActiveAddress, isDemo } = useVibeWallets();
   const activeAddress = vibeActiveAddress || wallets?.[0]?.address || wagmiAddress;
-  const isAdmin = !!activeAddress && activeAddress.toLowerCase() === ADMIN_WALLET.toLowerCase();
+  // the read-only demo never shows the admin entry
+  const isAdmin = !isDemo && !!activeAddress && activeAddress.toLowerCase() === ADMIN_WALLET.toLowerCase();
 
   // Pages without their own tab open from More, so the marker rests there
   const tabIndex = NAV_TABS.findIndex((tab) => tab.id === activeTab);

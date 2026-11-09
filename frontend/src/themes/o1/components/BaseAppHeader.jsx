@@ -7,6 +7,7 @@ import { ThemeSwitcher } from './ThemeSwitcher';
 import WalletToggle from '../../../components/wallet/WalletToggle';
 import AgentsButton from '../../../components/agent/AgentsButton';
 import { useVibeWallets } from '../../../hooks/useVibeWallets';
+import TryDemoButton from '../../../components/demo/TryDemoButton';
 
 export function BaseAppHeader({ onOpenSidebar, isDesktop = false }) {
   const { login, authenticated } = usePrivy();
@@ -191,6 +192,8 @@ export function BaseAppHeader({ onOpenSidebar, isDesktop = false }) {
             </div>
           </>
         ) : (
+          <>
+          {isDesktop && <TryDemoButton isDesktop />}
           <button
             onClick={login}
             className="btn btn-primary"
@@ -204,8 +207,12 @@ export function BaseAppHeader({ onOpenSidebar, isDesktop = false }) {
             <Wallet size={16} strokeWidth={1.75} />
             <span>Connect wallet</span>
           </button>
+          </>
         )}
       </div>
+
+      {/* Mobile: "Try demo" hangs over the bottom edge of the header */}
+      {!isDesktop && !hasWallet && <TryDemoButton />}
     </header>
   );
 }

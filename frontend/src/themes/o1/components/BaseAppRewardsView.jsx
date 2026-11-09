@@ -5,8 +5,10 @@ import { Coins, ArrowUpRight, ArrowRight, ChevronDown, Info, Clock, ExternalLink
 import { roundProofs } from '../../../data/claimRounds';
 import { Button, Card, Tile, Badge, StatusPill, PageHeader, SectionTitle, Alert } from './ui';
 import { useVibeWallets } from '../../../hooks/useVibeWallets';
-import { useVaultPosition } from '../../../hooks/useVaultPosition';
+import { useVaultPosition, O1_STAKING_CONTRACT } from '../../../hooks/useVaultPosition';
 import { formatConcise } from '../../../hooks/useVibeBalances';
+import { useDemoMode } from '../../../hooks/useDemoMode';
+import { showDemoTxPreview } from '../../../config/demo';
 
 // Previous rounds list: shows up to 5 rows, the rest scroll. The height is measured because rows differ
 // in height (buttons, mobile layout).
@@ -141,7 +143,10 @@ export default function BaseAppRewardsView({
   O1_STAKING_VAULT = '',
   now = new Date()
 }) {
-  const { authenticated } = usePrivy();
+  const { authenticated: walletConnected } = usePrivy();
+  const { demo } = useDemoMode();
+  // the read-only demo shows everything as for a connected wallet (the demo address)
+  const authenticated = walletConnected || demo;
   const { activeAddress: vibeActiveAddress } = useVibeWallets();
   const address = vibeActiveAddress;
   const userAddress = address ? address.toLowerCase() : null;
@@ -674,6 +679,16 @@ export default function BaseAppRewardsView({
                   variant="primary"
                   size="lg"
                   icon={<ExternalLink size={15} />}
+                  onClick={demo ? (e) => {
+                    e.preventDefault();
+                    showDemoTxPreview({
+                      action: `Stake $VIBE · ${featuredStaking.epoch}`,
+                      amount: 'Chosen on o1 Exchange',
+                      contract: O1_STAKING_CONTRACT,
+                      contractLabel: 'o1 Staking',
+                      note: 'Staking runs on o1 Exchange. Outside the demo this button opens the vault there, and your wallet signs the stake.',
+                    });
+                  } : undefined}
                 >
                   Stake on o1 Exchange
                 </Button>

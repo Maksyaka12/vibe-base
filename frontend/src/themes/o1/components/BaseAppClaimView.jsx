@@ -125,6 +125,7 @@ export function BaseAppClaimView(props) {
   const claim = async (type, epoch, amount) => {
     setFailedClaim(null);
     const done = await handleClaim(type, epoch, amount);
+    if (done === 'demo') return false; // read-only demo: a preview was shown, nothing failed
     if (!done) setFailedClaim(`${type}-${epoch}`);
     return done;
   };

@@ -1,5 +1,7 @@
 import { useCallback, useSyncExternalStore } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
+import { DEMO_ADDRESS } from '../config/demo';
+import { useDemoFlag } from './useDemoMode';
 
 // One Vibe Hub account = the wallet the user connected (main) + the Privy embedded wallet created at their
 // first login (the agent wallet). Both are separate participants (own balances, streak, rewards); the site
@@ -36,8 +38,23 @@ export function setActiveWallet(which) {
 
 /** The user's main and agent wallets, and which one the site is showing / acting with. */
 export function useVibeWallets() {
-  const { user } = usePrivy();
+  const { user, authenticated } = usePrivy();
   const choice = useSyncExternalStore(subscribe, read, () => 'main');
+  const demoFlag = useDemoFlag();
+  const setActive = useCallback((which) => setActiveWallet(which), []);
+
+  // Read-only demo: the whole site shows the fixed demo address. A connected wallet always wins.
+  if (demoFlag && !authenticated) {
+    return {
+      mainAddress: DEMO_ADDRESS,
+      agentAddress: null,
+      hasAgentWallet: false,
+      active: 'main',
+      activeAddress: DEMO_ADDRESS,
+      isDemo: true,
+      setActive,
+    };
+  }
 
   const wallets = (user?.linkedAccounts || []).filter((a) => a.type === 'wallet' && a.chainType !== 'solana');
   const embedded = wallets.find((a) => EMBEDDED_TYPES.includes(a.walletClientType));
@@ -55,6 +72,7 @@ export function useVibeWallets() {
     hasAgentWallet,
     active,
     activeAddress: active === 'agent' ? agentAddress : mainAddress,
-    setActive: useCallback((which) => setActiveWallet(which), []),
+    isDemo: false,
+    setActive,
   };
 }

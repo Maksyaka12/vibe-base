@@ -1,0 +1,99 @@
+/* Read-only demo mode: banner, "Try demo" call to action, transaction preview, API playground. */
+
+.vibe-demo-banner {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  height: 40px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px;
+  background: var(--amber-bg);
+  border-bottom: 1px solid var(--amber-bd);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  backdrop-filter: blur(8px);
+}
+.vibe-demo-banner-icon { color: var(--amber); flex-shrink: 0; }
+.vibe-demo-banner-text { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vibe-demo-banner-addr { font-family: var(--font-mono); color: var(--amber); text-decoration: underline; text-underline-offset: 2px; }
+.vibe-demo-banner-exit {
+  display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0;
+  padding: 5px 10px; border-radius: var(--r-full);
+  background: transparent; color: var(--text); border: 1px solid var(--amber-bd);
+  font: 600 12px var(--font-sans); cursor: pointer;
+}
+.vibe-demo-banner-exit:hover { background: var(--amber-bg); }
+
+@media (max-width: 420px) {
+  .vibe-demo-banner { padding: 0 10px; gap: 8px; font-size: 12px; }
+  .vibe-demo-banner-long { display: none; }
+  .vibe-demo-banner-exit { padding: 4px 8px; }
+}
+
+/* the app header sits under the banner while the demo is on */
+html.vibe-demo-on .base-app-header { top: 40px !important; }
+
+/* "Try demo": a header pill like Connect wallet (desktop), or hanging over the header's bottom edge (mobile) */
+.vibe-demo-try {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  border-radius: var(--r-full); white-space: nowrap; flex-shrink: 0;
+}
+.btn.vibe-demo-try-desktop { height: 36px; padding: 0 16px; font-size: 14px; }
+.btn.vibe-demo-try-mobile {
+  position: absolute; left: 50%; bottom: -14px; transform: translateX(-50%); z-index: 1;
+  height: 28px; padding: 0 12px; font-size: 12px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5); /* it floats above the page, like a menu */
+}
+.btn.vibe-demo-try-mobile:active { transform: translateX(-50%) scale(0.98); }
+
+.vibe-demo-modal-backdrop {
+  position: fixed; inset: 0; z-index: 1000;
+  display: flex; align-items: center; justify-content: center; padding: 16px;
+  background: rgba(0, 0, 0, 0.6);
+}
+.vibe-demo-modal {
+  width: 100%; max-width: 440px; box-sizing: border-box;
+  background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--r-xl);
+  padding: 20px; color: var(--text); font-family: var(--font-sans);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+.vibe-demo-modal-head { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px; }
+.vibe-demo-modal-icon {
+  display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+  width: 32px; height: 32px; border-radius: var(--r-md); background: var(--amber-bg); color: var(--amber);
+}
+.vibe-demo-modal-head > div { flex: 1; }
+.vibe-demo-modal-title { font-weight: 700; font-size: 16px; }
+.vibe-demo-modal-sub { color: var(--text-2); font-size: 13px; margin-top: 2px; }
+.vibe-demo-modal-close { background: transparent; border: 0; color: var(--text-3); cursor: pointer; padding: 4px; }
+.vibe-demo-rows { margin: 0; display: grid; gap: 1px; background: var(--border); border-radius: var(--r-md); overflow: hidden; }
+.vibe-demo-rows > div { display: flex; justify-content: space-between; gap: 12px; padding: 10px 12px; background: var(--surface-2); font-size: 13px; }
+.vibe-demo-rows dt { color: var(--text-3); }
+.vibe-demo-rows dd { margin: 0; text-align: right; word-break: break-word; }
+.vibe-demo-mono { font-family: var(--font-mono); }
+.vibe-demo-link { color: var(--accent); display: inline-flex; align-items: center; gap: 4px; font-family: var(--font-mono); }
+.vibe-demo-note { color: var(--text-2); font-size: 12px; margin: 12px 0 0; line-height: 1.5; }
+.vibe-demo-modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+.vibe-demo-modal-actions .btn { display: inline-flex; align-items: center; gap: 6px; }
+
+/* Agent Zone: Try the API */
+.vibe-api-try { margin-top: 24px; }
+.vibe-api-try-list { display: grid; gap: 10px; margin-top: 12px; }
+.vibe-api-try-row { border: 1px solid var(--border); border-radius: var(--r-md); background: var(--surface-2); overflow: hidden; }
+.vibe-api-try-head { display: flex; align-items: center; gap: 10px; padding: 10px 12px; flex-wrap: wrap; }
+.vibe-api-try-method { font: 700 11px var(--font-mono); color: var(--green); background: var(--green-bg); border: 1px solid var(--green-bd); border-radius: var(--r-sm); padding: 2px 6px; }
+.vibe-api-try-path { font: 13px var(--font-mono); color: var(--text); flex: 1 1 200px; min-width: 0; word-break: break-all; }
+.vibe-api-try-desc { color: var(--text-3); font-size: 12px; padding: 0 12px 10px; }
+.vibe-api-try-out {
+  margin: 0; max-height: 320px; overflow: auto; padding: 12px;
+  background: var(--code-bg); border-top: 1px solid var(--border);
+  font: 12px/1.5 var(--font-mono); color: var(--text-2); white-space: pre-wrap; word-break: break-word;
+}
+.vibe-api-try-status { font: 12px var(--font-mono); color: var(--text-3); }
+.vibe-api-try-status.ok { color: var(--green); }
+.vibe-api-try-status.err { color: var(--red); }
+.vibe-api-try-head .btn { display: inline-flex; align-items: center; gap: 6px; }

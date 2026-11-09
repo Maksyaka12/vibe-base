@@ -2,15 +2,23 @@
 // A rejection in the wallet throws right away (no second prompt); only an unsupported wallet_sendCalls
 // falls back to eth_sendTransaction. Returns the tx hash, or null when a smart wallet accepted the call
 // but never reported a hash: callers then confirm the result onchain instead.
-import { appendBuilderSuffix, DATA_SUFFIX } from './builderCode';
+import { appendBuilderSuffix, DATA_SUFFIX } from './builderCode.js';
+import { blockInDemo, guardProvider } from './demo.js';
 
 /** User pressed reject / cancel in the wallet (EIP-1193 code 4001, or the wallet's own wording). */
 export const isWalletRejection = (e) => e?.code === 4001 || e?.cause?.code === 4001 || /reject|denied|cancel/i.test(e?.message || '');
 
-export async function sendWalletTx({ wallets, address, to, data, value = 0n }) {
+export async function sendWalletTx({ wallets, address, to, data, value = 0n, preview }) {
+  // Read-only demo: show what would be sent and stop before any wallet is touched.
+  blockInDemo(preview || {
+    action: 'Send transaction',
+    amount: BigInt(value) > 0n ? `${Number(BigInt(value)) / 1e18} ETH` : '',
+    contract: to,
+    method: typeof data === 'string' ? data.slice(0, 10) : '',
+  });
   const wallet = wallets?.find((w) => w.address?.toLowerCase() === address?.toLowerCase()) || wallets?.[0];
   if (!wallet) throw new Error('Wallet not connected');
-  const provider = await wallet.getEthereumProvider();
+  const provider = guardProvider(await wallet.getEthereumProvider());
   const calldata = appendBuilderSuffix(data);
   const valueHex = '0x' + BigInt(value).toString(16);
 
