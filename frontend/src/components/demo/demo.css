@@ -37,15 +37,18 @@
 /* the app header sits under the banner while the demo is on */
 html.vibe-demo-on .base-app-header { top: 40px !important; }
 
-.vibe-demo-cta {
-  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
-  margin: 0 0 16px; padding: 12px 16px;
-  border: 1px dashed var(--accent-border); border-radius: var(--r-lg);
-  background: var(--accent-soft); color: var(--text-2); font: 14px/1.45 var(--font-sans);
+/* "Try demo": a header pill like Connect wallet (desktop), or hanging over the header's bottom edge (mobile) */
+.vibe-demo-try {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  border-radius: var(--r-full); white-space: nowrap; flex-shrink: 0;
 }
-.vibe-demo-cta strong { color: var(--text); }
-.vibe-demo-cta-text { flex: 1 1 260px; }
-.vibe-demo-cta .btn { display: inline-flex; align-items: center; gap: 6px; }
+.btn.vibe-demo-try-desktop { height: 36px; padding: 0 16px; font-size: 14px; }
+.btn.vibe-demo-try-mobile {
+  position: absolute; left: 50%; bottom: -14px; transform: translateX(-50%); z-index: 1;
+  height: 28px; padding: 0 12px; font-size: 12px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5); /* it floats above the page, like a menu */
+}
+.btn.vibe-demo-try-mobile:active { transform: translateX(-50%) scale(0.98); }
 
 .vibe-demo-modal-backdrop {
   position: fixed; inset: 0; z-index: 1000;

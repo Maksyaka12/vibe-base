@@ -330,6 +330,9 @@ before `based.css`.
     from 500 to 600. Rewards Hub is a regular tab here.
 - **Header:** logo on mobile, then Agent Zone, wallet toggle, theme switcher, streak and NFT pills, and the wallet or
   Connect button. Everything is a pill: 36 px on desktop, 32 px on mobile.
+- **Try demo** (logged out only): a secondary pill beside Connect wallet on desktop. On mobile, where the header has no
+  room, it is a 28 px pill that hangs centred over the header's bottom edge. While the read-only demo is on, it hides
+  and a 40 px amber banner with Exit demo sits above the header (`src/components/demo/`).
 
 ### Campaign card
 

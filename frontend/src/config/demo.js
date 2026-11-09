@@ -2,8 +2,11 @@
 // address, and nothing can be signed or sent. The mode lives in the URL (#demo), so a link can be shared.
 // When a real wallet connects, demo mode turns off (see DemoController) and the site works as usual.
 
-/** The one address the demo shows. Change it here only. */
-export const DEMO_ADDRESS = '0x4c91D3BEd372C11795b9Ce9a9017dFE447Bf050a';
+/**
+ * The one address the demo shows. Change it here only. A regular holder (Vibe Club NFT, 5M+ $VIBE, open claims),
+ * never the admin wallet: tests/demo.test.js checks that.
+ */
+export const DEMO_ADDRESS = '0x8B8D77c89d33879E9ad4Cf72ED4F4f196358F837';
 export const DEMO_HASH = '#demo';
 
 const CHANGE_EVENT = 'vibe_demo_change';

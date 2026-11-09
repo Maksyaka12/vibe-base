@@ -44,6 +44,11 @@ test('the demo address is a valid checksummed-length address', () => {
   assert.match(DEMO_ADDRESS, /^0x[0-9a-fA-F]{40}$/);
 });
 
+test('the demo address is never the admin wallet', async () => {
+  const { isAdmin } = await import('../api/_lib/common.js');
+  assert.equal(isAdmin(DEMO_ADDRESS), false);
+});
+
 test('#demo in the URL turns demo mode on', () => {
   assert.equal(isDemoActive(), true);
 });
@@ -134,7 +139,8 @@ test('outside demo mode a transaction reaches the wallet as before', async () =>
 test('every wallet provider in the app is wrapped by guardProvider', async () => {
   const fs = await import('node:fs');
   const path = await import('node:path');
-  const root = new URL('../src/', import.meta.url).pathname;
+  const { fileURLToPath } = await import('node:url');
+  const root = fileURLToPath(new URL('../src/', import.meta.url)); // .pathname breaks on Windows (C:\C:\...)
   const files = [];
   const walk = (dir) => fs.readdirSync(dir, { withFileTypes: true }).forEach((d) => {
     const p = path.join(dir, d.name);

@@ -7,7 +7,6 @@ import { Button, Card, Tile, Badge, StatusPill, PageHeader, SectionTitle, Alert 
 import { useVibeWallets } from '../../../hooks/useVibeWallets';
 import { useVaultPosition, O1_STAKING_CONTRACT } from '../../../hooks/useVaultPosition';
 import { formatConcise } from '../../../hooks/useVibeBalances';
-import TryDemoButton from '../../../components/demo/TryDemoButton';
 import { useDemoMode } from '../../../hooks/useDemoMode';
 import { showDemoTxPreview } from '../../../config/demo';
 
@@ -246,8 +245,6 @@ export default function BaseAppRewardsView({
         title="Rewards Hub"
         description="Campaign distribution schedules, holder royalties, and staking yields"
       />
-
-      <TryDemoButton />
 
       {/* ── 1. Campaign Switcher 4-Card Grid ── */}
       <div className="o1-campaign-grid">
