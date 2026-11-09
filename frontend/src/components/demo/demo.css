@@ -28,6 +28,12 @@
 }
 .vibe-demo-banner-exit:hover { background: var(--amber-bg); }
 
+@media (max-width: 420px) {
+  .vibe-demo-banner { padding: 0 10px; gap: 8px; font-size: 12px; }
+  .vibe-demo-banner-long { display: none; }
+  .vibe-demo-banner-exit { padding: 4px 8px; }
+}
+
 /* the app header sits under the banner while the demo is on */
 html.vibe-demo-on .base-app-header { top: 40px !important; }
 
@@ -82,7 +88,7 @@ html.vibe-demo-on .base-app-header { top: 40px !important; }
 .vibe-api-try-out {
   margin: 0; max-height: 320px; overflow: auto; padding: 12px;
   background: var(--code-bg); border-top: 1px solid var(--border);
-  font: 12px/1.5 var(--font-mono); color: var(--text-2); white-space: pre;
+  font: 12px/1.5 var(--font-mono); color: var(--text-2); white-space: pre-wrap; word-break: break-word;
 }
 .vibe-api-try-status { font: 12px var(--font-mono); color: var(--text-3); }
 .vibe-api-try-status.ok { color: var(--green); }

@@ -17,7 +17,7 @@ export default function DemoBanner() {
         <a href={basescanAddress(DEMO_ADDRESS)} target="_blank" rel="noopener noreferrer" className="vibe-demo-banner-addr" title={DEMO_ADDRESS}>
           {short(DEMO_ADDRESS)}
         </a>
-        {' '}— read-only demo
+        {' '}— read-only<span className="vibe-demo-banner-long"> demo</span>
       </span>
       <button className="vibe-demo-banner-exit" onClick={exitDemo}>
         <LogOut size={13} /> Exit demo

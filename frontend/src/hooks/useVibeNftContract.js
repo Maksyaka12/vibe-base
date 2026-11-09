@@ -296,7 +296,7 @@ export function useVibeNftContract() {
         amount: `${formatEther(ethPriceWei)} ETH`,
         contract: NFT_CONTRACT_ADDRESS,
         contractLabel: 'Vibe Club NFT',
-        method: 'mintWithETHAndSwap(swapData)',
+        method: 'mintWithETHAndSwap(swapData), or mintWithETH() without a route',
         note: 'The ETH is swapped to $VIBE on the way in; 80% of that $VIBE is burned.',
       });
       return;
