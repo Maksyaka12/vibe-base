@@ -333,6 +333,9 @@ before `based.css`.
 - **Try demo** (logged out only): a secondary pill beside Connect wallet on desktop. On mobile, where the header has no
   room, it is a 28 px pill that hangs centred over the header's bottom edge. While the read-only demo is on, it hides
   and a 40 px amber banner with Exit demo sits above the header (`src/components/demo/`).
+- **Demo tour** (demo only): a welcome card, then steps (`components/demo/tourState.js`) that open a page, ring one
+  block in `--accent` over a dimmed page and show a card with a caret beside it (docked above the bottom bar on
+  phones). Clicks pass through the dim, so the highlighted action can be tried. The banner's Tour button reopens it.
 
 ### Campaign card
 

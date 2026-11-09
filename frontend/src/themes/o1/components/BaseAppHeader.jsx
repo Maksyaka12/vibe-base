@@ -14,9 +14,10 @@ export function BaseAppHeader({ onOpenSidebar, isDesktop = false }) {
   const { wallets } = useWallets();
   const { address: wagmiAddress, isConnected: isWagmiConnected } = useAccount();
 
-  const { activeAddress: vibeActiveAddress } = useVibeWallets();
+  const { activeAddress: vibeActiveAddress, isDemo } = useVibeWallets();
   const activeAddress = vibeActiveAddress || wallets?.[0]?.address || wagmiAddress;
-  const hasWallet = (authenticated && !!activeAddress) || (isWagmiConnected && !!wagmiAddress);
+  // the read-only demo shows the demo holder's pills, as for a connected wallet
+  const hasWallet = (authenticated && !!activeAddress) || (isWagmiConnected && !!wagmiAddress) || (isDemo && !!activeAddress);
 
   const { nftCount, formattedBalance } = useVibeBalances(activeAddress);
   const { streak } = useVibeCheckIn(activeAddress);
@@ -82,7 +83,7 @@ export function BaseAppHeader({ onOpenSidebar, isDesktop = false }) {
       {/* Right side: Three pills or Connect Wallet */}
       <div style={{ display: 'flex', alignItems: 'center', gap: isDesktop ? '8px' : '4px', minWidth: 0 }}>
         <AgentsButton theme="o1" />
-        {hasWallet && <WalletToggle theme="o1" size="sm" />}
+        {hasWallet && !isDemo && <WalletToggle theme="o1" size="sm" />}
         {isDesktop && <ThemeSwitcher />}
         {hasWallet ? (
           <>
