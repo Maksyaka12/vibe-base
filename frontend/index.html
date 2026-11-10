@@ -65,6 +65,12 @@
     <meta name="twitter:image:src" content="https://vibehome.dog/x-banner.png?v=2" />
     <meta name="twitter:image:alt" content="Vibe Hub" />
 
+    <!-- Rewards Hub campaign art is the LCP element: let the browser fetch it before the app bundle runs. -->
+    <link rel="preload" as="image" type="image/webp" href="/rewards-hub/holders.webp" fetchpriority="high" />
+    <link rel="preload" as="image" type="image/webp" href="/rewards-hub/vibe-club.webp" fetchpriority="high" />
+    <link rel="preload" as="image" type="image/webp" href="/rewards-hub/staking.webp" fetchpriority="high" />
+    <link rel="preload" as="image" type="image/webp" href="/rewards-hub/giveaways.webp" fetchpriority="high" />
+    <link rel="ard" type="application/json" href="/.well-known/ard.json" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <style>
