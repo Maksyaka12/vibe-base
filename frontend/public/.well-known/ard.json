@@ -1,0 +1,20 @@
+{
+  "entries": [
+    {
+      "identifier": "urn:air:vibehome.dog:skills:vibe-hub",
+      "displayName": "Vibe Hub agent skill",
+      "description": "Skill for Claude Code, Cursor, Codex and OpenClaw to use Vibe Hub ($VIBE on Base) for the user: check in, claim holder rewards, Vibe Club royalties and achievements, stake, swap, transfer and mint from the user's Vibe Agent Wallet within limits the user sets. API reference: https://vibehome.dog/skills/API.md. Agent entry point: https://vibehome.dog/AGENTS.md.",
+      "type": "text/markdown; profile=\"urn:air:agent-skills\"",
+      "url": "https://vibehome.dog/skills/vibe-hub/SKILL.md",
+      "representativeQueries": ["Vibe Hub skill for Claude Code", "claim my $VIBE rewards with an AI agent", "do my daily Vibe Hub check-in", "stake $VIBE on Base with an agent"]
+    },
+    {
+      "identifier": "urn:air:vibehome.dog:skills:bankr",
+      "displayName": "Vibe Hub skill for Bankr",
+      "description": "Skill for Bankr to use Vibe Hub ($VIBE on Base) from the user's Bankr wallet: check in, claim rewards and royalties, claim achievements, stake, swap and mint with public ready transactions.",
+      "type": "text/markdown; profile=\"urn:air:agent-skills\"",
+      "url": "https://vibehome.dog/skills/bankr/SKILL.md",
+      "representativeQueries": ["Vibe Hub Bankr skill", "claim Vibe Club royalties with Bankr", "check in to Vibe Hub with Bankr"]
+    }
+  ]
+}
