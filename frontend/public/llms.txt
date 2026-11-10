@@ -1,0 +1,29 @@
+# Vibe Hub
+
+> Vibe Hub (https://vibehome.dog) is an onchain app for the $VIBE ecosystem on Base (chain ID 8453): holder rewards, Vibe Club NFT royalties, staking, swaps, the Vibe Club NFT, daily check-ins, soulbound achievements and a Vibe Agent Wallet that AI agents operate for the user. Every action is a Base transaction; the rules live in verified smart contracts.
+
+Agents: read-only data comes from public GET endpoints that return JSON and ready-to-send transactions. Acting for a user goes through their Vibe Agent Wallet with an agent key they create at https://vibehome.dog/agents, within permissions and daily limits they set. Never ask a user for a private key or seed phrase.
+
+## Agent docs
+
+- [AGENTS.md](https://vibehome.dog/AGENTS.md): Entry point for agents: what Vibe Hub is, endpoints, contracts and rules.
+- [API reference](https://vibehome.dog/skills/API.md): Every public endpoint and its response fields.
+- [Vibe Hub agent skill](https://vibehome.dog/skills/vibe-hub/SKILL.md): Skill for Claude Code, Cursor, Codex and OpenClaw, acting from the user's Vibe Agent Wallet.
+- [Bankr skill](https://vibehome.dog/skills/bankr/SKILL.md): Skill for Bankr, acting from the user's Bankr wallet with public ready transactions.
+
+## User docs
+
+- [Docs](https://vibehome.dog/docs): Full user guide.
+- [How rewards work](https://vibehome.dog/docs/how-rewards-work): Snapshots, Merkle rounds, claim windows, burn of unclaimed rewards.
+- [Agent API guide](https://vibehome.dog/docs/agent-api): Setting up an agent and what it can do.
+- [$VIBE token](https://vibehome.dog/docs/vibe-token): Token, supply and contracts.
+- [Official addresses](https://vibehome.dog/contracts): Every verified contract address.
+
+## Try it
+
+- [Read-only demo](https://vibehome.dog/hub#demo): The whole app as a real holder with live onchain data, no wallet needed; transactions are previewed, never sent.
+
+## Optional
+
+- [Source code](https://github.com/Maksyaka12/vibe-base): React + Vite app, serverless agent API, Foundry contracts with tests.
+- [X](https://x.com/vibeB20): Announcements.
